@@ -11,9 +11,12 @@ void Moves::applyGravity(float dt)
 {
 	if (this->ghostMode)
 		return;
-	const float g = 800.0f;
 
-	this->velY += g * dt;
+	this->velY += gravity * dt;
+}
+
+void Moves::invertGravity() {
+	this->gravity = -this->gravity;
 }
 
 void Moves::Up()
