@@ -242,8 +242,8 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Food.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Geometry.cpp" />
@@ -268,8 +268,8 @@
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Enemy.h" />
     <ClInclude Include="Engine.h" />
+    <ClInclude Include="Entity.h" />
     <ClInclude Include="Food.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Geometry.h" />

@@ -1,23 +1,24 @@
 #ifndef _PACMAN_GHOST_H_
 #define _PACMAN_GHOST_H_
 
-#include "Enemy.h"
+#include "Entity.h"
 #include "Player.h"
 
-class Ghost : public Enemy
+class Ghost : public Entity
 {
 private:
-    Player* player = nullptr; // Para saber onde o jogador está
+    Player* player = nullptr;
+	Sprite* sprite = nullptr;
 
 public:
     Ghost(Player* p);
     ~Ghost();
 
-    // Implementa a IA obrigatória da classe Enemy
-    void IA() override;
+    void Control() override;
 
-    // Sobrescrevemos a colisão para lidar com as paredes
-    void OnCollision(Object* obj) override;
+	void Draw() override;
+
+
 };
 
 #endif
