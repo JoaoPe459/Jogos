@@ -24,7 +24,7 @@ void Moves::Up()
 {
     // O pulo deve ser sempre oposto à direção atual da gravidade.
     // Physics::Direction é 1.0f para baixo e -1.0f para cima.
-    float jumpForce = this->getSpeed() * 3.0f;
+    /*float jumpForce = this->getSpeed() * 3.0f;
 
     if (Physics::Direction > 0) {
         // Gravidade normal: pula para cima (Y negativo)
@@ -33,7 +33,8 @@ void Moves::Up()
     else {
         // Gravidade invertida: pula para baixo (Y positivo)
         this->velY = jumpForce;
-    }
+    }*/
+	this->velY = -this->getSpeed();
 }
 
 void Moves::Down()

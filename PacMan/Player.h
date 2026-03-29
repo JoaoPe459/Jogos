@@ -1,38 +1,30 @@
-#ifndef _PACMAN_PLAYER_H_
-#define _PACMAN_PLAYER_H_
+#ifndef _PLAYER_H_
+#define _PLAYER_H_
 
-#include "Entity.h" // Herda de Entity agora
+#include "Entity.h"
 
-enum PLAYERSTATE { STOPED, UP, DOWN, LEFT, RIGHT };
-
-class Player : public Entity
-{
+class Player : public Entity {
 private:
-    // Mantemos os sprites pois são específicos do visual do PacMan
-    Sprite* spriteL = nullptr;
-    Sprite* spriteR = nullptr;
-    Sprite* spriteU = nullptr;
-    Sprite* spriteD = nullptr;
+    Sprite* sprite = nullptr;
+
+    // Atributos inspirados no ConSumo (Bully)
+    float health = 100.0f;
+    float maxHealth = 100.0f;
+    float calories = 0.0f;
+    float stamina = 100.0f;
+    int   sizeLevel = 1; // Atua como a "massa" nas colisões
 
 public:
-    uint currState = STOPED;
-    uint nextState = STOPED;
-
     Player();
     ~Player();
 
-    // Implementação obrigatória da lógica de controle (teclado)
     void Control() override;
-
-    // O Update() agora é herdado da Entity
-    // se necessario sobrescrever para adicionar algo muito específico.
-
     void Draw() override;
     void OnCollision(Object* obj) override;
 
-    // Métodos de utilidade continuam aqui
-    void incrementSpeed();
-    void decressSpeed();
+    // Métodos de gameplay
+    void Eat(float amount);
+    int  GetSize() { return sizeLevel; }
 };
 
 #endif

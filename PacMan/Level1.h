@@ -29,7 +29,7 @@ private:
     Scene * scene = nullptr;        // gerenciador de cena
     bool viewBBox = false;          // habilita visualização da bounding box
 
-    const int MAX_ENTITIES = 100;
+    const int MAX_ENTITIES = 15;
     std::vector<Entity*> entities;
 
 public:

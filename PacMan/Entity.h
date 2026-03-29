@@ -26,6 +26,13 @@ public:
     // Métodos utilitários de física
     void ApplyPhysics();
     void HandleScreenWrap();
+
+    void ApplyImpulse(float vx, float vy) {
+        if (moves) {
+            moves->setVelX(vx);
+            moves->setVelY(vy);
+        }
+    }
 };
 
 #endif

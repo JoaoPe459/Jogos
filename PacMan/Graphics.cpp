@@ -34,7 +34,7 @@ Graphics::Graphics()
     bgColor[2]          = 0.0f;                       // Blue
     bgColor[3]          = 0.0f;                       // Alpha (0 = transparente)
 
-    vSync               = false;                      // vertical sync desligado
+    vSync               = true;                      // vertical sync desligado
 }
 
 // ------------------------------------------------------------------------------

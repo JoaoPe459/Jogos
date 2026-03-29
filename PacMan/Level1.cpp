@@ -29,7 +29,7 @@ using std::string;
 
 void Level1::Init()
 {
-    Physics::Setup(800.0f);
+    Physics::Setup(0.0f);
 
     entities.clear();
     // 1. Inicializa o gerenciador de cena e fundo
@@ -108,14 +108,14 @@ void Level1::Update()
         // Pega a referência do player para a IA do fantasma
         Player* p = (Player*)entities[0];
 
-        Ghost* newGhost = new Ghost(p);
+            Ghost* newGhost = new Ghost(p);
 
         // Define uma posição de nascimento aleatória ou fixa
-        newGhost->MoveTo(100.0f, 100.0f);
+            newGhost->MoveTo(100.0f, 100.0f);
 
-        entities.push_back(newGhost);
-        scene->Add(newGhost, MOVING);
-    }
+            entities.push_back(newGhost);
+            scene->Add(newGhost, MOVING);
+        }
 
     // habilita/desabilita bounding box
     if (window->KeyPress('B'))

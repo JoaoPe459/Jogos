@@ -18,6 +18,10 @@ void Entity::Update() {
 
 void Entity::ApplyPhysics() {
     moves->applyGravity(gameTime);
+    float friction = 0.92f;
+    moves->setVelX(moves->getVelX() * friction);
+    moves->setVelY(moves->getVelY() * friction);
+
     Translate(moves->getVelX() * gameTime, moves->getVelY() * gameTime);
 }
 
@@ -55,20 +59,26 @@ void Entity::OnCollision(Object* obj) {
 }
 
 void Entity::HandleScreenWrap() {
-    // Teletransporte lateral
-    if (X() + 20.0f < 0) MoveTo(window->Width() + 20.0f, Y());
-    if (X() - 20.0f > window->Width()) MoveTo(-20.0f, Y());
+    float offset = 20.0f; // Margem para evitar que o objeto "pisque" na borda
 
-    // Limite Inferior/Superior (Chão/Teto)
-    if (Y() + 20.0f > window->Height()) {
-        MoveTo(X(), window->Height() - 20.0f);
-        moves->setVelY(0.0f);
-        if (Physics::Direction > 0) moves->setOnGround(true);
+    // --- Teletransporte Horizontal (Esquerda <-> Direita) ---
+    // Se saiu pela esquerda, vai para a direita
+    if (X() + offset < 0) {
+        MoveTo(window->Width() + offset, Y());
     }
-    if (Y() - 20.0f < 0.0f) {
-        MoveTo(X(), 20.0f);
-        moves->setVelY(0.0f);
-        if (Physics::Direction < 0) moves->setOnGround(true);
+    // Se saiu pela direita, vai para a esquerda
+    else if (X() - offset > window->Width()) {
+        MoveTo(-offset, Y());
+    }
+
+    // --- Teletransporte Vertical (Cima <-> Baixo) ---
+    // Se saiu pelo topo, aparece no fundo
+    if (Y() + offset < 0) {
+        MoveTo(X(), window->Height() + offset);
+    }
+    // Se saiu pelo fundo, aparece no topo
+    else if (Y() - offset > window->Height()) {
+        MoveTo(X(), -offset);
     }
 }
 

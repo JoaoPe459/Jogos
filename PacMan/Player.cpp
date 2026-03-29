@@ -1,88 +1,86 @@
-#include "PacMan.h"
 #include "Player.h"
+#include "Ghost.h"
+#include <cmath>
+#include "PacMan.h"
 
-Player::Player() : Entity() // Chama o construtor da base
-{
-    spriteL = new Sprite("Resources/PacManL.png");
-    spriteR = new Sprite("Resources/PacManR.png");
-    spriteU = new Sprite("Resources/PacManU.png");
-    spriteD = new Sprite("Resources/PacManD.png");
-
-    BBox(new Rect(-20, -20, 20, 20));
-    MoveTo(480.0f, 450.0f);
+Player::Player() : Entity() {
     type = PLAYER;
-
-    moves->setSpeed(200.0f);
-}
-
-Player::~Player()
-{
-    delete spriteL;
-    delete spriteR;
-    delete spriteU;
-    delete spriteD;
-}
-
-void Player::Control()
-{
-    if (window->KeyPress('G')) {
-        moves->invertGravity();
-    }
-
-    if (window->KeyPress('I')) {
-        incrementSpeed();
-    }
-
-    if (window->KeyPress('O')) {
-        decressSpeed();
-    }
-
-    if (window->KeyDown(VK_LEFT)) {
-        nextState = LEFT;
-        moves->Left();
-    }
-
-    if (window->KeyDown(VK_RIGHT)) {
-        nextState = RIGHT;
-        moves->Right();
-    }
-
-    if (window->KeyDown(VK_UP)) {
-        if (moves->getOnGround()) {
-            nextState = UP;
-            moves->Up();
-            moves->setOnGround(false);
-        }
-    }
-
-    if (window->KeyDown(VK_DOWN)) {
-        nextState = DOWN;
-        moves->Down();
-    }
-}
-
-void Player::Draw()
-{
-    Sprite* current = spriteL;
-    uint state = (currState == STOPED) ? nextState : currState;
-
-    switch (state) {
-    case LEFT:  spriteL->Draw(x, y, Layer::UPPER); break;
-    case RIGHT: spriteR->Draw(x, y, Layer::UPPER); break;
-    case UP:    spriteU->Draw(x, y, Layer::UPPER); break;
-    case DOWN:  spriteD->Draw(x, y, Layer::UPPER); break;
-    default:    spriteL->Draw(x, y, Layer::UPPER); break;
-    }
-}
-
-void Player::incrementSpeed() {
-    moves->setSpeed(moves->getSpeed() * 2);
-}
-
-void Player::decressSpeed() {
-    moves->setSpeed(moves->getSpeed() / 2);
+    sprite = new Sprite("Resources/PacManR.png");
+    BBox(new Rect(-20, -20, 20, 20));
+    moves->setSpeed(500.0f);
 }
 
 void Player::OnCollision(Object* obj) {
+    // 1. Resolve colisão física (paredes) via Entity
     Entity::OnCollision(obj);
+
+    // 2. Lógica de Impacto contra Ghosts
+    if (obj->Type() == GHOST) {
+        // Calcula o vetor de direção do impacto (do Ghost para o Player)
+        float diffX = this->X() - obj->X();
+        float diffY = this->Y() - obj->Y();
+        float dist = sqrt(diffX * diffX + diffY * diffY);
+
+        if (dist < 1.0f) dist = 1.0f;
+
+        // Normaliza o vetor
+        float dirX = diffX / dist;
+        float dirY = diffY / dist;
+
+        // A força diminui conforme o sizeLevel (massa) do player aumenta
+        float impactForce = 1500.0f;
+        float knockback = impactForce / (float)this->sizeLevel;
+
+        // APLICAÇÃO VIA MOVES:
+        this->moves->setVelX(dirX * knockback);
+        this->moves->setVelY(dirY * knockback);
+
+        // Ghost muda de direção após a batida
+        static_cast<Ghost*>(obj)->RandomizeMovement();
+
+        this->health -= 5.0f;
+    }
+}
+
+void Player::Eat(float amount) {
+    calories += amount;
+    if (calories >= 100.0f) {
+        sizeLevel++;
+        calories = 0.0f;
+        
+    }
+}
+
+void Player::Control() {
+    float baseSpeed = moves->getSpeed() - (sizeLevel * 10.0f);
+
+    // Quanto menor a aceleração, mais tempo dura o efeito do empurrão
+    float acceleration = 0.06f;
+
+    float targetVX = 0;
+    float targetVY = 0;
+
+    if (window->KeyDown(VK_LEFT))  targetVX = -baseSpeed;
+    if (window->KeyDown(VK_RIGHT)) targetVX = baseSpeed;
+    if (window->KeyDown(VK_UP))    targetVY = -baseSpeed;
+    if (window->KeyDown(VK_DOWN))  targetVY = baseSpeed;
+
+    // INTERPOLAÇÕES NOS MOVIMENTOS:
+    // O player tenta alcançar a targetVelocity
+    float currentVX = moves->getVelX();
+    float currentVY = moves->getVelY();
+
+    moves->setVelX(currentVX + (targetVX - currentVX) * acceleration);
+    moves->setVelY(currentVY + (targetVY - currentVY) * acceleration);
+}
+
+void Player::Draw() {
+    sprite->Draw(X(), Y());
+}
+
+
+Player::~Player() {
+    if (sprite) {
+        delete sprite;
+    }
 }
