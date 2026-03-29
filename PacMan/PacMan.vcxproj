@@ -242,6 +242,7 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Food.cpp" />
     <ClCompile Include="Game.cpp" />
@@ -255,6 +256,7 @@
     <ClCompile Include="Moves.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="PacMan.cpp" />
+    <ClCompile Include="Physics.cpp" />
     <ClCompile Include="Pivot.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Renderer.cpp" />
@@ -266,6 +268,7 @@
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Enemy.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="Food.h" />
     <ClInclude Include="Game.h" />
@@ -279,6 +282,7 @@
     <ClInclude Include="Moves.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="PacMan.h" />
+    <ClInclude Include="Physics.h" />
     <ClInclude Include="Pivot.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Renderer.h" />

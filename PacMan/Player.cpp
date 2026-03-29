@@ -27,7 +27,7 @@ Player::Player()
     MoveTo(480.0f, 450.0f);
     type = PLAYER;
 
-    moves = new Moves(0, 0, 200, false, 800);
+    moves = new Moves(0, 0, 200, false);
 
 }
 

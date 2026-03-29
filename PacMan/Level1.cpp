@@ -18,6 +18,9 @@
 #include "Pivot.h"
 #include <string>
 #include <fstream>
+#include "Physics.h"
+#include "Ghost.h"
+
 using std::ifstream;
 using std::string;
 
@@ -25,6 +28,9 @@ using std::string;
 
 void Level1::Init()
 {
+
+    Physics::Setup(800.0f);
+
     // cria gerenciador de cena
     scene = new Scene();
 
@@ -34,6 +40,16 @@ void Level1::Init()
     // cria jogador
     Player * player = new Player();
     scene->Add(player, MOVING);
+
+    // cria enimigo
+    Ghost* redGhost = new Ghost(player);
+    scene->Add(redGhost, MOVING);
+
+    Wall* w1 = new Wall(200.0f, 650.0f, 300.0f, 40.0f, "Resources/PacManL.png");
+    scene->Add(w1, STATIC);
+
+    Wall* w2 = new Wall(600.0f, 500.0f, 300.0f, 40.0f, "Resources/PacManL.png");
+    scene->Add(w2, STATIC);
 
     // cria pontos de mudança de direção
     Pivot * pivot;
@@ -63,11 +79,7 @@ void Level1::Init()
     }
     fin.close();
 
-    Wall* w1 = new Wall(500.0f, 600.0f, 300.0f, 40.0f, "Resources/PacManL.png");
-    scene->Add(w1, STATIC);
-
-    Wall* w2 = new Wall(600.0f, 500.0f, 300.0f, 40.0f, "Resources/PacManL.png");
-    scene->Add(w2, STATIC);
+    
 }
 
 // ------------------------------------------------------------------------------

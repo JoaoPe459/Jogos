@@ -21,7 +21,8 @@ enum PacManObjects
     FOOD,
     SPECIAL,
     WALL,
-    PIVOT
+    PIVOT,
+    ENEMY
 };
 
 // ------------------------------------------------------------------------------

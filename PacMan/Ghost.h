@@ -1,49 +1,23 @@
-/**********************************************************************************
-// Ghost (Arquivo de Cabeçalho)
-// 
-// Criação:     01 Jan 2013
-// Atualização: 04 Mar 2023
-// Compilador:  Visual C++ 2022
-//
-// Descrição:   Fantasmas do PacMan
-//
-**********************************************************************************/
-
 #ifndef _PACMAN_GHOST_H_
 #define _PACMAN_GHOST_H_
 
-// ---------------------------------------------------------------------------------
-// Inclusões
+#include "Enemy.h"
+#include "Player.h"
 
-#include "Types.h"                      // tipos específicos da engine
-#include "Object.h"                     // interface de Object
-#include "Sprite.h"                     // interface de Sprites
-#include "Player.h"                     // jogador do PacMan
-
-// ---------------------------------------------------------------------------------
-
-class Ghost : public Object
+class Ghost : public Enemy
 {
 private:
-    Sprite * sprite = nullptr;          // sprite do player
-    Player * player = nullptr;          // ponteiro para jogador
+    Player* player = nullptr; // Para saber onde o jogador está
 
 public:
-    float velX = 0;                     // velocidade horizontal
-    float velY = 0;                     // velocidade vertical
+    Ghost(Player* p);
+    ~Ghost();
 
-    Ghost(Player * p);                  // construtor
-    ~Ghost();                           // destrutor
+    // Implementa a IA obrigatória da classe Enemy
+    void IA() override;
 
-    void Update();                      // atualização do objeto
-    void Draw();                        // desenho do objeto
+    // Sobrescrevemos a colisão para lidar com as paredes
+    void OnCollision(Object* obj) override;
 };
-
-// ---------------------------------------------------------------------------------
-
-inline void Ghost::Draw()
-{ sprite->Draw(x, y, z); }
-
-// ---------------------------------------------------------------------------------
 
 #endif

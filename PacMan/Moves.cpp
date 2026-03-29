@@ -1,102 +1,115 @@
 #include "Moves.h"
+#include "Physics.h" // Incluindo a classe global de física
 #include <cmath>
 
 void Moves::Stop()
 {
-	this->velX = 0;
-	this->velY = 0;
+    this->velX = 0;
+    this->velY = 0;
 }
 
 void Moves::applyGravity(float dt)
 {
-	if (this->ghostMode)
-		return;
+    if (this->ghostMode)
+        return;
 
-	this->velY += gravity * dt;
+    this->velY += Physics::GetGravity() * dt;
 }
 
 void Moves::invertGravity() {
-	this->gravity = -this->gravity;
+    Physics::Invert();
 }
 
 void Moves::Up()
 {
-	this->velY = -this->getSpeed()*3;
+    // O pulo deve ser sempre oposto à direção atual da gravidade.
+    // Physics::Direction é 1.0f para baixo e -1.0f para cima.
+    float jumpForce = this->getSpeed() * 3.0f;
+
+    if (Physics::Direction > 0) {
+        // Gravidade normal: pula para cima (Y negativo)
+        this->velY = -jumpForce;
+    }
+    else {
+        // Gravidade invertida: pula para baixo (Y positivo)
+        this->velY = jumpForce;
+    }
 }
 
 void Moves::Down()
 {
-	this->velY =  this->getSpeed();
+    // Move na direção da gravidade normal
+    this->velY = this->getSpeed();
 }
 
 void Moves::Left()
 {
-	this->velX = -this->getSpeed();
+    this->velX = -this->getSpeed();
 }
 
 void Moves::Right()
 {
-	velX = this->getSpeed();
+    this->velX = this->getSpeed();
 }
 
 float Moves::getVelX()
 {
-	return this->velX;
+    return this->velX;
 }
 
 float Moves::getVelY()
 {
-	return this->velY;
+    return this->velY;
 }
 
 float Moves::getSpeed()
 {
-	return this->speed;
+    return this->speed;
 }
 
 bool Moves::getGhostMode()
 {
-	return this->ghostMode;
+    return this->ghostMode;
 }
 
 bool Moves::getOnGround()
 {
-	return this->onGround;
+    return this->onGround;
 }
 
 void Moves::setOnGround(bool g)
 {
-	this->onGround = g;
-	if (g) {
-		this->velY = 0.0f;
-	}
+    this->onGround = g;
+    if (g) {
+        this->velY = 0.0f;
+    }
 }
 
 void Moves::setSpeed(float s)
 {
-	if (s <= 0.0f) {
-		return;
-	}
+    if (s <= 0.0f) {
+        return;
+    }
 
-	if (this->speed == 0.0f) {
-		this->speed = s;
-		return;
-	}
+    if (this->speed == 0.0f) {
+        this->speed = s;
+        return;
+    }
 
-	float vx = this->velX;
-	float vy = this->velY;
+    float vx = this->velX;
+    float vy = this->velY;
 
-	float mag = sqrtf(vx * vx + vy * vy);
+    float mag = sqrtf(vx * vx + vy * vy);
 
-	if (mag == 0.0f) {
-		this->speed = s;
-		return;
-	}
+    if (mag == 0.0f) {
+        this->speed = s;
+        return;
+    }
 
-	float nx = vx / mag;
-	float ny = vy / mag;
+    float nx = vx / mag;
+    float ny = vy / mag;
 
-	this->speed = s;
-	this->velX = nx * this->speed;
-	this->velY = ny * this->speed;
+    this->speed = s;
+    this->velX = nx * this->speed;
+    this->velY = ny * this->speed;
 }

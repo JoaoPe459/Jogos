@@ -8,18 +8,16 @@ private:
     float speed = 0.0f;
     bool ghostMode = false;
     bool onGround = false;
-    float gravity = 0;
 
 
 public:
 
-    Moves(float x, float y, float s, bool b, float g) 
+    Moves(float x, float y, float s, bool b) 
     {
         velX = x;
 		velY = y;
 		speed = s;
 		ghostMode = b;
-        gravity = g;
 
     };
 
@@ -34,7 +32,6 @@ public:
     void setVelY(float y) { this->velY = y; };
     void setSpeed(float s);
     void setGhostMode(bool g) { this->ghostMode = g; };
-    void setGravity(float g) { this->gravity= g; };
 
     float getVelX();
     float getVelY();
