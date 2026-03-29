@@ -18,6 +18,7 @@
 #include "Game.h"
 #include "Sprite.h"
 #include "Scene.h"
+#include "Entity.h"
 
 // ------------------------------------------------------------------------------
 
@@ -27,6 +28,9 @@ private:
     Sprite * backg = nullptr;       // background
     Scene * scene = nullptr;        // gerenciador de cena
     bool viewBBox = false;          // habilita visualização da bounding box
+
+    const int MAX_ENTITIES = 100;
+    std::vector<Entity*> entities;
 
 public:
     void Init();                    // inicializa jogo

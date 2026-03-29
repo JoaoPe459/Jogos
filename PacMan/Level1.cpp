@@ -21,6 +21,7 @@
 #include "Physics.h"
 #include "Ghost.h"
 
+
 using std::ifstream;
 using std::string;
 
@@ -28,64 +29,58 @@ using std::string;
 
 void Level1::Init()
 {
-
     Physics::Setup(800.0f);
 
-    // cria gerenciador de cena
+    entities.clear();
+    // 1. Inicializa o gerenciador de cena e fundo
     scene = new Scene();
-
-    // cria background
     backg = new Sprite("Resources/Level1.jpg");
 
-    // cria jogador
-    Player * player = new Player();
-    scene->Add(player, MOVING);
+    // 2. CRIAÇÃO DO PLAYER
+    // É vital que o Player seja o PRIMEIRO no vetor (índice 0)
+    Player* player = new Player();
+    entities.push_back(player); // Adiciona ao seu vetor de controle
+    scene->Add(player, MOVING); // Adiciona à engine
 
-    // cria enimigo
-    Ghost* redGhost = new Ghost(player);
-    scene->Add(redGhost, MOVING);
+    // 3. CRIAÇÃO DOS FANTASMAS INICIAIS
+    // Vamos começar com 2 fantasmas (o Spawner no Update completará até o MAX_ENTITIES)
+    for (int i = 0; i < 2; i++) {
+        Ghost* redGhost = new Ghost(player);
+        // Define posições diferentes para não nascerem um em cima do outro
+        redGhost->MoveTo(100.0f + (i * 50.0f), 100.0f);
 
-    Wall* w1 = new Wall(200.0f, 650.0f, 300.0f, 40.0f, "Resources/PacManL.png");
+        entities.push_back(redGhost);
+        scene->Add(redGhost, MOVING);
+    }
+
+    // 4. Paredes e Cenário
+    /*Wall* w1 = new Wall(200.0f, 650.0f, 300.0f, 40.0f, "Resources/PacManL.png");
     scene->Add(w1, STATIC);
 
     Wall* w2 = new Wall(600.0f, 500.0f, 300.0f, 40.0f, "Resources/PacManL.png");
-    scene->Add(w2, STATIC);
+    scene->Add(w2, STATIC);*/
 
-    // cria pontos de mudança de direção
-    Pivot * pivot;
-    bool left, right, up, down;
-    float posX, posY;
-
-    // cria pivôs a partir do arquivo
+    // 5. Carregamento de Pivôs (Mantido)
     ifstream fin;
     fin.open("PivotsL1.txt");
-    fin >> left;
-    while (!fin.eof())
-    {
-        if (fin.good())
-        {
-            fin >> right; fin >> up; fin >> down; fin >> posX; fin >> posY;
-            pivot = new Pivot(left, right, up, down);
+    if (fin.is_open()) {
+        bool left, right, up, down;
+        float posX, posY;
+        while (fin >> left >> right >> up >> down >> posX >> posY) {
+            Pivot* pivot = new Pivot(left, right, up, down);
             pivot->MoveTo(posX, posY);
             scene->Add(pivot, STATIC);
         }
-        else
-        {
-            fin.clear();
-            char temp[80];
-            fin.getline(temp, 80);
-        }
-        fin >> left;
+        fin.close();
     }
-    fin.close();
-
-    
 }
 
 // ------------------------------------------------------------------------------
 
 void Level1::Finalize()
 {
+    entities.clear();
+
     delete backg;
     delete scene;
 }
@@ -94,6 +89,34 @@ void Level1::Finalize()
 
 void Level1::Update()
 {
+
+    scene->Update();
+    scene->CollisionDetection();
+
+    for (auto it = entities.begin(); it != entities.end(); ) {
+        if (!(*it)->alive) {
+            scene->Remove((*it), MOVING); // Remove da lógica de render/colisão da Scene
+            delete (*it);                 // Libera memória
+            it = entities.erase(it);      // Remove do seu vetor de controle
+        }
+        else {
+            it++;
+        }
+    }
+
+    if (entities.size() < MAX_ENTITIES) {
+        // Pega a referência do player para a IA do fantasma
+        Player* p = (Player*)entities[0];
+
+        Ghost* newGhost = new Ghost(p);
+
+        // Define uma posição de nascimento aleatória ou fixa
+        newGhost->MoveTo(100.0f, 100.0f);
+
+        entities.push_back(newGhost);
+        scene->Add(newGhost, MOVING);
+    }
+
     // habilita/desabilita bounding box
     if (window->KeyPress('B'))
     {
@@ -109,12 +132,6 @@ void Level1::Update()
     {
         // passa manualmente para o próximo nível
         Engine::Next<Level2>();
-    }
-    else
-    {
-        // atualiza cena
-        scene->Update();
-        scene->CollisionDetection();
     }
 }
 
