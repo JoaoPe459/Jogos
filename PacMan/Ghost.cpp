@@ -34,7 +34,14 @@ void Ghost::OnCollision(Object* obj) {
     // 1. Mantém a colisão base (com paredes, etc.)
     Entity::OnCollision(obj);
 
-    // 2. Lógica ao tocar em outro Ghost
+    // 2. Se tocar em uma parede
+
+    if (obj->Type() == WALL)
+    {
+        this->RandomizeMovement();
+    }
+
+    // 3. Lógica ao tocar em outro Ghost
     if (obj->Type() == GHOST) {
         // Converte o objeto genérico para um ponteiro de Ghost
         Ghost* other = (Ghost*)obj;
@@ -71,10 +78,6 @@ void Ghost::OnCollision(Object* obj) {
         other->RandomizeMovement();
     }
 
-    // 3. Lógica de morte ao tocar no Player
-    /*if (obj->Type() == PLAYER) {
-        this->alive = false;
-    }*/
 }
 
 void Ghost::Control() {
