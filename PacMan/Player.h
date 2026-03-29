@@ -28,6 +28,7 @@ public:
     // se necessario sobrescrever para adicionar algo muito específico.
 
     void Draw() override;
+    void OnCollision(Object* obj) override;
 
     // Métodos de utilidade continuam aqui
     void incrementSpeed();

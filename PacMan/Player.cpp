@@ -82,3 +82,11 @@ void Player::incrementSpeed() {
 void Player::decressSpeed() {
     moves->setSpeed(moves->getSpeed() / 2);
 }
+
+void Player::OnCollision(Object* obj) {
+    Entity::OnCollision(obj);
+
+    if (obj->Type() == GHOST) {
+        this->MoveTo(480.0f, 450.0f);
+    }
+}

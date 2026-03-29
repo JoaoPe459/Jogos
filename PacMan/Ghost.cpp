@@ -24,6 +24,20 @@ void Ghost::Draw()
     sprite->Draw(X(), Y());
 }
 
+void Ghost::OnCollision(Object* obj) {
+    Entity::OnCollision(obj);
+
+	// Se o fantasma colidir com o jogador, reseta a posição do fantasma
+    if (obj->Type() == PLAYER) {
+        this->MoveTo(200.0f, 450.0f);
+    }
+
+    // Se quiser que fantasmas não ocupem o mesmo espaço:
+    if (obj->Type() == GHOST) {
+        // Lógica para afastar um do outro
+    }
+}
+
 void Ghost::Control()
 {
     // IA de perseguição: define a intenção de movimento no objeto moves

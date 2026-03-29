@@ -18,6 +18,8 @@ public:
 
 	void Draw() override;
 
+	void OnCollision(Object* obj) override;
+
 
 };
 
