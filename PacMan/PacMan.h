@@ -25,6 +25,8 @@ enum PacManObjects
     ENEMY
 };
 
+enum MovementType { HORIZONTAL, VERTICAL, DIAGONAL };
+
 // ------------------------------------------------------------------------------
 
 #endif

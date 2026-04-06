@@ -11,44 +11,17 @@ Player::Player() : Entity() {
 }
 
 void Player::OnCollision(Object* obj) {
-    // 1. Resolve colisão física (paredes) via Entity
     Entity::OnCollision(obj);
 
-    // 2. Lógica de Impacto contra Ghosts
-    if (obj->Type() == GHOST) {
-        // Calcula o vetor de direção do impacto (do Ghost para o Player)
-        float diffX = this->X() - obj->X();
-        float diffY = this->Y() - obj->Y();
-        float dist = sqrt(diffX * diffX + diffY * diffY);
-
-        if (dist < 1.0f) dist = 1.0f;
-
-        // Normaliza o vetor
-        float dirX = diffX / dist;
-        float dirY = diffY / dist;
-
-        // A força diminui conforme o sizeLevel (massa) do player aumenta
-        float impactForce = 1500.0f;
-        float knockback = impactForce / (float)this->sizeLevel;
-
-        // APLICAÇÃO VIA MOVES:
-        this->moves->setVelX(dirX * knockback);
-        this->moves->setVelY(dirY * knockback);
-
-        // Ghost muda de direção após a batida
-        static_cast<Ghost*>(obj)->RandomizeMovement();
-
-        this->health -= 5.0f;
+    // 2. Lógica específica do Player (Comida)
+    if (obj->Type() == FOOD) {
+        moves->setSpeed(moves->getSpeed() + 100.0f);
+       
     }
 }
 
 void Player::Eat(float amount) {
-    calories += amount;
-    if (calories >= 100.0f) {
-        sizeLevel++;
-        calories = 0.0f;
-        
-    }
+    setMass(1.0f + (sizeLevel * 0.5f));
 }
 
 void Player::Control() {
