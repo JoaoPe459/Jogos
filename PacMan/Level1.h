@@ -27,10 +27,13 @@ class Level1 : public Game
 private:
     Sprite * backg = nullptr;       // background
     Scene * scene = nullptr;        // gerenciador de cena
+    Sprite * foodSprite = nullptr;  // Sprite da comida
     bool viewBBox = false;          // habilita visualização da bounding box
 
-    const int MAX_ENTITIES = 15;
-    std::vector<Entity*> entities;
+    const int MAX_FOOD = 15;
+    const int MAX_GHOSTS = 15;
+    std::vector<Entity*> playerAndGhost;
+    std::vector<Entity*> foods;
 
 public:
     void Init();                    // inicializa jogo

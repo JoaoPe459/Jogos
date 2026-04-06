@@ -20,6 +20,7 @@
 #include <fstream>
 #include "Physics.h"
 #include "Ghost.h"
+#include "Food.h"
 
 
 using std::ifstream;
@@ -31,7 +32,7 @@ void Level1::Init()
 {
     Physics::Setup(0.0f);
 
-    entities.clear();
+    playerAndGhost.clear();
     // 1. Inicializa o gerenciador de cena e fundo
     scene = new Scene();
     backg = new Sprite("Resources/Level1.jpg");
@@ -39,17 +40,17 @@ void Level1::Init()
     // 2. CRIAÇÃO DO PLAYER
     // É vital que o Player seja o PRIMEIRO no vetor (índice 0)
     Player* player = new Player();
-    entities.push_back(player); // Adiciona ao seu vetor de controle
+    playerAndGhost.push_back(player); // Adiciona ao seu vetor de controle
     scene->Add(player, MOVING); // Adiciona à engine
 
     // 3. CRIAÇÃO DOS FANTASMAS INICIAIS
     // Vamos começar com 2 fantasmas (o Spawner no Update completará até o MAX_ENTITIES)
-    for (int i = 0; i < 2; i++) {
-        Ghost* redGhost = new Ghost(player);
+    for (int i = 1; i < MAX_GHOSTS; i++) {
+        Ghost* redGhost = new Ghost();
         // Define posições diferentes para não nascerem um em cima do outro
         redGhost->MoveTo(100.0f + (i * 50.0f), 100.0f);
 
-        entities.push_back(redGhost);
+        playerAndGhost.push_back(redGhost);
         scene->Add(redGhost, MOVING);
     }
 
@@ -60,18 +61,14 @@ void Level1::Init()
     Wall* w2 = new Wall(600.0f, 500.0f, 300.0f, 40.0f, "Resources/PacManL.png");
     scene->Add(w2, STATIC);*/
 
-    // 5. Carregamento de Pivôs (Mantido)
-    ifstream fin;
-    fin.open("PivotsL1.txt");
-    if (fin.is_open()) {
-        bool left, right, up, down;
-        float posX, posY;
-        while (fin >> left >> right >> up >> down >> posX >> posY) {
-            Pivot* pivot = new Pivot(left, right, up, down);
-            pivot->MoveTo(posX, posY);
-            scene->Add(pivot, STATIC);
-        }
-        fin.close();
+   
+
+    for (int i = 0; i < MAX_FOOD; i++) {
+        Food* food = new Food();
+        food->MoveTo(100.0f + (i * 50.0f), 100.0f);
+
+        foods.push_back(food);
+        scene->Add(food, MOVING);
     }
 }
 
@@ -79,7 +76,9 @@ void Level1::Init()
 
 void Level1::Finalize()
 {
-    entities.clear();
+
+    foods.clear();
+    playerAndGhost.clear();
 
     delete backg;
     delete scene;
@@ -93,28 +92,37 @@ void Level1::Update()
     scene->Update();
     scene->CollisionDetection();
 
-    for (auto it = entities.begin(); it != entities.end(); ) {
+    for (auto it = playerAndGhost.begin(); it != playerAndGhost.end(); ) {
         if (!(*it)->alive) {
             scene->Remove((*it), MOVING); // Remove da lógica de render/colisão da Scene
             delete (*it);                 // Libera memória
-            it = entities.erase(it);      // Remove do seu vetor de controle
+            it = playerAndGhost.erase(it);      // Remove do seu vetor de controle
         }
         else {
             it++;
         }
     }
 
-    if (entities.size() < MAX_ENTITIES) {
-        // Pega a referência do player para a IA do fantasma
-        Player* p = (Player*)entities[0];
+    for (auto it = foods.begin(); it != foods.end(); ) {
+        if (!(*it)->alive) {
+            scene->Remove((*it), MOVING); // Remove da lógica de render/colisão da Scene
+            delete (*it);                 // Libera memória
+            it = foods.erase(it);      // Remove do seu vetor de controle
+        }
+        else {
+            it++;
+        }
+    }
 
-            Ghost* newGhost = new Ghost(p);
+    if (foods.size() < MAX_FOOD) {
+
+        Food* newFood = new Food();
 
         // Define uma posição de nascimento aleatória ou fixa
-            newGhost->MoveTo(100.0f, 100.0f);
+            newFood->MoveTo(100.0f, 100.0f);
 
-            entities.push_back(newGhost);
-            scene->Add(newGhost, MOVING);
+            foods.push_back(newFood);
+            scene->Add(newFood, MOVING);
         }
 
     // habilita/desabilita bounding box
