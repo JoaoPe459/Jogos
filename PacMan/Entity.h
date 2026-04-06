@@ -8,6 +8,7 @@
 class Entity : public Object {
 protected:
     Moves* moves = nullptr;
+    float mass;
 
 public:
     Entity();
@@ -33,6 +34,8 @@ public:
             moves->setVelY(vy);
         }
     }
+    void setMass(float m) { mass = m; }
+    float getMass() const { return mass; }
 };
 
 #endif

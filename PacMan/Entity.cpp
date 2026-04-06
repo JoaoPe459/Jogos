@@ -1,9 +1,12 @@
 #include "Entity.h"
 #include "Physics.h"
 #include "PacMan.h" // Para acessar gameTime e tipos de objetos
+#include "Ghost.h"
+#include "Player.h"
 
 Entity::Entity() {
     moves = new Moves(0, 0, 150.0f, false);
+	mass = 1.0f;
 }
 
 Entity::~Entity() {
@@ -54,6 +57,31 @@ void Entity::OnCollision(Object* obj) {
                 Translate(0.0f, overlapY);
                 moves->setVelY(0.0f);
             }
+        }
+    }
+
+    if (obj->Type() == PLAYER || obj->Type() == GHOST) {
+        float diffX = this->X() - obj->X();
+        float diffY = this->Y() - obj->Y();
+        float dist = sqrt(diffX * diffX + diffY * diffY);
+
+        if (dist < 1.0f) dist = 1.0f;
+
+        float dirX = diffX / dist;
+        float dirY = diffY / dist;
+
+        // CÁLCULO DINÂMICO
+        float impactForce = 1500.0f;
+
+        // Quanto maior a massa desta entidade, menor o knockback que ela sofre
+        float knockback = impactForce / this->mass;
+
+        // Aplica o impulso baseado na massa
+        this->moves->setVelX(dirX * knockback);
+        this->moves->setVelY(dirY * knockback);
+
+        if (obj->Type() == GHOST) {
+            static_cast<Ghost*>(obj)->RandomizeMovement();
         }
     }
 }
