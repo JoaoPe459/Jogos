@@ -3,28 +3,36 @@
 
 #include "Entity.h"
 #include "Player.h"
+#include "PacMan.h"
 
-enum MovementType { HORIZONTAL, VERTICAL, DIAGONAL };
+
+enum class SpriteType {
+    RED,
+    BLUE,
+    ORANGE,
+    PINK,
+};
 
 class Ghost : public Entity
 {
 private:
-    Player* player = nullptr;
-	Sprite* sprite = nullptr;
+    Sprite* sprite = nullptr;
 
     MovementType moveType;
     int dirX = 1;
     int dirY = 1;
 
 public:
-    Ghost(Player* p);
+    Ghost();
     ~Ghost();
 
     void Control() override;
 
-	void Draw() override;
+    void RandomizeSprite();
 
-	void OnCollision(Object* obj) override;
+    void Draw() override;
+
+    void OnCollision(Object* obj) override;
 
     void RandomizeMovement() {
         moveType = static_cast<MovementType>(rand() % 3);
