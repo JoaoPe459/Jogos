@@ -18,26 +18,43 @@
 #include "Types.h"                      // tipos específicos da engine
 #include "Object.h"                     // interface de Object
 #include "Sprite.h"                     // interface de Sprites
+#include "PacMan.h"
+#include "Entity.h"
+
+
 
 // ---------------------------------------------------------------------------------
 
-class Food : public Object
+class Food : public Entity
 {
 private:
-    Sprite * sprite = nullptr;          // sprite da comida
+    Sprite * sprite = nullptr; // sprite da comida
+    MovementType moveType;
+    int dirX = 1;
+    int dirY = 1;
 
 public:
     Food();                             // construtor
     ~Food();                            // destrutor
 
-    void Update();                      // atualização do objeto
-    void Draw();                        // desenho do objeto
+
+    void Draw() override;                        // desenho do objeto
+    void Control() override;
+
+    void OnCollision(Object* obj) override;
+
+    void RandomizeMovement() {
+        moveType = static_cast<MovementType>(rand() % 3);
+        dirX = (rand() % 2 == 0) ? 1 : -1;
+        dirY = (rand() % 2 == 0) ? 1 : -1;
+    }
 };
 
 // ---------------------------------------------------------------------------------
 
-inline void Food::Draw()
-{ sprite->Draw(x, y, z); }
+
+
+
 
 // ---------------------------------------------------------------------------------
 
