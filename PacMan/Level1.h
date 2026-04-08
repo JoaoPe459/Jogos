@@ -29,9 +29,10 @@ private:
     Scene * scene = nullptr;        // gerenciador de cena
     Sprite * foodSprite = nullptr;  // Sprite da comida
     bool viewBBox = false;          // habilita visualização da bounding box
+    void GenerateMaze(Scene* scene, Window* window, int tileSize);
 
-    const int MAX_FOOD = 15;
-    const int MAX_GHOSTS = 15;
+    const int MAX_FOOD = 0;
+    const int MAX_GHOSTS = 300;
     std::vector<Entity*> playerAndGhost;
     std::vector<Entity*> foods;
 

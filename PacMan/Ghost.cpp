@@ -47,7 +47,7 @@ void Ghost::Control() {
     float targetVX = 0;
     float targetVY = 0;
 
-    /*switch (moveType) {
+    switch (moveType) {
     case HORIZONTAL:
         targetVX = dirX * speed;
         break;
@@ -60,7 +60,7 @@ void Ghost::Control() {
         targetVX = dirX * speed;
         targetVY = dirY * speed;
         break;
-    }*/
+    }
 
 
     float acceleration = 0.08f;

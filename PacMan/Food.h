@@ -40,6 +40,8 @@ public:
 
     void Draw() override;                        // desenho do objeto
     void Control() override;
+	void HandleScreenWrap();              // lógica de teletransporte
+    void RespawnAtEdge();
 
     void OnCollision(Object* obj) override;
 

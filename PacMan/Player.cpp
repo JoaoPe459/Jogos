@@ -15,12 +15,12 @@ void Player::OnCollision(Object* obj) {
 
     // 2. Lógica específica do Player (Comida)
     if (obj->Type() == FOOD) {
-        moves->setSpeed(moves->getSpeed() + 100.0f);
-       
+		Eat(10.0f);
     }
 }
 
 void Player::Eat(float amount) {
+	calories += amount;
     setMass(1.0f + (sizeLevel * 0.5f));
 }
 

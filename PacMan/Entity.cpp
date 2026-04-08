@@ -29,6 +29,10 @@ void Entity::ApplyPhysics() {
 }
 
 void Entity::OnCollision(Object* obj) {
+    if (obj->Type() == FOOD) {
+        return;
+    }
+
     if (obj->Type() == WALL) {
         Rect* r1 = (Rect*)this->BBox();
         Rect* r2 = (Rect*)obj->BBox();
@@ -70,13 +74,25 @@ void Entity::OnCollision(Object* obj) {
         float dirX = diffX / dist;
         float dirY = diffY / dist;
 
-        // CÁLCULO DINÂMICO
-        float impactForce = 1500.0f;
+        // --- NOVA LÓGICA: MOMENTUM DINÂMICO ---
 
-        // Quanto maior a massa desta entidade, menor o knockback que ela sofre
+        // 1. Acessamos a entidade que colidiu conosco (o 'agressor')
+        Entity* other = static_cast<Entity*>(obj);
+
+        // 2. Pegamos a velocidade atual de quem bateu
+        float otherVX = other->moves->getVelX();
+        float otherVY = other->moves->getVelY();
+        float speedSum = sqrt(otherVX * otherVX + otherVY * otherVY);
+
+        // 3. Calculamos a força baseada na velocidade e na massa do agressor
+        // Adicionamos uma base mínima (ex: 400.0f) para evitar que fiquem colados se estiverem lentos
+        float baseForce = 400.0f;
+        float impactForce = baseForce + (speedSum * other->getMass());
+
+        // 4. O knockback final é inversamente proporcional à massa de quem recebe o golpe
         float knockback = impactForce / this->mass;
 
-        // Aplica o impulso baseado na massa
+        // 5. Aplica o novo impulso dinâmico
         this->moves->setVelX(dirX * knockback);
         this->moves->setVelY(dirY * knockback);
 

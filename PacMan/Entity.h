@@ -14,8 +14,7 @@ public:
     Entity();
     virtual ~Entity();
 
-    bool alive = true;
-
+   
     // Ciclo de vida comum
     virtual void Update() override;
     virtual void Draw() override;

@@ -1,159 +1,153 @@
 /**********************************************************************************
-// Level1 (Código Fonte) 
-// 
-// Criação:     18 Jan 2013
-// Atualização: 04 Mar 2023
-// Compilador:  Visual C++ 2022
-//
-// Descrição:   Nível 1 do jogo PacMan
-//
+// Level1 (Código Fonte)
+// Descrição: Nível com geração aleatória e teletransporte de bordas
 **********************************************************************************/
-
 #include "Engine.h"
 #include "Home.h"
 #include "Level1.h"
-#include "Level2.h"
 #include "Player.h"
 #include "Wall.h"
-#include "Pivot.h"
-#include <string>
-#include <fstream>
-#include "Physics.h"
 #include "Ghost.h"
 #include "Food.h"
-
-
-using std::ifstream;
-using std::string;
+#include "Physics.h"
+#include <ctime>
 
 // ------------------------------------------------------------------------------
-
 void Level1::Init()
 {
+    srand(static_cast<unsigned int>(time(NULL)));
     Physics::Setup(0.0f);
-
     playerAndGhost.clear();
-    // 1. Inicializa o gerenciador de cena e fundo
+    foods.clear();
+
     scene = new Scene();
     backg = new Sprite("Resources/Level1.jpg");
 
+    // Chama a função de labirinto
+    int tileSize = 44;
+    //GenerateMaze(scene, window, tileSize);
+
     // 2. CRIAÇÃO DO PLAYER
-    // É vital que o Player seja o PRIMEIRO no vetor (índice 0)
     Player* player = new Player();
-    playerAndGhost.push_back(player); // Adiciona ao seu vetor de controle
-    scene->Add(player, MOVING); // Adiciona à engine
+    player->MoveTo(window->CenterX(), window->CenterY());
+    playerAndGhost.push_back(player);
+    scene->Add(player, MOVING);
 
-    // 3. CRIAÇÃO DOS FANTASMAS INICIAIS
-    // Vamos começar com 2 fantasmas (o Spawner no Update completará até o MAX_ENTITIES)
-    for (int i = 1; i < MAX_GHOSTS; i++) {
-        Ghost* redGhost = new Ghost();
-        // Define posições diferentes para não nascerem um em cima do outro
-        redGhost->MoveTo(100.0f + (i * 50.0f), 100.0f);
-
-        playerAndGhost.push_back(redGhost);
-        scene->Add(redGhost, MOVING);
+    // 3. FANTASMAS (Spawnando em áreas vazias baseadas no grid)
+    for (int i = 0; i < MAX_GHOSTS; i++) {
+        Ghost* g = new Ghost();
+        int rx = (rand() % (window->Width() / tileSize - 2)) + 1;
+        int ry = (rand() % (window->Height() / tileSize - 2)) + 1;
+        g->MoveTo(rx * tileSize + (tileSize / 2.0f), ry * tileSize + (tileSize / 2.0f));
+        playerAndGhost.push_back(g);
+        scene->Add(g, MOVING);
     }
 
-    // 4. Paredes e Cenário
-    /*Wall* w1 = new Wall(200.0f, 650.0f, 300.0f, 40.0f, "Resources/PacManL.png");
-    scene->Add(w1, STATIC);
-
-    Wall* w2 = new Wall(600.0f, 500.0f, 300.0f, 40.0f, "Resources/PacManL.png");
-    scene->Add(w2, STATIC);*/
-
-   
-
+    // 4. COMIDAS
     for (int i = 0; i < MAX_FOOD; i++) {
         Food* food = new Food();
-        food->MoveTo(100.0f + (i * 50.0f), 100.0f);
-
+        int rx = (rand() % (window->Width() / tileSize - 2)) + 1;
+        int ry = (rand() % (window->Height() / tileSize - 2)) + 1;
+        food->MoveTo(rx * tileSize + (tileSize / 2.0f), ry * tileSize + (tileSize / 2.0f));
         foods.push_back(food);
         scene->Add(food, MOVING);
     }
 }
 
-// ------------------------------------------------------------------------------
+void Level1::GenerateMaze(Scene* scene, Window* window, int tileSize)
+{
+    int cols = window->Width() / tileSize;
+    int rows = window->Height() / tileSize;
 
+    for (int r = 0; r < rows; r++) {
+        for (int c = 0; c < cols; c++) {
+            bool createWall = false;
+
+            // 1. Lógica de Pilares (Cria a estrutura básica do labirinto)
+            if (r % 2 == 0 && c % 2 == 0) {
+                createWall = true;
+
+                // Tenta conectar o pilar a um vizinho para criar corredores
+                int dir = rand() % 4;
+                int wallR = r, wallC = c;
+                if (dir == 0) wallR--;      // Cima
+                else if (dir == 1) wallR++; // Baixo
+                else if (dir == 2) wallC--; // Esquerda
+                else if (dir == 3) wallC++; // Direita
+
+                // Só cria a conexão se não for borda e não for o centro (spawn)
+                bool isNearEdge = (wallR <= 0 || wallR >= rows - 1 || wallC <= 0 || wallC >= cols - 1);
+                bool isCenter = (abs(wallC - cols / 2) <= 2 && abs(wallR - rows / 2) <= 2);
+
+                if (!isNearEdge && !isCenter) {
+                    float pConnX = wallC * tileSize + (tileSize / 2.0f);
+                    float pConnY = wallR * tileSize + (tileSize / 2.0f);
+                    scene->Add(new Wall(pConnX, pConnY, (float)tileSize, (float)tileSize, "Resources/Tijolo.png"), STATIC);
+                }
+            }
+
+            // 2. SEGURANÇA: Garante que as bordas externas fiquem vazias (para o teleporte)
+            if (r == 0 || r == rows - 1 || c == 0 || c == cols - 1) createWall = false;
+
+            // Garante que o centro (onde o player nasce) esteja livre
+            if (abs(c - cols / 2) <= 1 && abs(r - rows / 2) <= 1) createWall = false;
+
+            if (createWall) {
+                float posX = c * tileSize + (tileSize / 2.0f);
+                float posY = r * tileSize + (tileSize / 2.0f);
+                scene->Add(new Wall(posX, posY, (float)tileSize, (float)tileSize, "Resources/Tijolo.png"), STATIC);
+            }
+        }
+    }
+}
+
+// ------------------------------------------------------------------------------
+void Level1::Update()
+{
+    scene->Update();
+    scene->CollisionDetection();
+
+    // 5. LÓGICA DE TELETRANSPORTE (Wrap-around)
+    // Aplica para o Player (index 0) e todos os Fantasmas
+    for (auto const& entity : playerAndGhost) {
+        float x = entity->X();
+        float y = entity->Y();
+        float offset = 20.0f; // Metade do tamanho aproximado do sprite
+
+        // Atravessar Horizontalmente
+        if (x + offset < 0)
+            entity->MoveTo(window->Width() + offset, y);
+        else if (x - offset > window->Width())
+            entity->MoveTo(-offset, y);
+
+        // Atravessar Verticalmente
+        if (y + offset < 0)
+            entity->MoveTo(x, window->Height() + offset);
+        else if (y - offset > window->Height())
+            entity->MoveTo(x, -offset);
+    }
+
+    if (window->KeyPress('B')) viewBBox = !viewBBox;
+    if (window->KeyPress(VK_ESCAPE)) Engine::Next<Home>();
+}
+
+// ------------------------------------------------------------------------------
+void Level1::Draw()
+{
+    backg->Draw(window->CenterX(), window->CenterY(), Layer::BACK);
+    scene->Draw();
+
+    if (viewBBox)
+        scene->DrawBBox();
+}
+
+// ------------------------------------------------------------------------------
 void Level1::Finalize()
 {
-
+    // Limpeza de vetores
     foods.clear();
     playerAndGhost.clear();
 
     delete backg;
     delete scene;
 }
-
-// ------------------------------------------------------------------------------
-
-void Level1::Update()
-{
-
-    scene->Update();
-    scene->CollisionDetection();
-
-    for (auto it = playerAndGhost.begin(); it != playerAndGhost.end(); ) {
-        if (!(*it)->alive) {
-            scene->Remove((*it), MOVING); // Remove da lógica de render/colisão da Scene
-            delete (*it);                 // Libera memória
-            it = playerAndGhost.erase(it);      // Remove do seu vetor de controle
-        }
-        else {
-            it++;
-        }
-    }
-
-    for (auto it = foods.begin(); it != foods.end(); ) {
-        if (!(*it)->alive) {
-            scene->Remove((*it), MOVING); // Remove da lógica de render/colisão da Scene
-            delete (*it);                 // Libera memória
-            it = foods.erase(it);      // Remove do seu vetor de controle
-        }
-        else {
-            it++;
-        }
-    }
-
-    if (foods.size() < MAX_FOOD) {
-
-        Food* newFood = new Food();
-
-        // Define uma posição de nascimento aleatória ou fixa
-            newFood->MoveTo(100.0f, 100.0f);
-
-            foods.push_back(newFood);
-            scene->Add(newFood, MOVING);
-        }
-
-    // habilita/desabilita bounding box
-    if (window->KeyPress('B'))
-    {
-        viewBBox = !viewBBox;
-    }
-
-    if (window->KeyPress(VK_ESCAPE))
-    {
-        // volta para a tela de abertura
-        Engine::Next<Home>();
-    }
-    else if (window->KeyPress('N'))
-    {
-        // passa manualmente para o próximo nível
-        Engine::Next<Level2>();
-    }
-}
-
-// ------------------------------------------------------------------------------
-
-void Level1::Draw()
-{
-    // desenha cena
-    backg->Draw(window->CenterX(), window->CenterY(), Layer::BACK);
-    scene->Draw();
-
-    // desenha bounding box dos objetos
-    if (viewBBox)
-        scene->DrawBBox();
-}
-
-// ------------------------------------------------------------------------------

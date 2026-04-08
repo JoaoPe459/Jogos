@@ -11,86 +11,97 @@
 
 #include "Food.h"
 
-// ---------------------------------------------------------------------------------
-
 Food::Food()
 {
     sprite = new Sprite("Resources/Food.png");
     BBox(new Rect(-5, -5, 5, 5));
     type = FOOD;
-    moveType = static_cast<MovementType>(rand() % 3);
-    moves->setSpeed(static_cast<float>(500.0f - (rand() % 200)));
 
-    moveType = static_cast<MovementType>(rand() % 3);
-
-    // Sorteia direções iniciais aleatórias (1 ou -1)
-    dirX = (rand() % 2 == 0) ? 1 : -1;
-    dirY = (rand() % 2 == 0) ? 1 : -1;
+    // Inicialização segura
+    moves->setSpeed(static_cast<float>(300.0f + (rand() % 100)));
+    RespawnAtEdge();
 }
-
-// ---------------------------------------------------------------------------------
 
 Food::~Food()
 {
     delete sprite;
-
 }
-
-// ---------------------------------------------------------------------------------
-
-
 
 void Food::Draw()
 {
     sprite->Draw(x, y, z);
 }
 
-
 void Food::OnCollision(Object* obj) {
-    // 1. Mantém a colisão base (com paredes, etc.)
-    Entity::OnCollision(obj);
-
-    // 2. Se tocar em uma parede
-
-    if (obj->Type() == WALL)
-    {
-        this->RandomizeMovement();
+    // Quando o player come, a comida apenas muda de lugar
+    if (obj->Type() == PLAYER || obj->Type() == WALL) {
+        this->RespawnAtEdge();
     }
-
-    if (obj->Type() == GHOST) {
-        return;
-    }
-
-    if (obj->Type() == PLAYER) {
-        alive = false;
-    }
-
 }
-
-// ---------------------------------------------------------------------------------
 
 void Food::Control() {
     float speed = moves->getSpeed();
-    float targetVX = 0;
-    float targetVY = 0;
+    float targetVX = 0, targetVY = 0;
 
+    // 1. Movimentação baseada no tipo atual
     switch (moveType) {
-    case HORIZONTAL:
-        targetVX = dirX * speed;
-        break;
-
-    case VERTICAL:
-        targetVY = dirY * speed;
-        break;
-
-    case DIAGONAL:
-        targetVX = dirX * speed;
-        targetVY = dirY * speed;
-        break;
+    case HORIZONTAL: targetVX = dirX * speed; break;
+    case VERTICAL:   targetVY = dirY * speed; break;
+    case DIAGONAL:   targetVX = dirX * speed; targetVY = dirY * speed; break;
     }
 
     moves->setVelX(targetVX);
     moves->setVelY(targetVY);
 
-    HandleScreenWrap();
+    // 2. LÓGICA DE SAÍDA DE TELA (O "SORTEIO")
+    // Definimos uma margem de segurança (offset). 
+    // Se a comida passar desse limite, ela é sorteada novamente.
+    float offset = 50.0f; // aumenta margem para garantir saída visual
+
+    if (X() < -offset || X() > window->Width() + offset ||
+        Y() < -offset || Y() > window->Height() + offset)
+    {
+        RespawnAtEdge();
+    }
+}
+
+void Food::HandleScreenWrap()
+{
+	Entity::HandleScreenWrap(); // Aplica o wrap normal
+    RespawnAtEdge();
+}
+
+void Food::RespawnAtEdge() {
+    int edge = rand() % 4;
+    float margin = 20.0f;
+
+    // Zera direções antes de definir novas
+    dirX = 0;
+    dirY = 0;
+
+    switch (edge) {
+    case 0: // Topo
+        MoveTo(rand() % (window->Width() - 40) + 20, margin);
+        dirY = 1;
+        moveType = (rand() % 2 == 0) ? VERTICAL : DIAGONAL;
+        break;
+
+    case 1: // Base
+        MoveTo(rand() % (window->Width() - 40) + 20, window->Height() - margin);
+        dirY = -1;
+        moveType = (rand() % 2 == 0) ? VERTICAL : DIAGONAL;
+        break;
+
+    case 2: // Esquerda
+        MoveTo(margin, rand() % (window->Height() - 40) + 20);
+        dirX = 1;
+        moveType = (rand() % 2 == 0) ? HORIZONTAL : DIAGONAL;
+        break;
+
+    case 3: // Direita
+        MoveTo(window->Width() - margin, rand() % (window->Height() - 40) + 20);
+        dirX = -1;
+        moveType = (rand() % 2 == 0) ? HORIZONTAL : DIAGONAL;
+        break;
+    }
 }
