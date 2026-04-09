@@ -8,7 +8,8 @@
 class Entity : public Object {
 protected:
     Moves* moves = nullptr;
-    float mass;
+    float mass = 0.0f;
+    bool alive = 0;
 
 public:
     Entity();
@@ -35,6 +36,8 @@ public:
     }
     void setMass(float m) { mass = m; }
     float getMass() const { return mass; }
+
+    bool isAlive() const { return alive; };
 };
 
 #endif

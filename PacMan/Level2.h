@@ -1,41 +1,24 @@
 /**********************************************************************************
 // Level2 (Arquivo de Cabeçalho)
-// 
+//
 // Criação:     18 Jan 2013
-// Atualização: 04 Mar 2023
+// Atualização: 08 Abr 2026
 // Compilador:  Visual C++ 2022
 //
-// Descrição:   Nível 2 do jogo PacMan
+// Descrição:   Nível 2 do jogo PacMan (Padronizado com LevelMake)
 //
 **********************************************************************************/
 
-#ifndef _PACMAN_LEVEl2_H_
+#ifndef _PACMAN_LEVEL2_H_
 #define _PACMAN_LEVEL2_H_
 
-// ------------------------------------------------------------------------------
-// Inclusões
+#include "LevelMake.h"
 
-#include "Game.h"
-#include "Sprite.h"
-#include "Scene.h"
-
-// ------------------------------------------------------------------------------
-
-class Level2 : public Game
+class Level2 : public LevelMake
 {
-private:
-    Sprite * backg = nullptr;       // background
-    Scene * scene = nullptr;        // gerenciado de cena
-    bool viewBBox = false;          // habilita visualização da bounding box
-    
 public:
-
     void Init();                    // inicializa jogo
-    void Update();                  // atualiza lógica do jogo
-    void Draw();                    // desenha jogo
-    void Finalize();                // finaliza jogo
+    void Update() override;         // atualiza lógica do jogo
 };
-
-// -----------------------------------------------------------------------------
 
 #endif

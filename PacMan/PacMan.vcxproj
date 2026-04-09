@@ -253,6 +253,7 @@
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="Level1.cpp" />
     <ClCompile Include="Level2.cpp" />
+    <ClCompile Include="LevelMake.cpp" />
     <ClCompile Include="Moves.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="PacMan.cpp" />
@@ -279,6 +280,7 @@
     <ClInclude Include="Image.h" />
     <ClInclude Include="Level1.h" />
     <ClInclude Include="Level2.h" />
+    <ClInclude Include="LevelMake.h" />
     <ClInclude Include="Moves.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="PacMan.h" />

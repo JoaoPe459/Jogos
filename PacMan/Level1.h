@@ -15,32 +15,18 @@
 // ------------------------------------------------------------------------------
 // Inclusões
 
-#include "Game.h"
-#include "Sprite.h"
-#include "Scene.h"
-#include "Entity.h"
-
+#include "LevelMake.h"
 // ------------------------------------------------------------------------------
 
-class Level1 : public Game
+class Level1 : public LevelMake
 {
 private:
-    Sprite * backg = nullptr;       // background
-    Scene * scene = nullptr;        // gerenciador de cena
-    Sprite * foodSprite = nullptr;  // Sprite da comida
-    bool viewBBox = false;          // habilita visualização da bounding box
-    void GenerateMaze(Scene* scene, Window* window, int tileSize);
-
-    const int MAX_FOOD = 0;
-    const int MAX_GHOSTS = 300;
-    std::vector<Entity*> playerAndGhost;
-    std::vector<Entity*> foods;
-
+    
 public:
     void Init();                    // inicializa jogo
-    void Update();                  // atualiza lógica do jogo
-    void Draw();                    // desenha jogo
-    void Finalize();                // finaliza jogo
+    void Update() override;                  // atualiza lógica do jogo
+    //void Draw();                    // desenha jogo
+    //void Finalize();                // finaliza jogo
 };
 
 // -----------------------------------------------------------------------------

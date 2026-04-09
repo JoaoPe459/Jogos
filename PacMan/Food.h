@@ -28,6 +28,7 @@
 class Food : public Entity
 {
 private:
+    Sprite* foodSprite = new Sprite("Resources/Food.png");
     Sprite * sprite = nullptr; // sprite da comida
     MovementType moveType;
     int dirX = 1;

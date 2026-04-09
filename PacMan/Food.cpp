@@ -11,9 +11,11 @@
 
 #include "Food.h"
 
+
 Food::Food()
 {
-    sprite = new Sprite("Resources/Food.png");
+    
+	sprite = foodSprite;
     BBox(new Rect(-5, -5, 5, 5));
     type = FOOD;
 
@@ -24,7 +26,7 @@ Food::Food()
 
 Food::~Food()
 {
-    delete sprite;
+    delete foodSprite; foodSprite = nullptr;
 }
 
 void Food::Draw()
@@ -53,10 +55,7 @@ void Food::Control() {
     moves->setVelX(targetVX);
     moves->setVelY(targetVY);
 
-    // 2. LÓGICA DE SAÍDA DE TELA (O "SORTEIO")
-    // Definimos uma margem de segurança (offset). 
-    // Se a comida passar desse limite, ela é sorteada novamente.
-    float offset = 50.0f; // aumenta margem para garantir saída visual
+    float offset = 50.0f;
 
     if (X() < -offset || X() > window->Width() + offset ||
         Y() < -offset || Y() > window->Height() + offset)

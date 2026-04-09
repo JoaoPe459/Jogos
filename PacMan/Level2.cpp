@@ -1,8 +1,8 @@
 /**********************************************************************************
-// Level2 (Código Fonte) 
-// 
+// Level2 (Código Fonte)
+//
 // Criação:     18 Jan 2013
-// Atualização: 04 Mar 2023
+// Atualização: 08 Abr 2026
 // Compilador:  Visual C++ 2022
 //
 // Descrição:   Nível 2 do jogo PacMan
@@ -12,104 +12,43 @@
 #include "Engine.h"
 #include "Home.h"
 #include "Level2.h"
-#include "Player.h"
-#include "Wall.h"
 #include "Pivot.h"
 #include <string>
-#include <fstream>
-using std::ifstream;
-using std::string;
 
 // ------------------------------------------------------------------------------
 
 void Level2::Init()
 {
-    // cria gerenciador de cena
-    scene = new Scene();
+    LevelMake::Init(600, 5, 5, "Resources/Level2.jpg");
+    LevelMake::ghostInit();
+    LevelMake::foodInit();
 
-    // cria background
-    backg = new Sprite("Resources/Level2.jpg");
-
-    // cria jogador
-    Player * player = new Player();
-    scene->Add(player, MOVING);
-
-    // cria pontos de mudança de direção
-    Pivot * pivot;
-    bool left, right, up, down;
-    float posX, posY;
-    ifstream fin;
-
-    // cria pivôs a partir do arquivo
-    fin.open("PivotsL2.txt");
-    fin >> left;
-    while (!fin.eof())
-    {
-        if (fin.good())
-        {
-            // lê linha de informações do pivô
-            fin >> right; fin >> up; fin >> down; fin >> posX; fin >> posY;
-            pivot = new Pivot(left, right, up, down);
-            pivot->MoveTo(posX, posY);
-            scene->Add(pivot, STATIC);
-        }
-        else
-        {
-            // ignora comentários
-            fin.clear();
-            char temp[80];
-            fin.getline(temp, 80);
-        }
-        fin >> left;
-    }
-    fin.close();
-
-    Wall* w1 = new Wall(400.0f, 10.0f, 300.0f, 40.0f, "Resources/PacManL.png");
-    scene->Add(w1, STATIC);
-}
-
-// ------------------------------------------------------------------------------
-
-void Level2::Finalize()
-{
-    delete backg;
-    delete scene;
+    int tileSize = 44;
+    //GenerateMaze(scene, window, tileSize);
 }
 
 // ------------------------------------------------------------------------------
 
 void Level2::Update()
 {
-    // habilita/desabilita bounding box
-    if (window->KeyPress('B'))
-    {
-        viewBBox = !viewBBox;
+    for (int i = 0; i < entityCount; i++) {
+        if (entities[i] != nullptr && !entities[i]->isAlive()) {
+            entities[i]->MoveTo(window->CenterX(), window->CenterY());
+        }
     }
 
-    if (window->KeyPress(VK_ESCAPE))
-    {
-        // volta para a tela de abertura
+    for (int i = 0; i < foodCount; i++) {
+        if (foods[i] != nullptr && !foods[i]->isAlive()) {
+            foods[i]->MoveTo(200.0f + (rand() % 400), 200.0f + (rand() % 300));
+        }
+    }
+
+    if (window->KeyPress(VK_ESCAPE)) {
         Engine::Next<Home>();
+        return;
     }
-    else
-    {
-        // atualiza cena
-        scene->Update();
-        scene->CollisionDetection();
-    }
-}
 
-// ------------------------------------------------------------------------------
-
-void Level2::Draw()
-{
-    // desenha cena
-    backg->Draw(window->CenterX(), window->CenterY(), Layer::BACK);
-    scene->Draw();
-
-    // desenha bounding box dos objetos
-    if (viewBBox)
-        scene->DrawBBox();
+    LevelMake::Update();
 }
 
 // ------------------------------------------------------------------------------

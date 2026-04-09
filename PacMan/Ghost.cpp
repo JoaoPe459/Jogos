@@ -3,21 +3,18 @@
 
 
 
-
-Ghost::Ghost() : Entity() // Chama o construtor de Entity
+Ghost::Ghost() : Entity()
 {
     type = GHOST;
-
     RandomizeSprite();
+
     BBox(new Rect(-20, -20, 20, 20));
     MoveTo(200.0f, 450.0f);
 
     // Ajusta a velocidade inicial através do objeto moves da Entity
     moves->setSpeed(static_cast<float>(500.0f - (rand() % 200)));
-
     moveType = static_cast<MovementType>(rand() % 3);
 
-    // Sorteia direções iniciais aleatórias (1 ou -1)
     dirX = (rand() % 2 == 0) ? 1 : -1;
     dirY = (rand() % 2 == 0) ? 1 : -1;
     setMass(1.2f);
@@ -25,7 +22,11 @@ Ghost::Ghost() : Entity() // Chama o construtor de Entity
 
 Ghost::~Ghost()
 {
-    delete sprite;
+    delete redSprite; redSprite = nullptr;
+    delete blueSprite; blueSprite = nullptr;
+    delete orangeSprite; orangeSprite = nullptr;
+    delete pinkSprite; pinkSprite = nullptr;
+    //delete sprite; sprite = nullptr;
 }
 
 void Ghost::Draw()
@@ -75,29 +76,18 @@ void Ghost::Control() {
 }
 
 void Ghost::RandomizeSprite() {
+    int randomValue = rand() % 4;
+    SetSpriteByIndex(randomValue);
+}
 
-    SpriteType randomSprite = static_cast<SpriteType>(rand() % 4);
-
-    switch (randomSprite) {
-    case SpriteType::RED:
-        sprite = new Sprite("Resources/GhostRedR.png");
-        break;
-
-    case SpriteType::BLUE:
-        sprite = new Sprite("Resources/GhostBlueR.png");
-        break;
-
-    case SpriteType::ORANGE:
-        sprite = new Sprite("Resources/GhostOrangeD.png");
-        break;
-
-    case SpriteType::PINK:
-        sprite = new Sprite("Resources/GhostPinkD.png");
-        break;
-
+void Ghost::SetSpriteByIndex(int index) {
+    switch (index) {
+    case 0: this->sprite = redSprite; break;
+    case 1: this->sprite = blueSprite; break;
+    case 2: this->sprite = orangeSprite; break;
+    case 3: this->sprite = pinkSprite; break;
     default:
-        sprite = nullptr;
+        this->sprite = redSprite;
         break;
     }
-
 }

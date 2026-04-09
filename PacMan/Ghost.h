@@ -16,7 +16,11 @@ enum class SpriteType {
 class Ghost : public Entity
 {
 private:
-    Sprite* sprite = nullptr;
+    Sprite* redSprite = new Sprite("Resources/GhostRedR.png");
+    Sprite* blueSprite = new Sprite("Resources/GhostBlueR.png");
+    Sprite* orangeSprite = new Sprite("Resources/GhostOrangeD.png");
+    Sprite* pinkSprite = new Sprite("Resources/GhostPinkD.png");
+    Sprite* sprite;
 
     MovementType moveType;
     int dirX = 1;
@@ -39,6 +43,7 @@ public:
         dirX = (rand() % 2 == 0) ? 1 : -1;
         dirY = (rand() % 2 == 0) ? 1 : -1;
     }
+    void SetSpriteByIndex(int index);
 
 };
 

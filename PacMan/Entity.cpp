@@ -7,6 +7,7 @@
 Entity::Entity() {
     moves = new Moves(0, 0, 150.0f, false);
 	mass = 1.0f;
+    alive = true;
 }
 
 Entity::~Entity() {
@@ -74,9 +75,7 @@ void Entity::OnCollision(Object* obj) {
         float dirX = diffX / dist;
         float dirY = diffY / dist;
 
-        // --- NOVA LÓGICA: MOMENTUM DINÂMICO ---
-
-        // 1. Acessamos a entidade que colidiu conosco (o 'agressor')
+       
         Entity* other = static_cast<Entity*>(obj);
 
         // 2. Pegamos a velocidade atual de quem bateu
