@@ -27,8 +27,8 @@ void Level1::Init()
     LevelMake::Init(600, 0, 10, "Resources/Level1.jpg");
     LevelMake::ghostInit();
     LevelMake::foodInit();
-	//int tileSize = 44;
-    //GenerateMaze(scene, window, tileSize);
+	int tileSize = 44;
+    GenerateMaze(scene, window, tileSize);
 }
 
 // ------------------------------------------------------------------------------
