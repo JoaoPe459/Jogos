@@ -4,12 +4,21 @@
 #include "Object.h"
 #include "Moves.h"
 #include "Sprite.h"
+#include "Engine.h"
+
+class LevelMake;
 
 class Entity : public Object {
 protected:
     Moves* moves = nullptr;
     float mass = 0.0f;
     bool alive = 0;
+
+    void Die();
+
+    void HandleWallCollision(Object* wall);
+
+    void ApplyKnockback(Object* source, float extraForce);
 
 public:
     Entity();
@@ -20,6 +29,7 @@ public:
     virtual void Update() override;
     virtual void Draw() override;
     virtual void OnCollision(Object* obj) override;
+    
 
     // Comportamento obrigatório (Teclado para Player, IA para Fantasmas)
     virtual void Control() = 0;
