@@ -7,7 +7,7 @@ private:
     float velY = 0;                     // velocidade vertical do player
     float speed = 0.0f;
     bool ghostMode = false;
-    bool onGround = true;
+    bool onGround = false;
 
 
 public:

@@ -8,12 +8,11 @@ void Moves::Stop()
     this->velY = 0;
 }
 
-void Moves::applyGravity(float dt)
-{
-    if (this->ghostMode)
-        return;
+void Moves::applyGravity(float gameTime) {
+    if (this->ghostMode || this->onGround) return; // Se está no chão, a gravidade não acumula velY
 
-    this->velY += Physics::GetGravity() * dt;
+    float gravityStep = Physics::GravityValue * Physics::Direction * gameTime;
+    velY += gravityStep;
 }
 
 void Moves::invertGravity() {
