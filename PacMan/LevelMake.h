@@ -53,6 +53,8 @@ public:
     void Draw() override;                    // desenha jogo
     void Finalize() override;                // finaliza jogo
 
+    // Acesso à cena para permitir que outras classes adicionem objetos
+    Scene* GetScene() { return scene; }
     void ghostInit(); 
     void foodInit();
     void GenerateMaze(Scene* scene, Window* window, int tileSize);

@@ -35,7 +35,6 @@ void LevelMake::Init()
 
     // Inicializa o Player na primeira posição
     Player* player = new Player();
-    entities[0] = player;
     scene->Add(player, MOVING);
 }
 
@@ -58,7 +57,6 @@ void LevelMake::Init(float gravity, int maxFood, int maxGhost, string levelBackg
 
     // Inicializa o Player na primeira posição
     Player* player = new Player();
-    entities[0] = player;
     scene->Add(player, MOVING);
 }
 
