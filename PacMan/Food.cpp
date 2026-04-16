@@ -43,18 +43,37 @@ void Food::OnCollision(Object* obj) {
 
 void Food::Control() {
     float speed = moves->getSpeed();
-    float targetVX = 0, targetVY = 0;
+    float targetVX = 0;
+    float targetVY = 0;
 
-    // 1. Movimentação baseada no tipo atual
+    // 1. Movimentação baseada no tipo atual (Intenção)
     switch (moveType) {
-    case HORIZONTAL: targetVX = dirX * speed; break;
-    case VERTICAL:   targetVY = dirY * speed; break;
-    case DIAGONAL:   targetVX = dirX * speed; targetVY = dirY * speed; break;
+    case HORIZONTAL:
+        targetVX = dirX * speed;
+        break;
+    case VERTICAL:
+        targetVY = dirY * speed;
+        break;
+    case DIAGONAL:
+        targetVX = dirX * speed;
+        targetVY = dirY * speed;
+        break;
     }
 
-    moves->setVelX(targetVX);
-    moves->setVelY(targetVY);
+    // 2. Interpolação baseada no tempo
+    float accelerationRate = 8.0f;
+    float lerpFactor = accelerationRate * gameTime;
 
+    if (lerpFactor > 1.0f) lerpFactor = 1.0f;
+
+    float currentVX = moves->getVelX();
+    float currentVY = moves->getVelY();
+
+    // 3. Aplica a velocidade suavizada pelo gameTime
+    moves->setVelX(currentVX + (targetVX - currentVX) * lerpFactor);
+    moves->setVelY(currentVY + (targetVY - currentVY) * lerpFactor);
+
+    // 4. Verificação de limites para Respawn
     float offset = 50.0f;
 
     if (X() < -offset || X() > window->Width() + offset ||
