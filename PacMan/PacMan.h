@@ -16,13 +16,14 @@
 
 enum PacManObjects
 {
-    PLAYER,
-    GHOST,
+    ATTACK,
+    ENEMY,
     FOOD,
-    SPECIAL,
-    WALL,
+    GHOST,
     PIVOT,
-    ENEMY
+    PLAYER,
+    SPECIAL,
+    WALL
 };
 
 enum MovementType { HORIZONTAL, VERTICAL, DIAGONAL };
