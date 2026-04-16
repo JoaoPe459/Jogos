@@ -2,6 +2,7 @@
 #define _PLAYER_H_
 
 #include "Entity.h"
+#include "Attack.h"
 
 class Player : public Entity {
 private:
