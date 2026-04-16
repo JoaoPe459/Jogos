@@ -2,7 +2,6 @@
 #define _PACMAN_GHOST_H_
 
 #include "Entity.h"
-#include "Player.h"
 #include "PacMan.h"
 
 

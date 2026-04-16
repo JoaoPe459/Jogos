@@ -63,14 +63,21 @@ void Ghost::Control() {
         break;
     }
 
+    // 1. Taxa de aceleração por segundo. 
+    float accelerationRate = 5.0f;
 
-    float acceleration = 0.08f;
+    // 2. Cálculo do fator de interpolação (Lerp) dependente do tempo
+    float lerpFactor = accelerationRate * gameTime;
+
+    // Garante que o fator não ultrapasse 1.0 (100% da velocidade alvo)
+    if (lerpFactor > 1.0f) lerpFactor = 1.0f;
 
     float currentVX = moves->getVelX();
     float currentVY = moves->getVelY();
 
-    moves->setVelX(currentVX + (targetVX - currentVX) * acceleration);
-    moves->setVelY(currentVY + (targetVY - currentVY) * acceleration);
+    // 3. Aplica a interpolação suave baseada no gameTime
+    moves->setVelX(currentVX + (targetVX - currentVX) * lerpFactor);
+    moves->setVelY(currentVY + (targetVY - currentVY) * lerpFactor);
 
     HandleScreenWrap();
 }
