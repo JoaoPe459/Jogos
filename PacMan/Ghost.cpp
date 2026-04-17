@@ -1,5 +1,6 @@
 #include "PacMan.h"
 #include "Ghost.h"
+#include "Attack.h"
 
 
 
@@ -44,38 +45,61 @@ void Ghost::OnCollision(Object* obj) {
 }
 
 void Ghost::Control() {
-    float speed = moves->getSpeed();
-    float targetVX = 0;
-    float targetVY = 0;
-
-    switch (moveType) {
-    case HORIZONTAL:
-        targetVX = dirX * speed;
-        break;
-
-    case VERTICAL:
-        targetVY = dirY * speed;
-        break;
-
-    case DIAGONAL:
-        targetVX = dirX * speed;
-        targetVY = dirY * speed;
-        break;
+    if (!playerTarget) {
+        // Se não houver alvo, mantém o comportamento de Wrap da tela
+        HandleScreenWrap();
+        return;
     }
 
-    // 1. Taxa de aceleração por segundo. 
+    attackTimer += gameTime;
+
+    // Vetor de direção até o jogador
+    float diffX = playerTarget->X() - X();
+    float diffY = playerTarget->Y() - Y();
+    float distance = sqrt(diffX * diffX + diffY * diffY);
+
+    // Normalização do vetor de direção
+    float dirToPlayerX = (distance > 0) ? diffX / distance : 0;
+    float dirToPlayerY = (distance > 0) ? diffY / distance : 0;
+
+    float targetVX = 0;
+    float targetVY = 0;
+    float speed = moves->getSpeed();
+
+    // ESTADO: PRONTO PARA ATACAR
+    if (attackTimer >= attackCooldown) {
+        // Aproxima-se o máximo possível
+        targetVX = dirToPlayerX * speed;
+        targetVY = dirToPlayerY * speed;
+
+        // Se estiver perto o suficiente, ataca e reseta o timer
+        if (distance < 150.0f) {
+            AttackPlayer();
+            attackTimer = 0.0f;
+        }
+    }
+    // ESTADO: EM COOLDOWN (Fuga)
+    else {
+        if (distance < safeDistance) {
+            // Inverte a direção para se afastar
+            targetVX = -dirToPlayerX * speed;
+            targetVY = -dirToPlayerY * speed;
+        }
+        else {
+            // Se já estiver longe o suficiente, fica parado ou circula
+            targetVX = 0;
+            targetVY = 0;
+        }
+    }
+
+    // Aplicação suave da velocidade usando o Lerp que você já criou
     float accelerationRate = 5.0f;
-
-    // 2. Cálculo do fator de interpolação (Lerp) dependente do tempo
     float lerpFactor = accelerationRate * gameTime;
-
-    // Garante que o fator não ultrapasse 1.0 (100% da velocidade alvo)
     if (lerpFactor > 1.0f) lerpFactor = 1.0f;
 
     float currentVX = moves->getVelX();
     float currentVY = moves->getVelY();
 
-    // 3. Aplica a interpolação suave baseada no gameTime
     moves->setVelX(currentVX + (targetVX - currentVX) * lerpFactor);
     moves->setVelY(currentVY + (targetVY - currentVY) * lerpFactor);
 
@@ -97,4 +121,21 @@ void Ghost::SetSpriteByIndex(int index) {
         this->sprite = redSprite;
         break;
     }
+}
+
+void Ghost::AttackPlayer() {
+    if (!playerTarget) return;
+
+    // Calcula direção do projétil
+    float diffX = playerTarget->X() - X();
+    float diffY = playerTarget->Y() - Y();
+    float distance = sqrt(diffX * diffX + diffY * diffY);
+
+    float projVel = 400.0f; // Velocidade do tiro
+    float velX = (diffX / distance) * projVel;
+    float velY = (diffY / distance) * projVel;
+
+    // Cria o ataque: owner, lifetime, damage, type, impulseX, impulseY, knockback
+    Attack* bullet = new Attack(this, 1.5f, 5, Attack::AttackType::PROJECTILE, velX, velY, 100.0f);
+
 }

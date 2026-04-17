@@ -122,15 +122,8 @@ void Player::Control() {
             1000.0f             // Força de knockback
         );
 
-        // 3. Adicionar à cena
-        if (Engine::game) {
-            LevelMake* lvl = static_cast<LevelMake*>(Engine::game);
-            if (lvl && lvl->GetScene()) {
-                lvl->GetScene()->Add(atk, MOVING);
-            }
-        }
 
-        // 4. Resetar o cooldown
+        // 3. Resetar o cooldown
         attackTimer = attackCooldown;
     }
 }

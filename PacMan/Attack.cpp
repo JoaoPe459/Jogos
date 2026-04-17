@@ -1,6 +1,8 @@
 #include "Attack.h"
 #include "Entity.h"
 #include "PacMan.h"
+#include "Engine.h"
+#include "LevelMake.h"
 
 Attack::Attack(Entity* creator, float lifeTime, int dmg, AttackType type, float impulseX, float impulseY, float knockbackForce) {
     owner = creator;
@@ -22,6 +24,13 @@ Attack::Attack(Entity* creator, float lifeTime, int dmg, AttackType type, float 
     mass = 0.5f;
     moves->setVelX(impulseX);
     moves->setVelY(impulseY);
+
+    if (Engine::game) {
+        LevelMake* lvl = static_cast<LevelMake*>(Engine::game);
+        if (lvl && lvl->GetScene()) {
+            lvl->GetScene()->Add(this, MOVING);
+        }
+    }
 }
 
 Attack::~Attack() {

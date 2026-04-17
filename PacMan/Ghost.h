@@ -25,6 +25,13 @@ private:
     int dirX = 1;
     int dirY = 1;
 
+    Entity* playerTarget = nullptr;
+    float attackCooldown = 2.0f;    // Intervalo entre ataques
+    float attackTimer = 0.0f;
+    float safeDistance = 300.0f;    // Distância para recuar no cooldown
+
+    void AttackPlayer();
+
 public:
     Ghost();
     ~Ghost();
@@ -44,6 +51,7 @@ public:
     }
     void SetSpriteByIndex(int index);
 
+    void SetTarget(Entity* target) { playerTarget = target; }
 };
 
 #endif

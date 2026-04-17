@@ -196,6 +196,7 @@ void LevelMake::ghostInit() {
     for (int i = 1; i < entityCount; i++) {
         Ghost* ghost = new Ghost();
         ghost->MoveTo(i * 40 + 50, i * 40 + 50);
+		ghost->SetTarget(player);
         entities[i] = ghost; // Atribuição direta no vetor dinâmico
         scene->Add(ghost, MOVING);
     }
