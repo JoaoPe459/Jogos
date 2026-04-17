@@ -41,6 +41,10 @@ void Ghost::OnCollision(Object* obj) {
     if (obj->Type() == WALL || obj->Type() == GHOST) {
         this->RandomizeMovement();
     }
+
+    if (obj->Type() == PLAYER) {
+        this->Die();
+    }
 }
 
 void Ghost::Control() {
