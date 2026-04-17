@@ -3,11 +3,11 @@
 
 #include "Entity.h"
 #include "Attack.h"
+#include "Font.h"
 
 class Player : public Entity {
 private:
     Sprite* sprite = nullptr;
-
     // Atributos exclusivos do Player (não existem em Entity)
     float calories = 0.0f;
     float stamina = 100.0f;

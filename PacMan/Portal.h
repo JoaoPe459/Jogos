@@ -24,6 +24,7 @@ public:
     void Update() override;
     void Draw() override;
     void Control() override; // implement Control to satisfy Entity's pure virtual
+	void OnCollision(Object* obj) override;
     Direction GetDirection() const { return direction; }
 };
 

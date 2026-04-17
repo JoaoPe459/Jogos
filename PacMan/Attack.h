@@ -31,7 +31,8 @@ public:
         AttackType type = AttackType::GENERIC,
         float impulseX = 0.0f,
         float impulseY = 0.0f,
-        float knockbackForce = 0.0f);
+        float knockbackForce = 0.0f,
+        int sizeBox = 40);
 
     ~Attack();
 

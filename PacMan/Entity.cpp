@@ -120,7 +120,10 @@ void Entity::SetMaxHp(int value) {
 
 void Entity::SetHp(int value) {
     hp = value;
-    if (hp > maxHp) maxHp = hp;
+    if (hp > maxHp)
+    {
+         hp = maxHp;
+    }
 }
 
 int Entity::GetHp() const { return hp; }

@@ -6,6 +6,7 @@
 #include "LevelMake.h"
 #include "Portal.h"
 #include "Attack.h"
+#include <string>
 
 Player::Player() : Entity() {
     type = PLAYER;
@@ -68,14 +69,10 @@ void Player::OnCollision(Object* obj) {
 
     // 2. Lógica específica do Player (Comida)
     if (obj->Type() == FOOD) {
-		Eat(10.0f);
+        SetHp(GetHp() + 10);
     }
 }
 
-void Player::Eat(float amount) {
-	calories += amount;
-    setMass(1.0f + (sizeLevel * 0.5f));
-}
 
 void Player::Control() {
     float baseSpeed = moves->getSpeed() - (sizeLevel * 10.0f);
@@ -104,7 +101,7 @@ void Player::Control() {
 
     if (window->KeyDown(VK_SPACE) && attackTimer <= 0) {
 
-        float atkVelX = 500.0f;
+        float atkVelX = 0.0f;
         float atkVelY = 0.0f;
 
         if (targetVX != 0 || targetVY != 0) {
@@ -114,12 +111,13 @@ void Player::Control() {
 
         Attack* atk = new Attack(
             this,               // Criador
-            0.8f,               // Duração (lifetime)
-            1,                  // Dano
+            0.2f,               // Duração (lifetime)
+            10,                  // Dano
             Attack::AttackType::PROJECTILE, // Tipo do ataque
             atkVelX,            // Velocidade X
             atkVelY,            // Velocidade Y
-            1000.0f             // Força de knockback
+            2000.0f,             // Força de knockback
+			30				  // Tamanho da hitbox
         );
 
 

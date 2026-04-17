@@ -2,7 +2,7 @@
 // Renderer (Código Fonte)
 //
 // Criação:     11 Mai 2014
-// Atualização: 28 Fev 2023
+// Atualização: 07 Mar 2023
 // Compilador:  Visual C++ 2022
 //
 // Descrição:   Define um renderizador de grupos de sprites
@@ -26,15 +26,15 @@ struct Vertex
 
 Renderer::Renderer()
 {
-    window         = nullptr;
-    graphics       = nullptr;
-    inputLayout    = nullptr;
-    vertexShader   = nullptr;
-    pixelShader    = nullptr;
-    rasterState    = nullptr;
-    sampler        = nullptr;
-    vertexBuffer   = nullptr;
-    indexBuffer    = nullptr;
+    window = nullptr;
+    graphics = nullptr;
+    inputLayout = nullptr;
+    vertexShader = nullptr;
+    pixelShader = nullptr;
+    rasterState = nullptr;
+    sampler = nullptr;
+    vertexBuffer = nullptr;
+    indexBuffer = nullptr;
     constantBuffer = nullptr;
 
     vertexBufferPosition = 0;
@@ -47,12 +47,19 @@ Renderer::Renderer()
     ZeroMemory(&pixelPlotSprite, sizeof(pixelPlotSprite));
     videoMemoryPitch = 0;
     videoMemory = nullptr;
+    // ----------------------------------------
+
+    storage = new SpriteData[MaxBatchSize];
+    storageIndex = 0;
 }
 
 // ---------------------------------------------------------------------------------
 
 Renderer::~Renderer()
 {
+    // libera armazém de sprites
+    delete[] storage;
+
     // ----------------------------------------
     // Pixel Ploting
     // ----------------------------------------
@@ -78,7 +85,7 @@ Renderer::~Renderer()
         constantBuffer->Release();
         constantBuffer = nullptr;
     }
-    
+
     if (indexBuffer)
     {
         indexBuffer->Release();
@@ -122,6 +129,8 @@ Renderer::~Renderer()
     }
 }
 
+// -----------------------------------------------------------------------------
+
 void Renderer::BeginPixels()
 {
     // trava a textura para plotagem de pixels
@@ -148,7 +157,7 @@ void Renderer::BeginPixels()
 
 // -----------------------------------------------------------------------------
 
-void Renderer::Draw(Geometry * shape, ulong color)
+void Renderer::Draw(Geometry* shape, ulong color)
 {
     switch (shape->Type())
     {
@@ -175,7 +184,7 @@ void Renderer::Draw(Geometry * shape, ulong color)
 
 // -----------------------------------------------------------------------------
 
-void Renderer::Draw(Point * point, ulong color)
+void Renderer::Draw(Point* point, ulong color)
 {
     if (point->X() >= 0 && point->X() < window->Width())
         if (point->Y() >= 0 && point->Y() < window->Height())
@@ -184,7 +193,7 @@ void Renderer::Draw(Point * point, ulong color)
 
 // -----------------------------------------------------------------------------
 
-void Renderer::Draw(Line * line, ulong color)
+void Renderer::Draw(Line* line, ulong color)
 {
     int x1 = int(line->Ax());
     int y1 = int(line->Ay());
@@ -211,16 +220,16 @@ int Renderer::ClipLine(int& x1, int& y1, int& x2, int& y2)
     int max_clip_y = window->Height() - 1;
 
     // internal clipping codes
-    #define CLIP_CODE_C  0x0000
-    #define CLIP_CODE_N  0x0008
-    #define CLIP_CODE_S  0x0004
-    #define CLIP_CODE_E  0x0002
-    #define CLIP_CODE_W  0x0001
-    
-    #define CLIP_CODE_NE 0x000a
-    #define CLIP_CODE_SE 0x0006
-    #define CLIP_CODE_NW 0x0009 
-    #define CLIP_CODE_SW 0x0005
+#define CLIP_CODE_C  0x0000
+#define CLIP_CODE_N  0x0008
+#define CLIP_CODE_S  0x0004
+#define CLIP_CODE_E  0x0002
+#define CLIP_CODE_W  0x0001
+
+#define CLIP_CODE_NE 0x000a
+#define CLIP_CODE_SE 0x0006
+#define CLIP_CODE_NW 0x0009 
+#define CLIP_CODE_SW 0x0005
 
     int xc1 = x1,
         yc1 = y1,
@@ -666,7 +675,7 @@ void Renderer::DrawLine(int a1, int b1, int a2, int b2, ulong color)
 
 // -----------------------------------------------------------------------------
 
-void Renderer::Draw(Rect * rect, ulong color)
+void Renderer::Draw(Rect* rect, ulong color)
 {
     Line top(rect->Left(), rect->Top(), rect->Right(), rect->Top());
     Line left(rect->Left(), rect->Top() + 1, rect->Left(), rect->Bottom());
@@ -681,7 +690,7 @@ void Renderer::Draw(Rect * rect, ulong color)
 
 // -----------------------------------------------------------------------------
 
-void Renderer::Draw(Circle * circ, ulong color)
+void Renderer::Draw(Circle* circ, ulong color)
 {
     // Bresenham's circle algorithm
 
@@ -727,7 +736,7 @@ void Renderer::Draw(Circle * circ, ulong color)
 
 // -----------------------------------------------------------------------------
 
-void Renderer::Draw(Poly * pol, ulong color)
+void Renderer::Draw(Poly* pol, ulong color)
 {
     // this function draws a Poly
     float x1, y1, x2, y2;
@@ -775,13 +784,12 @@ void Renderer::EndPixels()
     graphics->context->Unmap(pixelPlotTexture, 0);
 
     // adiciona o sprite na lista de desenho
-    Draw(&pixelPlotSprite);
+    Draw(pixelPlotSprite);
 }
 
 // ---------------------------------------------------------------------------------
 
-
-bool Renderer::Initialize(Window * window, Graphics * graphics)
+bool Renderer::Initialize(Window* window, Graphics* graphics)
 {
     this->window = window;
     this->graphics = graphics;
@@ -791,7 +799,7 @@ bool Renderer::Initialize(Window * window, Graphics * graphics)
     //-------------------------------
 
     // carrega bytecode do vertex shader (HLSL)
-    ID3DBlob * vShader = nullptr;
+    ID3DBlob* vShader = nullptr;
     D3DReadFileToBlob(L"Shaders/Vertex.cso", &vShader);
 
     // cria o vertex shader
@@ -820,7 +828,7 @@ bool Renderer::Initialize(Window * window, Graphics * graphics)
     //-------------------------------
 
     // carrega bytecode do pixel shader (HLSL)
-    ID3DBlob * pShader = nullptr;
+    ID3DBlob* pShader = nullptr;
     D3DReadFileToBlob(L"Shaders/Pixel.cso", &pShader);
 
     // cria o vertex shader
@@ -848,7 +856,7 @@ bool Renderer::Initialize(Window * window, Graphics * graphics)
     //-------------------------------
 
     D3D11_BUFFER_DESC vertexBufferDesc = { 0 };
-    vertexBufferDesc.ByteWidth = sizeof(Vertex)* MaxBatchSize * VerticesPerSprite;
+    vertexBufferDesc.ByteWidth = sizeof(Vertex) * MaxBatchSize * VerticesPerSprite;
     vertexBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
     vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
     vertexBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
@@ -860,10 +868,10 @@ bool Renderer::Initialize(Window * window, Graphics * graphics)
     //-------------------------------
 
     D3D11_BUFFER_DESC indexBufferDesc = { 0 };
-    indexBufferDesc.ByteWidth = sizeof(short)* MaxBatchSize * IndicesPerSprite;
+    indexBufferDesc.ByteWidth = sizeof(short) * MaxBatchSize * IndicesPerSprite;
     indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
     indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-    
+
     // gera índices para o número máximo de sprites suportados
     vector<short> indices;
     indices.reserve(MaxBatchSize * IndicesPerSprite);
@@ -895,20 +903,20 @@ bool Renderer::Initialize(Window * window, Graphics * graphics)
     constBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
     // calcula a matriz de transformação
-    float xScale = (graphics->viewport.Width  > 0) ? 2.0f / graphics->viewport.Width : 0.0f;
+    float xScale = (graphics->viewport.Width > 0) ? 2.0f / graphics->viewport.Width : 0.0f;
     float yScale = (graphics->viewport.Height > 0) ? 2.0f / graphics->viewport.Height : 0.0f;
-    
+
     // transforma para coordenadas da tela
-    XMMATRIX transformMatrix 
+    XMMATRIX transformMatrix
     (
-        xScale,  0,      0,      0,
-        0,      -yScale, 0,      0,
-        0,       0,      1,      0,
-       -1,       1,      0,      1
+        xScale, 0, 0, 0,
+        0, -yScale, 0, 0,
+        0, 0, 1, 0,
+        -1, 1, 0, 1
     );
 
     D3D11_SUBRESOURCE_DATA constantData = { 0 };
-    XMMATRIX worldViewProj =  XMMatrixTranspose(transformMatrix);
+    XMMATRIX worldViewProj = XMMatrixTranspose(transformMatrix);
     constantData.pSysMem = &worldViewProj;
 
     graphics->device->CreateBuffer(&constBufferDesc, &constantData, &constantBuffer);
@@ -960,15 +968,15 @@ bool Renderer::Initialize(Window * window, Graphics * graphics)
     D3D11_TEXTURE2D_DESC desc;
     ZeroMemory(&desc, sizeof(desc));
 
-    desc.Width = int(window->Width());                // largura da textura
+    desc.Width = int(window->Width());              // largura da textura
     desc.Height = int(window->Height());            // altura da textura
-    desc.MipLevels = 1;                                // usa apenas um nível
-    desc.ArraySize = 1;                                // cria apenas uma textura
-    desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;        // formato RGBA de 32 bits
-    desc.SampleDesc.Count = 1;                        // uma amostra por pixel (sem antialiasing)
-    desc.Usage = D3D11_USAGE_DYNAMIC;                // alocada em RAM para acesso rápido via CPU
+    desc.MipLevels = 1;                             // usa apenas um nível
+    desc.ArraySize = 1;                             // cria apenas uma textura
+    desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;       // formato RGBA de 32 bits
+    desc.SampleDesc.Count = 1;                      // uma amostra por pixel (sem antialiasing)
+    desc.Usage = D3D11_USAGE_DYNAMIC;               // alocada em RAM para acesso rápido via CPU
     desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;    // será acessada por um shader
-    desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;    // CPU pode escrever na textura
+    desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;   // CPU pode escrever na textura
 
     // cria textura a ser preenchida com pixels
     if FAILED(graphics->device->CreateTexture2D(&desc, nullptr, &pixelPlotTexture))
@@ -991,12 +999,19 @@ bool Renderer::Initialize(Window * window, Graphics * graphics)
     // Sprite 
     // ---------------------------------------------
 
-    pixelPlotSprite.x = float(window->CenterX());
-    pixelPlotSprite.y = float(window->CenterY());
+    pixelPlotSprite.x = window->CenterX();
+    pixelPlotSprite.y = window->CenterY();
+    pixelPlotSprite.scale = 1.0f;
     pixelPlotSprite.depth = 0.0f;
+    pixelPlotSprite.rotation = 0.0f;
     pixelPlotSprite.width = window->Width();
     pixelPlotSprite.height = window->Height();
     pixelPlotSprite.texture = pixelPlotView;
+    pixelPlotSprite.texCoord.x = 0.0f;
+    pixelPlotSprite.texCoord.y = 0.0f;
+    pixelPlotSprite.texSize.x = 1.0f;
+    pixelPlotSprite.texSize.y = 1.0f;
+    pixelPlotSprite.color = Color(1.0f, 1.0f, 1.0f, 1.0f);
 
     // inicialização bem sucedida
     return true;
@@ -1004,15 +1019,15 @@ bool Renderer::Initialize(Window * window, Graphics * graphics)
 
 // ---------------------------------------------------------------------------------
 
-void Renderer::RenderBatch(ID3D11ShaderResourceView * texture, SpriteData ** sprites, uint cont)
+void Renderer::RenderBatch(ID3D11ShaderResourceView* texture, SpriteData** sprites, uint count)
 {
     // desenhe usando a seguinte textura
     graphics->context->PSSetShaderResources(0, 1, &texture);
 
-    while (cont > 0)
+    while (count > 0)
     {
         // quantos sprites vamos desenhar
-        uint batchSize = cont;
+        uint batchSize = count;
 
         // quantos sprites cabem no vertex buffer
         uint remainingSpace = MaxBatchSize - vertexBufferPosition;
@@ -1025,7 +1040,7 @@ void Renderer::RenderBatch(ID3D11ShaderResourceView * texture, SpriteData ** spr
             {
                 // volte ao ínicio do buffer
                 vertexBufferPosition = 0;
-                batchSize = (cont < MaxBatchSize) ? cont : MaxBatchSize;
+                batchSize = (count < MaxBatchSize) ? count : MaxBatchSize;
             }
             else
             {
@@ -1040,11 +1055,11 @@ void Renderer::RenderBatch(ID3D11ShaderResourceView * texture, SpriteData ** spr
         graphics->context->Map(vertexBuffer, 0, mapType, 0, &mappedBuffer);
 
         // se posiciona dentro do vertex buffer
-        Vertex * vertices = (Vertex*)mappedBuffer.pData + vertexBufferPosition * VerticesPerSprite;
+        Vertex* vertices = (Vertex*)mappedBuffer.pData + vertexBufferPosition * VerticesPerSprite;
 
         // gera posições dos vértices de cada sprite que será desenhado nesse lote
         for (uint i = 0; i < batchSize; ++i)
-        {        
+        {
             // pega tamanho da textura
             XMVECTOR size = XMVectorMergeXY(XMLoadInt(&sprites[i]->width), XMLoadInt(&sprites[i]->height));
             XMVECTOR textureSize = XMConvertVectorUIntToFloat(size, 0);
@@ -1052,15 +1067,15 @@ void Renderer::RenderBatch(ID3D11ShaderResourceView * texture, SpriteData ** spr
 
             // organiza informações do sprite
             XMFLOAT2 positionxy(sprites[i]->x, sprites[i]->y);
-            float scale = 1.0f;
-            XMFLOAT2 center(sprites[i]->width / 2.0f, sprites[i]->height / 2.0f);
-            float rotation = 0.0f;
+            float scale = sprites[i]->scale;
+            XMFLOAT2 center(sprites[i]->width * sprites[i]->texSize.x / 2.0f, sprites[i]->height * sprites[i]->texSize.y / 2.0f);
+            float rotation = sprites[i]->rotation;
             float layerDepth = sprites[i]->depth;
 
             // carrega informações do sprite em registros SIMD
-            XMVECTOR source = XMVectorSet(0, 0, 1, 1);
+            XMVECTOR source = XMVectorSet(sprites[i]->texCoord.x, sprites[i]->texCoord.y, sprites[i]->texSize.x, sprites[i]->texSize.y);
             XMVECTOR destination = XMVectorPermute<0, 1, 4, 4>(XMLoadFloat2(&positionxy), XMLoadFloat(&scale));
-            XMVECTOR color = XMVectorSet(1, 1, 1, 1);
+            XMVECTOR color = XMVectorSet(sprites[i]->color.r, sprites[i]->color.g, sprites[i]->color.b, sprites[i]->color.a);
             XMVECTOR originRotationDepth = XMVectorSet(center.x, center.y, rotation, layerDepth);
 
             // extrai os tamanhos de origem e destino em vetores separados
@@ -1157,7 +1172,7 @@ void Renderer::RenderBatch(ID3D11ShaderResourceView * texture, SpriteData ** spr
         sprites += batchSize;
 
         // foram desenhados batchSize sprites nessa passagem
-        cont -= batchSize;
+        count -= batchSize;
     }
 }
 
@@ -1168,9 +1183,9 @@ void Renderer::Render()
     // ordena sprites por profundidade:
     // necessário para o correto funcionamento 
     // da mistura (blending) entre as texturas dos sprites
-    sort(spriteVector.begin(), spriteVector.end(), 
-        [](SpriteData * a, SpriteData * b) -> bool 
-        { return a->depth > b->depth; }    );
+    sort(spriteVector.begin(), spriteVector.end(),
+        [](SpriteData* a, SpriteData* b) -> bool
+        { return a->depth > b->depth; });
 
     // quantidades de sprites a serem renderizados
     uint spriteVectorSize = uint(spriteVector.size());
@@ -1184,7 +1199,7 @@ void Renderer::Render()
     // junta sprites adjacentes que compartilham a mesma textura
     for (uint pos = 0; pos < spriteVectorSize; ++pos)
     {
-        ID3D11ShaderResourceView * texture = spriteVector[pos]->texture;
+        ID3D11ShaderResourceView* texture = spriteVector[pos]->texture;
 
         if (texture != batchTexture)
         {
@@ -1203,13 +1218,19 @@ void Renderer::Render()
 
     // limpa a lista de desenho (atualizada a cada frame)
     spriteVector.clear();
+    storageIndex = 0;
 }
 
 // ---------------------------------------------------------------------------------
 
-void Renderer::Draw(SpriteData * sprite)
+void Renderer::Draw(SpriteData& sprite)
 {
-    spriteVector.push_back(sprite);
+    if (storageIndex < MaxBatchSize)
+    {
+        storage[storageIndex] = sprite;
+        spriteVector.push_back(&storage[storageIndex]);
+        ++storageIndex;
+    }
 }
 
 // ---------------------------------------------------------------------------------

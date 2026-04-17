@@ -25,3 +25,7 @@ void Portal::Draw() {
 void Portal::Control() {
     // Portal has no control input or AI; empty implementation to satisfy Entity interface
 }
+
+void Portal::OnCollision(Object* obj)
+{
+}

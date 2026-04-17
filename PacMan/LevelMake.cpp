@@ -149,6 +149,7 @@ void LevelMake::Finalize()
 
     delete[] entities;
     delete[] foods;
+    delete consolas;
 }
 
 // ------------------------------------------------------------------------------
@@ -176,19 +177,29 @@ void LevelMake::Update()
 
 void LevelMake::Draw()
 {
+    // 1. Desenha o fundo do estágio atual
     if (stages != nullptr && stages[currentBG].background != nullptr)
     {
         stages[currentBG].background->Draw(window->CenterX(), window->CenterY(), Layer::BACK);
     }
 
+    // 2. Desenha os objetos do jogo (Player, Fantasmas, Portais)
     scene->Draw();
 
+    // 3. DESENHA A UI (Texto de Vida)
+    if (player != nullptr && consolas != nullptr) {
+        // Definição de cores (Branco padrão, Vermelho se HP < 30)
+        Color hpColor = (player->GetHp() < player->GetMaxHp() * 0.3f) ? Color(1.0f, 0.2f, 0.2f, 1.0f) : Color(1.0f, 1.0f, 1.0f, 1.0f);
+
+        std::string hpStr = "HP: " + std::to_string((int)player->GetHp());
+
+        // Desenha no canto superior esquerdo
+        consolas->Draw(40, 40, hpStr, hpColor);
+    }
+
+    // 4. Bounding Boxes (Debug)
     if (viewBBox) {
         scene->DrawBBox();
-        for (int i = 0; i < activePortalCount; i++) {
-            if (activePortals[i] != nullptr) { 
-            }
-        }
     }
 }
 

@@ -4,7 +4,7 @@
 #include "Engine.h"
 #include "LevelMake.h"
 
-Attack::Attack(Entity* creator, float lifeTime, int dmg, AttackType type, float impulseX, float impulseY, float knockbackForce) {
+Attack::Attack(Entity* creator, float lifeTime, int dmg, AttackType type, float impulseX, float impulseY, float knockbackForce, int sizeBox) {
     owner = creator;
     duration = lifeTime;
     timer = 0.0f;
@@ -15,7 +15,7 @@ Attack::Attack(Entity* creator, float lifeTime, int dmg, AttackType type, float 
 
     this->type = ATTACK;
 
-    BBox(new Rect(-5, -5, 5, 5));
+    BBox(new Rect(-sizeBox, -sizeBox, sizeBox, sizeBox));
 
     if (owner) {
         MoveTo(owner->X(), owner->Y());

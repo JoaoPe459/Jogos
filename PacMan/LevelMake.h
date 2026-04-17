@@ -57,6 +57,8 @@ protected:
     Scene* scene = nullptr;
     Sprite* foodSprite = nullptr;
 
+    Font* consolas = nullptr;
+
     bool viewBBox = false;
 
     StageConfig* stages = nullptr;

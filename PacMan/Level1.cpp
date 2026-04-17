@@ -24,9 +24,11 @@ using std::string;
 void Level1::Init() {
     // Chama o organizador que agora está no LevelMake
     LoadLevel("Resources/Levels/Level1.txt");
+    consolas = new Font("Resources/consolas12.png");
+    consolas->Spacing("Resources/consolas12.dat");
 
     // Inicializa o restante da lógica (fantasmas, comida, etc)
-    LevelMake::Init(0.0f, 10, 10, "");
+    LevelMake::Init(0.0f, 10 , 10, "");
     ghostInit();
     foodInit();
     SetStage(0);
