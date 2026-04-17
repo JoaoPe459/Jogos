@@ -38,12 +38,8 @@ void Ghost::OnCollision(Object* obj) {
     Entity::OnCollision(obj);
 
     // 2. Lógica específica do Ghost: mudar direção ao bater em algo sólido
-    if (obj->Type() == WALL || obj->Type() == GHOST) {
+    if (obj->Type() == WALL || obj->Type() == GHOST || obj->Type() == PORTAL) {
         this->RandomizeMovement();
-    }
-
-    if (obj->Type() == PLAYER) {
-        this->Die();
     }
 }
 

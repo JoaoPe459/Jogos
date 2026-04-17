@@ -1,11 +1,11 @@
 /**********************************************************************************
-// Level1 (Arquivo de Cabeçalho)
+// LevelMake (Arquivo de Cabeçalho)
 //
 // Criação:     18 Jan 2013
-// Atualização: 04 Mar 2023
+// Atualização: 17 Apr 2026
 // Compilador:  Visual C++ 2022
 //
-// Descrição:   Nível 1 do jogo PacMan
+// Descrição:   Sistema de estágios com HUB e portais circulares
 //
 **********************************************************************************/
 
@@ -27,10 +27,15 @@
 #include "Food.h"
 #include "Wall.h"
 
+// ------------------------------------------------------------------------------
+// Estruturas
 
 struct PortalData {
     float x, y;
     int targetBG;
+
+    // Opcional: direção do portal (útil pra spawn offset)
+    int direction; // 0=UP, 1=DOWN, 2=LEFT, 3=RIGHT
 };
 
 // Definição de um cenário completo
@@ -40,17 +45,21 @@ struct StageConfig {
     int portalCount;
     float spawnX, spawnY;
 };
+
 // ------------------------------------------------------------------------------
+
 class Home;
+
 class LevelMake : public Game
 {
 protected:
-    Sprite* backg = nullptr;       // background
-    Scene* scene = nullptr;        // gerenciador de cena
-    Sprite* foodSprite = nullptr;  // Sprite da comida
-    bool viewBBox = false;          // habilita visualização da bounding box
+    Sprite* backg = nullptr;
+    Scene* scene = nullptr;
+    Sprite* foodSprite = nullptr;
 
-    StageConfig* stages = nullptr; // Array de configurações por cenário
+    bool viewBBox = false;
+
+    StageConfig* stages = nullptr;
     int bgCount = 0;
     int currentBG = 0;
 
@@ -60,34 +69,54 @@ protected:
     int MAX_FOOD = 0;
     int MAX_GHOSTS = 0;
 
-    Food** foods;            // Array dinâmico de ponteiros para Food
-    Entity** entities;       // Array dinâmico para Player e Ghosts
-    int foodCount;
-    int entityCount;
-public:
-    void Init() override;
-    void Init(float, int, int, std::string);              // inicializa jogo
-    void Update() override;                  // atualiza lógica do jogo
-    void Draw() override;                    // desenha jogo
-    void Finalize() override;                // finaliza jogo
+    Player* player = nullptr;
+    Food** foods = nullptr;
+    Entity** entities = nullptr;
 
-    // Acesso à cena para permitir que outras classes adicionem objetos
+    int foodCount = 0;
+    int entityCount = 0;
+
+    // -------- CONTROLE DE TRANSIÇÃO --------
+    bool changingStage = false;
+    float changeCooldown = 0.0f;
+
+    void LoadLevel(std::string path);
+
+public:
+    // -------- CICLO DO JOGO --------
+    void Init() override;
+    void Init(float, int, int, std::string);
+    void Update() override;
+    void Draw() override;
+    void Finalize() override;
+
+    // -------- ACESSO À CENA --------
     Scene* GetScene() { return scene; }
-    void ghostInit(); 
+
+    // -------- INICIALIZAÇÃO --------
+    void ghostInit();
     void foodInit();
     void GenerateMaze(Scene* scene, Window* window, int tileSize);
 
+    // -------- SISTEMA DE STAGE --------
     void ChangeBackground(int index);
-
     void SetStage(int index);
 
-    // Accessors for stage spawn positions (safe public access)
     float GetSpawnX(int index) const;
     float GetSpawnY(int index) const;
 
+    // -------- CONTROLE DE PORTAL (NOVO) --------
+    bool IsChangingStage() const { return changingStage; }
+
+    void BeginStageChange() { changingStage = true; }
+
+    void SetStageChangeCooldown(float time) {
+        changeCooldown = time;
+    }
+
+    void UpdateStageTransition(float dt);
+
+    int GetCurrentStage() const { return currentBG; }
 };
-
-
-// -----------------------------------------------------------------------------
 
 #endif

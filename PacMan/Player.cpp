@@ -5,12 +5,22 @@
 #include "Engine.h"
 #include "LevelMake.h"
 #include "Portal.h"
+#include "Attack.h"
 
 Player::Player() : Entity() {
     type = PLAYER;
     sprite = new Sprite("Resources/Rato.png");
     BBox(new Rect(-80, -40, 80, 40));
     moves->setSpeed(500.0f);
+
+    type = PLAYER;      
+    SetMaxHp(100);      
+    SetHp(100);
+    setMass(1.5f);
+
+    calories = 0.0f;
+    stamina = 100.0f;
+
 }
 
 void Player::OnCollision(Object* obj) {
@@ -18,16 +28,41 @@ void Player::OnCollision(Object* obj) {
 
     if (obj->Type() == PORTAL) {
         Portal* p = (Portal*)obj;
+        LevelMake* lvl = static_cast<LevelMake*>(Engine::game);
 
-        if (Engine::game) {
-            LevelMake* lvl = static_cast<LevelMake*>(Engine::game);
+        if (lvl && !lvl->IsChangingStage()) {
+            lvl->BeginStageChange();
 
-            // Chamamos a função que troca o cenário e os portais
-            lvl->SetStage(p->targetBG);
+            int nextStage = p->targetBG;
+            lvl->SetStage(nextStage);
 
-            // Move the player to the desired position when entering the new map
-            // Example: a fixed or calculated position
-            this->MoveTo(lvl->GetSpawnX(p->targetBG), lvl->GetSpawnY(p->targetBG));
+            const float SCREEN_WIDTH = 1300.0f;
+            const float SCREEN_HEIGHT = 800.0f;
+            const float MARGIN = 80.0f; // Distância da borda para não spawnar dentro do portal
+
+            float newX = SCREEN_WIDTH / 2;  // Default Centro
+            float newY = SCREEN_HEIGHT / 2; // Default Centro
+
+
+            if (p->Y() < 100) {          // Portal no Topo
+                newX = p->X();          
+                newY = SCREEN_HEIGHT - MARGIN;
+            }
+            else if (p->Y() > 700) {     // Portal na Base
+                newX = p->X();
+                newY = MARGIN;
+            }
+            else if (p->X() < 100) {     // Portal na Esquerda
+                newX = SCREEN_WIDTH - MARGIN;
+                newY = p->Y();          
+            }
+            else if (p->X() > 1200) {    // Portal na Direita
+                newX = MARGIN;
+                newY = p->Y();
+            }
+
+            this->MoveTo(newX, newY);
+            lvl->SetStageChangeCooldown(0.2f);
         }
     }
 
@@ -63,27 +98,40 @@ void Player::Control() {
     moves->setVelX(currentVX + (targetVX - currentVX) * lerpFactor);
     moves->setVelY(currentVY + (targetVY - currentVY) * lerpFactor);
 
-	// Lógica de ataque (Espaço)
-    if (window->KeyDown(VK_SPACE)) { // Dispara uma cacetada enquanto tu apertar espaço
 
-        // 1. Determinar a direção do ataque basada na velocidade atual ou teclas
-        // Se o player estiver parado, o ataque sai com um pequeno impulso padrão para a direita
-        float attackImpulseX = (targetVX != 0) ? targetVX * 1.5f : (targetVY == 0 ? 200.0f : 0);
-        float attackImpulseY = (targetVY != 0) ? targetVY * 1.5f : -50.0f; // Um leve pulinho para cima
+    // Atualiza o timer de cooldown
+    if (attackTimer > 0) { attackTimer -= gameTime; }
 
-        // 2. Criar a instância do ataque
-        // Fazer um vetor de ponteiro de ataque e depois deletar para evitar vazamento de memoria
-        Attack* atk = new Attack(this, 1.0f, attackImpulseX, attackImpulseY);
+    if (window->KeyDown(VK_SPACE) && attackTimer <= 0) {
 
-        // 3. Adicionar ao motor de jogo
-        // Adiciona o ataque à cena (movendo) via Engine::game (LevelMake)
-        // Criar uma função específica em Entity ou em qualquer outro lugar, será mais elegante
+        float atkVelX = 500.0f;
+        float atkVelY = 0.0f;
+
+        if (targetVX != 0 || targetVY != 0) {
+            atkVelX = targetVX * 2.0f;
+            atkVelY = targetVY * 2.0f;
+        }
+
+        Attack* atk = new Attack(
+            this,               // Criador
+            0.8f,               // Duração (lifetime)
+            1,                  // Dano
+            Attack::AttackType::PROJECTILE, // Tipo do ataque
+            atkVelX,            // Velocidade X
+            atkVelY,            // Velocidade Y
+            1000.0f             // Força de knockback
+        );
+
+        // 3. Adicionar à cena
         if (Engine::game) {
             LevelMake* lvl = static_cast<LevelMake*>(Engine::game);
             if (lvl && lvl->GetScene()) {
                 lvl->GetScene()->Add(atk, MOVING);
             }
         }
+
+        // 4. Resetar o cooldown
+        attackTimer = attackCooldown;
     }
 }
 

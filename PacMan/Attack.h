@@ -4,26 +4,45 @@
 #include "Entity.h"
 
 class Attack : public Entity {
+public:
+
+    enum class AttackType {
+        GENERIC,
+        PROJECTILE,
+        MELEE,
+        EXPLOSION
+    };
+
 private:
-    float timer;      // Cronômetro de vida
-    float duration;   // Duração total
-    Entity* owner;    // Quem disparou o ataque
+    float timer;
+    float duration;
+
+    int damage;
+    float knockback;
+
+    Entity* owner;
+
+    AttackType attackType;
 
 public:
-    // Construtor: Criador, tempo de vida, e impulsos iniciais (opcionais)
-    Attack(Entity* creator, float lifeTime, float impulseX = 0.0f, float impulseY = 0.0f);
+    Attack(Entity* creator,
+        float lifeTime,
+        int damage,
+        AttackType type = AttackType::GENERIC,
+        float impulseX = 0.0f,
+        float impulseY = 0.0f,
+        float knockbackForce = 0.0f);
 
-    // Destrutor
     ~Attack();
 
-    // Métodos obrigatórios da Entity
     void Update() override;
     void OnCollision(Object* obj) override;
     void Draw() override;
-    void Control() override; // Implementar Control para evitar que Attack seja abstrato
+    void Control() override;
 
-    // Getter para identificar o dono
     Entity* GetOwner() const;
+    int GetDamage() const;
+    AttackType GetType() const;
 };
 
 #endif

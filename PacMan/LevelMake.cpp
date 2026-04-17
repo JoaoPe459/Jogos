@@ -15,12 +15,69 @@
 
 
 #include <fstream>
+#include <sstream>
 #include <cstdlib>
 
 using std::ifstream;
 using std::string;
 
 // ------------------------------------------------------------------------------
+
+void LevelMake::LoadLevel(std::string path) {
+    std::ifstream file(path);
+    std::string line, key;
+
+    if (!file.is_open()) return;
+
+    // Vetor temporário para organizar os portais antes de passar para o array fixo
+    std::vector<std::vector<PortalData>> tempPortals;
+
+    while (std::getline(file, line)) {
+        if (line.empty() || line[0] == '#') continue;
+
+        std::stringstream ss(line);
+        ss >> key;
+
+        if (key == "COUNT") {
+            ss >> bgCount;
+            if (stages) delete[] stages; // Limpa se já houver algo
+            stages = new StageConfig[bgCount];
+            tempPortals.resize(bgCount);
+        }
+        else if (key == "STAGE") {
+            int i;
+            std::string spritePath;
+            float sx, sy;
+            ss >> i >> spritePath >> sx >> sy;
+
+            if (i < bgCount) {
+                stages[i].background = new Sprite(spritePath);
+                stages[i].spawnX = sx;
+                stages[i].spawnY = sy;
+                stages[i].portalCount = 0;
+            }
+        }
+        else if (key == "PORTAL") {
+            int i, target;
+            float px, py;
+            ss >> i >> px >> py >> target;
+
+            if (i < bgCount) {
+                tempPortals[i].push_back({ px, py, target });
+            }
+        }
+    }
+
+    // Transfere os portais dos vetores dinâmicos para a estrutura fixa da sua Engine
+    for (int i = 0; i < bgCount; i++) {
+        stages[i].portalCount = (int)tempPortals[i].size();
+        stages[i].portals = new PortalData[stages[i].portalCount];
+        for (int j = 0; j < stages[i].portalCount; j++) {
+            stages[i].portals[j] = tempPortals[i][j];
+        }
+    }
+    file.close();
+}
 
 void LevelMake::Init()
 {
@@ -49,17 +106,16 @@ void LevelMake::Init(float gravity, int maxFood, int maxGhost, string levelBackg
     scene = new Scene();
     backg = new Sprite(levelBackground);
 
-    // Alocação dinâmica dos vetores
-    // entityCount é MAX_GHOSTS (fantasmas) + 1 (player)
-    entityCount = MAX_GHOSTS;
-    foodCount = MAX_FOOD;
-
-    entities = new Entity * [entityCount];
-    foods = new Food * [foodCount];
-
-    // Inicializa o Player na primeira posição
-    Player* player = new Player();
+    // Inicializa o Player de forma independente
+    player = new Player();
     scene->Add(player, MOVING);
+
+    // Inicializa apenas os fantasmas no array
+    entityCount = MAX_GHOSTS;
+    entities = new Entity * [entityCount];
+
+    foodCount = MAX_FOOD;
+    foods = new Food * [foodCount];
 }
 
 // ------------------------------------------------------------------------------
@@ -102,6 +158,7 @@ void LevelMake::Update()
 
     scene->Update();
     scene->CollisionDetection();
+    UpdateStageTransition(gameTime);
     // habilita/desabilita bounding box
     if (window->KeyPress('B'))
     {
@@ -119,7 +176,6 @@ void LevelMake::Update()
 
 void LevelMake::Draw()
 {
-    // Desenha o background do estágio atual
     if (stages != nullptr && stages[currentBG].background != nullptr)
     {
         stages[currentBG].background->Draw(window->CenterX(), window->CenterY(), Layer::BACK);
@@ -129,6 +185,10 @@ void LevelMake::Draw()
 
     if (viewBBox) {
         scene->DrawBBox();
+        for (int i = 0; i < activePortalCount; i++) {
+            if (activePortals[i] != nullptr) { 
+            }
+        }
     }
 }
 
@@ -205,26 +265,34 @@ void LevelMake::ChangeBackground(int index) {
 }
 
 void LevelMake::SetStage(int index) {
-    if (index < 0 || index >= bgCount) return;
+    if (index < 0 || index >= bgCount || stages == nullptr) return;
 
-    // 1. Remover portais antigos da cena
-    for (int i = 0; i < activePortalCount; i++) {
-        scene->Remove(activePortals[i], STATIC);
+    // 1. Limpeza de portais antigos
+    if (activePortals != nullptr) {
+        for (int i = 0; i < activePortalCount; i++) {
+            if (activePortals[i] != nullptr) scene->Remove(activePortals[i], STATIC);
+        }
+        delete[] activePortals;
+        activePortals = nullptr;
     }
-    delete[] activePortals;
 
-    // 2. Atualizar o índice
     currentBG = index;
 
-    // 3. Criar novos portais baseados na struct do cenário atual
-    activePortalCount = stages[currentBG].portalCount;
-    activePortals = new Entity * [activePortalCount];
+    // 2. Teleporte Seguro do Player
+    if (player != nullptr) {
+        player->MoveTo(stages[currentBG].spawnX, stages[currentBG].spawnY);
+    }
 
-    for (int i = 0; i < activePortalCount; i++) {
-        PortalData data = stages[currentBG].portals[i];
-        Portal* p = new Portal(data.x, data.y, data.targetBG);
-        activePortals[i] = p;
-        scene->Add(p, STATIC);
+    // 3. Criar novos portais conforme o arquivo TXT
+    activePortalCount = stages[currentBG].portalCount;
+    if (activePortalCount > 0) {
+        activePortals = new Entity * [activePortalCount];
+        for (int i = 0; i < activePortalCount; i++) {
+            PortalData data = stages[currentBG].portals[i];
+            Portal* p = new Portal(data.x, data.y, data.targetBG);
+            activePortals[i] = p;
+            scene->Add(p, STATIC);
+        }
     }
 }
 
@@ -237,5 +305,14 @@ float LevelMake::GetSpawnX(int index) const {
 float LevelMake::GetSpawnY(int index) const {
     if (index < 0 || index >= bgCount) return 0.0f;
     return stages[index].spawnY;
+}
+
+void LevelMake::UpdateStageTransition(float dt) {
+    if (changingStage) {
+        changeCooldown -= dt;
+        if (changeCooldown <= 0.0f) {
+            changingStage = false;
+        }
+    }
 }
 // ------------------------------------------------------------------------------

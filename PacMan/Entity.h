@@ -12,43 +12,50 @@ class Entity : public Object {
 protected:
     Moves* moves = nullptr;
     float mass = 0.0f;
-    bool alive = 0;
 
-    void Die();
+    // --- Sistema de Vida / Combate ---
+    int hp = 1;
+    int maxHp = 1;
+    bool alive = true;
 
+    // --- Sistema de Invencibilidade (i-frames) ---
+    bool invulnerable = false;
+    float invulTimer = 0.0f;
+
+    virtual void Die();
     void HandleWallCollision(Object* wall);
+    void ApplyKnockback(Object* source, float force);
 
-    void ApplyKnockback(Object* source, float extraForce);
+    void HandleScreenWrap();
 
 public:
     Entity();
     virtual ~Entity();
 
-   
-    // Ciclo de vida comum
     virtual void Update() override;
     virtual void Draw() override;
     virtual void OnCollision(Object* obj) override;
-    
 
-    // Comportamento obrigatório (Teclado para Player, IA para Fantasmas)
     virtual void Control() = 0;
 
-    // Métodos utilitários de física
     void ApplyPhysics();
-    void HandleScreenWrap();
     void HandleScreenLimits();
+    void ApplyImpulse(float vx, float vy);
 
-    void ApplyImpulse(float vx, float vy) {
-        if (moves) {
-            moves->setVelX(vx);
-            moves->setVelY(vy);
-        }
-    }
-    void setMass(float m) { mass = m; }
-    float getMass() const { return mass; }
+    // --- Getters e Setters de Combate ---
+    void SetMaxHp(int value);
+    void SetHp(int value);
+    int GetHp() const;
+    int GetMaxHp() const;
+    bool IsAlive() const;
 
-    bool isAlive() const { return alive; };
+    // --- Métodos de Ação de Combate ---
+    virtual void TakeDamage(Object* source = nullptr);
+    void Heal(int amount);
+    void SetInvulnerable(float time);
+
+    void setMass(float m);
+    float getMass() const;
 };
 
 #endif

@@ -18,6 +18,7 @@ enum PacManObjects
 {
     ATTACK,
     ENEMY,
+    ENTITY,
     FOOD,
     GHOST,
     PIVOT,

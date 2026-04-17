@@ -32,13 +32,13 @@ void Level2::Init()
 void Level2::Update()
 {
     for (int i = 0; i < entityCount; i++) {
-        if (entities[i] != nullptr && !entities[i]->isAlive()) {
+        if (entities[i] != nullptr && !entities[i]->IsAlive()) {
             entities[i]->MoveTo(window->CenterX(), window->CenterY());
         }
     }
 
     for (int i = 0; i < foodCount; i++) {
-        if (foods[i] != nullptr && !foods[i]->isAlive()) {
+        if (foods[i] != nullptr && !foods[i]->IsAlive()) {
             foods[i]->MoveTo(200.0f + (rand() % 400), 200.0f + (rand() % 300));
         }
     }

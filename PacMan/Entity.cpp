@@ -6,9 +6,14 @@
 #include "Ghost.h"
 
 Entity::Entity() {
-    moves = new Moves(0, 0, 150.0f, false);
-	mass = 1.0f;
+    moves = new Moves(500, 500, 0 , false);
+
+    hp = 10;
+    maxHp = 10;
     alive = true;
+    mass = 1.0f;
+    invulnerable = false;
+    invulTimer = 0.0f;
 }
 
 Entity::~Entity() {
@@ -16,10 +21,51 @@ Entity::~Entity() {
 }
 
 void Entity::Update() {
-    Control();            // 1. Define a intenção de movimento
-    ApplyPhysics();       // 2. Aplica Gravidade e Translação
-    //HandleScreenWrap();   // 3. Garante limites da tela
-	HandleScreenLimits(); // 4. Garante limites da tela (com colisão)
+    if (!alive) return;
+
+    // Gerenciamento de Invulnerabilidade
+    if (invulnerable) {
+        invulTimer -= gameTime;
+        if (invulTimer <= 0.0f) {
+            invulnerable = false;
+            invulTimer = 0.0f;
+        }
+    }
+
+    Control();
+    ApplyPhysics();
+    HandleScreenLimits();
+}
+
+void Entity::TakeDamage(Object* source) {
+    if (!alive || invulnerable) return;
+
+    hp -= source ? static_cast<Attack*>(source)->GetDamage() : 1;
+
+    // Se houver uma fonte de dano, aplica knockback automático
+    if (source) {
+        ApplyKnockback(source, 1000.0f);
+    }
+
+    if (hp <= 0) {
+        hp = 0;
+        Die();
+    }
+    else {
+        // Ativa frames de invencibilidade ao sofrer dano (ex: 0.1 segundos)
+        SetInvulnerable(0.1f);
+    }
+}
+
+void Entity::Heal(int amount) {
+    if (!alive) return;
+    hp += amount;
+    if (hp > maxHp) hp = maxHp;
+}
+
+void Entity::SetInvulnerable(float time) {
+    invulnerable = true;
+    invulTimer = time;
 }
 
 void Entity::ApplyPhysics() {
@@ -35,30 +81,24 @@ void Entity::ApplyPhysics() {
 }
 
 void Entity::OnCollision(Object* obj) {
-    if (obj->Type() == FOOD) return;
+    if (obj->Type() == FOOD || !alive) return;
 
-    // Caso: Ataque
     if (obj->Type() == ATTACK) {
         Attack* atk = static_cast<Attack*>(obj);
         if (atk->GetOwner() == this) return;
 
-        // Usamos uma força maior para ataques (ou a base + 5000)
-        ApplyKnockback(obj, 5000.0f);
-        this->Die();
+        this->TakeDamage(atk);
         return;
     }
 
-    // Caso: Parede (Mantemos a lógica de colisão estática/AABB)
     if (obj->Type() == WALL) {
-        HandleWallCollision(obj); // Opcional: mover a lógica de parede para outra função também
+        HandleWallCollision(obj);
         return;
     }
 
-    // Caso: Entidades Físicas (Player, Ghost, etc)
     if (obj->Type() == PLAYER || obj->Type() == GHOST) {
         Entity* other = static_cast<Entity*>(obj);
 
-        // Calculamos a força baseada na velocidade do outro objeto
         float otherVX = other->moves->getVelX();
         float otherVY = other->moves->getVelY();
         float speedSum = sqrt(otherVX * otherVX + otherVY * otherVY);
@@ -66,22 +106,44 @@ void Entity::OnCollision(Object* obj) {
 
         ApplyKnockback(obj, impactForce);
 
+
         if (obj->Type() == GHOST) {
             static_cast<Ghost*>(obj)->RandomizeMovement();
         }
     }
 }
 
+void Entity::SetMaxHp(int value) {
+    maxHp = value;
+    if (hp > maxHp) hp = maxHp;
+}
+
+void Entity::SetHp(int value) {
+    hp = value;
+    if (hp > maxHp) maxHp = hp;
+}
+
+int Entity::GetHp() const { return hp; }
+int Entity::GetMaxHp() const { return maxHp; }
+bool Entity::IsAlive() const { return alive; }
+void Entity::setMass(float m) {
+    mass = m;
+}
+
+float Entity::getMass() const {
+    return mass;
+}
+
+
 void Entity::Die() {
-    // 1. Marca como morto para parar atualizações lógicas internas
+    if (!alive) { return; } // Evita chamadas duplicadas
     alive = false;
 
-    // 2. Acessa a cena atual através do Engine para remover o objeto
     if (Engine::game) {
         LevelMake* lvl = static_cast<LevelMake*>(Engine::game);
         if (lvl && lvl->GetScene()) {
-            // Remove da lista de objetos MOVING (ou a lista que você estiver usando)
             lvl->GetScene()->Delete(this, MOVING);
+            //lvl->GetScene()->Delete(this, STATIC);
         }
     }
 }
@@ -203,6 +265,11 @@ void Entity::HandleScreenLimits() {
         moves->setVelY(0.0f);
     }
 }
+
+void Entity::ApplyImpulse(float vx, float vy)
+{
+}
+
 void Entity::Draw() {
-   
+    if (!alive) return;
 }

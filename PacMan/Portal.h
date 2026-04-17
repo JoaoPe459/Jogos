@@ -3,12 +3,18 @@
 
 #include "Entity.h"
 
+enum Direction {
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT
+};
+
 class Portal : public Entity {
 public:
     int targetBG;
     Sprite* sprite;
-
-    // Construtor (já definido no seu .cpp)
+    Direction direction;
     Portal(float x, float y, int bgIndex);
 
     // Destrutor para limpar o sprite
@@ -18,6 +24,7 @@ public:
     void Update() override;
     void Draw() override;
     void Control() override; // implement Control to satisfy Entity's pure virtual
+    Direction GetDirection() const { return direction; }
 };
 
 #endif

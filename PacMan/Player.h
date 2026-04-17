@@ -8,12 +8,13 @@ class Player : public Entity {
 private:
     Sprite* sprite = nullptr;
 
-    // Atributos inspirados no ConSumo (Bully)
-    float health = 100.0f;
-    float maxHealth = 100.0f;
+    // Atributos exclusivos do Player (não existem em Entity)
     float calories = 0.0f;
     float stamina = 100.0f;
-    int   sizeLevel = 1; // Atua como a "massa" nas colisões
+    int   sizeLevel = 1;
+
+    float attackTimer = 0.0f;
+    float attackCooldown = 0.3f;
 
 public:
     Player();
@@ -23,9 +24,8 @@ public:
     void Draw() override;
     void OnCollision(Object* obj) override;
 
-    // Métodos de gameplay
     void Eat(float amount);
-    int  GetSize() { return sizeLevel; }
+
 };
 
 #endif
