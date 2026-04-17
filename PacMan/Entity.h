@@ -37,6 +37,7 @@ public:
     // Métodos utilitários de física
     void ApplyPhysics();
     void HandleScreenWrap();
+    void HandleScreenLimits();
 
     void ApplyImpulse(float vx, float vy) {
         if (moves) {

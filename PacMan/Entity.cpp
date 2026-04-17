@@ -18,7 +18,8 @@ Entity::~Entity() {
 void Entity::Update() {
     Control();            // 1. Define a intenção de movimento
     ApplyPhysics();       // 2. Aplica Gravidade e Translação
-    HandleScreenWrap();   // 3. Garante limites da tela
+    //HandleScreenWrap();   // 3. Garante limites da tela
+	HandleScreenLimits(); // 4. Garante limites da tela (com colisão)
 }
 
 void Entity::ApplyPhysics() {
@@ -100,32 +101,27 @@ void Entity::HandleWallCollision(Object* wall) {
 
     // 2. Resolve a colisão pelo eixo de menor penetração
     if (overlapX < overlapY) {
-        // Colisão Horizontal (Esquerda/Direita)
         float centerX1 = r1->Left() + r1->Right();
         float centerX2 = r2->Left() + r2->Right();
 
         if (centerX1 < centerX2) {
-            Translate(-overlapX, 0.0f); // Empurra para a esquerda
+            Translate(-overlapX, 0.0f);
         }
         else {
-            Translate(overlapX, 0.0f);  // Empurra para a direita
+            Translate(overlapX, 0.0f);
         }
-
         moves->setVelX(0.0f);
     }
     else {
-        // Colisão Vertical (Cima/Baixo)
         float centerY1 = r1->Top() + r1->Bottom();
         float centerY2 = r2->Top() + r2->Bottom();
 
         if (centerY1 < centerY2) {
-            // Empurra para cima (Personagem está em cima da parede/chão)
             Translate(0.0f, -overlapY);
             moves->setVelY(0.0f);
             moves->setOnGround(true);
         }
         else {
-            // Empurra para baixo (Personagem bateu a cabeça no teto)
             Translate(0.0f, overlapY);
             moves->setVelY(0.0f);
         }
@@ -180,6 +176,33 @@ void Entity::HandleScreenWrap() {
     }
 }
 
+void Entity::HandleScreenLimits() {
+    Rect* r = static_cast<Rect*>(BBox());
+    if (!r) return;
+
+    float halfWidth = (r->Right() - r->Left()) / 2.0f;
+    float halfHeight = (r->Bottom() - r->Top()) / 2.0f;
+
+    // Horizontal
+    if (X() < halfWidth) {
+        MoveTo(halfWidth, Y());
+        moves->setVelX(0.0f);
+    }
+    else if (X() > window->Width() - halfWidth) {
+        MoveTo(window->Width() - halfWidth, Y());
+        moves->setVelX(0.0f);
+    }
+
+    // Vertical
+    if (Y() < halfHeight) {
+        MoveTo(X(), halfHeight);
+        moves->setVelY(0.0f);
+    }
+    else if (Y() > window->Height() - halfHeight) {
+        MoveTo(X(), window->Height() - halfHeight);
+        moves->setVelY(0.0f);
+    }
+}
 void Entity::Draw() {
    
 }
