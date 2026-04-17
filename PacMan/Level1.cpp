@@ -24,11 +24,11 @@ using std::string;
 
 void Level1::Init()
 {
-    LevelMake::Init(600, 0, 10, "Resources/Level1.jpg");
+    LevelMake::Init(600, 10, 10, "Resources/Level1.jpg");
     LevelMake::ghostInit();
     LevelMake::foodInit();
-	int tileSize = 44;
-    GenerateMaze(scene, window, tileSize);
+	//int tileSize = 44;
+    //GenerateMaze(scene, window, tileSize);
 }
 
 // ------------------------------------------------------------------------------
@@ -38,17 +38,7 @@ void Level1::Init()
 
 void Level1::Update()
 {
-    for (int i = 0; i < entityCount; i++) {
-        if (entities[i] != nullptr && !entities[i]->isAlive()) {
-            entities[i]->MoveTo(window->CenterX(), window->CenterY());
-        }
-    }
-
-    for (int i = 0; i < foodCount; i++) {
-        if (foods[i] != nullptr && !foods[i]->isAlive()) {
-            foods[i]->MoveTo(rand() % (window->Width() - 40) + 20, rand() % (window->Height() - 40) + 20);
-        }
-    }
+    
 
     if (window->KeyPress('N')) {
         Engine::Next<Level2>();
