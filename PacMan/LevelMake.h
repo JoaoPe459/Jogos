@@ -28,7 +28,18 @@
 #include "Wall.h"
 
 
+struct PortalData {
+    float x, y;
+    int targetBG;
+};
 
+// Definição de um cenário completo
+struct StageConfig {
+    Sprite* background;
+    PortalData* portals;
+    int portalCount;
+    float spawnX, spawnY;
+};
 // ------------------------------------------------------------------------------
 class Home;
 class LevelMake : public Game
@@ -38,6 +49,13 @@ protected:
     Scene* scene = nullptr;        // gerenciador de cena
     Sprite* foodSprite = nullptr;  // Sprite da comida
     bool viewBBox = false;          // habilita visualização da bounding box
+
+    StageConfig* stages = nullptr; // Array de configurações por cenário
+    int bgCount = 0;
+    int currentBG = 0;
+
+    Entity** activePortals = nullptr;
+    int activePortalCount = 0;
 
     int MAX_FOOD = 0;
     int MAX_GHOSTS = 0;
@@ -59,6 +77,13 @@ public:
     void foodInit();
     void GenerateMaze(Scene* scene, Window* window, int tileSize);
 
+    void ChangeBackground(int index);
+
+    void SetStage(int index);
+
+    // Accessors for stage spawn positions (safe public access)
+    float GetSpawnX(int index) const;
+    float GetSpawnY(int index) const;
 
 };
 

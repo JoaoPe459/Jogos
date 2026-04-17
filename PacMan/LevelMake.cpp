@@ -11,6 +11,8 @@
 
 #include "LevelMake.h"
 #include "Home.h"
+#include "Portal.h"
+
 
 #include <fstream>
 #include <cstdlib>
@@ -64,14 +66,33 @@ void LevelMake::Init(float gravity, int maxFood, int maxGhost, string levelBackg
 
 void LevelMake::Finalize()
 {
+    // Limpeza da nova estrutura de Estágios
+    if (stages != nullptr) {
+        for (int i = 0; i < bgCount; i++) {
+            // Deleta o sprite do background de cada cenário
+            if (stages[i].background != nullptr) {
+                delete stages[i].background;
+            }
+            // Deleta o array de dados de portais de cada cenário
+            if (stages[i].portals != nullptr) {
+                delete[] stages[i].portals;
+            }
+        }
+        delete[] stages;
+        stages = nullptr;
+    }
+
+    // Limpeza dos portais que estavam ativos na cena
+    if (activePortals != nullptr) {
+        delete[] activePortals;
+        activePortals = nullptr;
+    }
+
     delete scene;
     scene = nullptr;
 
-    delete[] entities; // Deleta o array de ponteiros
+    delete[] entities;
     delete[] foods;
-
-    delete backg;
-    backg = nullptr;
 }
 
 // ------------------------------------------------------------------------------
@@ -98,13 +119,17 @@ void LevelMake::Update()
 
 void LevelMake::Draw()
 {
-    // desenha cena
-    backg->Draw(window->CenterX(), window->CenterY(), Layer::BACK);
+    // Desenha o background do estágio atual
+    if (stages != nullptr && stages[currentBG].background != nullptr)
+    {
+        stages[currentBG].background->Draw(window->CenterX(), window->CenterY(), Layer::BACK);
+    }
+
     scene->Draw();
 
-    // desenha bounding box dos objetos
-    if (viewBBox)
+    if (viewBBox) {
         scene->DrawBBox();
+    }
 }
 
 void LevelMake::ghostInit() {
@@ -173,4 +198,44 @@ void LevelMake::GenerateMaze(Scene* scene, Window* window, int tileSize)
     }
 }
 
+void LevelMake::ChangeBackground(int index) {
+    if (index >= 0 && index < bgCount) {
+        currentBG = index;
+    }
+}
+
+void LevelMake::SetStage(int index) {
+    if (index < 0 || index >= bgCount) return;
+
+    // 1. Remover portais antigos da cena
+    for (int i = 0; i < activePortalCount; i++) {
+        scene->Remove(activePortals[i], STATIC);
+    }
+    delete[] activePortals;
+
+    // 2. Atualizar o índice
+    currentBG = index;
+
+    // 3. Criar novos portais baseados na struct do cenário atual
+    activePortalCount = stages[currentBG].portalCount;
+    activePortals = new Entity * [activePortalCount];
+
+    for (int i = 0; i < activePortalCount; i++) {
+        PortalData data = stages[currentBG].portals[i];
+        Portal* p = new Portal(data.x, data.y, data.targetBG);
+        activePortals[i] = p;
+        scene->Add(p, STATIC);
+    }
+}
+
+// Accessor implementations for spawn points
+float LevelMake::GetSpawnX(int index) const {
+    if (index < 0 || index >= bgCount) return 0.0f;
+    return stages[index].spawnX;
+}
+
+float LevelMake::GetSpawnY(int index) const {
+    if (index < 0 || index >= bgCount) return 0.0f;
+    return stages[index].spawnY;
+}
 // ------------------------------------------------------------------------------
