@@ -8,8 +8,8 @@
 
 Player::Player() : Entity() {
     type = PLAYER;
-    sprite = new Sprite("Resources/PacManR.png");
-    BBox(new Rect(-20, -20, 20, 20));
+    sprite = new Sprite("Resources/Rato.png");
+    BBox(new Rect(-80, -40, 80, 40));
     moves->setSpeed(500.0f);
 }
 
@@ -57,7 +57,7 @@ void Player::Control() {
         float attackImpulseY = (targetVY != 0) ? targetVY * 1.5f : -50.0f; // Um leve pulinho para cima
 
         // 2. Criar a instância do ataque
-        // Fazer um vetor de ponteiro de ataque e depois deletar para evitar vazamentos.
+        // Fazer um vetor de ponteiro de ataque e depois deletar para evitar vazamento de memoria
         Attack* atk = new Attack(this, 1.0f, attackImpulseX, attackImpulseY);
 
         // 3. Adicionar ao motor de jogo
