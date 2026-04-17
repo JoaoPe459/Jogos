@@ -59,8 +59,9 @@ void Level1::Init() {
     }
 
     // Inicializa lógica base do LevelMake
-    LevelMake::Init(0, 0, 0, "");
-
+    LevelMake::Init(0, 10, 10, "");
+	ghostInit();
+	foodInit();
     // Define o estágio inicial
     SetStage(0);
 }
