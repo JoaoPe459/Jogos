@@ -122,7 +122,7 @@ void LevelMake::foodInit()
         Food* food = new Food();
         food->MoveTo(100.0f + (i * 50.0f), 100.0f);
         foods[i] = food; // Atribuição direta no vetor dinâmico
-        scene->Add(food, MOVING);
+        scene->Add(food, STATIC);
     }
 }
 
