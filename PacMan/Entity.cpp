@@ -145,7 +145,7 @@ void Entity::ApplyKnockback(Object* source, float extraForce) {
 
     // 2. Cálculo da Força de Impacto
     // Definimos uma base padrão (ex: 15000) e somamos a força extra vinda do objeto
-    float baseForce = 15000.0f;
+    float baseForce = 1000.0f;
     float totalImpact = baseForce + extraForce;
 
     // 3. O knockback é inversamente proporcional à massa de quem recebe
