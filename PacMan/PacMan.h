@@ -22,6 +22,7 @@ enum PacManObjects
     GHOST,
     PIVOT,
     PLAYER,
+    PORTAL,
     SPECIAL,
     WALL
 };

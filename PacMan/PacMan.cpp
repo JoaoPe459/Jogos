@@ -27,7 +27,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
 
     // configura a janela do jogo
     engine->window->Mode(WINDOWED);
-    engine->window->Size(960, 720);
+    engine->window->Size(1300, 800);
     engine->window->Color(25, 25, 25);
     engine->window->Title("RatGame");
     engine->window->Icon(IDI_ICON);
