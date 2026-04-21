@@ -15,6 +15,8 @@ private:
 
     float attackTimer = 0.0f;
     float attackCooldown = 0.3f;
+    std::vector<Attack*> orbitals;
+    void UpdateOrbitalPositions(); // Auxiliar para reorganizar
 
 public:
     Player();

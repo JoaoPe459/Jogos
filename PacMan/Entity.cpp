@@ -27,7 +27,6 @@ void Entity::Update() {
         hp = 0;
         this->Die();
 		LevelMake* lvl = static_cast<LevelMake*>(Engine::game);
-        lvl->addFood(lvl->GetCurrentStage());
         lvl->ghostAlive--;
     }
     // Gerenciamento de Invulnerabilidade

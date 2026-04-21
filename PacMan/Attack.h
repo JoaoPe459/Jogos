@@ -10,13 +10,18 @@ public:
         GENERIC,
         PROJECTILE,
         MELEE,
-        EXPLOSION
+        EXPLOSION,
+        ORBITAL
     };
 
 private:
     float timer;
     float duration;
-
+    float angle = 0.0f;
+    float orbitRadius = 150.0f;
+    float orbitSpeed = 3.0f;
+    int orbitIndex = 0;      // Para posicionar múltiplos orbitais
+    int totalOrbitals = 1;   // Para distribuir uniformemente no círculo
     int damage;
     float knockback;
 
@@ -26,13 +31,13 @@ private:
 
 public:
     Attack(Entity* creator,
-        float lifeTime,
-        int damage,
-        AttackType type = AttackType::GENERIC,
-        float impulseX = 0.0f,
-        float impulseY = 0.0f,
-        float knockbackForce = 0.0f,
-        int sizeBox = 40);
+    float lifeTime,
+    int damage,
+    AttackType type = AttackType::GENERIC,
+    float impulseX = 0.0f,
+    float impulseY = 0.0f,
+    float knockbackForce = 0.0f,
+    int sizeBox = 40);
 
     ~Attack();
 
@@ -44,6 +49,10 @@ public:
     Entity* GetOwner() const;
     int GetDamage() const;
     AttackType GetType() const;
+    void SetOrbitParams(int index, int total) {
+        orbitIndex = index;
+        totalOrbitals = total;
+    }
 };
 
 #endif

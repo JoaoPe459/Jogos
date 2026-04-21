@@ -85,6 +85,7 @@ protected:
     float changeCooldown = 0.0f;
 
     void LoadLevel(std::string path);
+    
 
 public:
     // -------- CICLO DO JOGO --------
@@ -126,7 +127,11 @@ public:
     void UpdateStageTransition(float dt);
     int  GetCurrentStage() const { return currentBG; }
     void CreatePortalsForCurrentStage();
+    void DrawCentralMessage(const std::string& text, Color color, float x, float y);
+    
     int ghostAlive = 0;
+    bool comeuItem = false;
+    bool foodSpawned = false;
 };
 
 #endif

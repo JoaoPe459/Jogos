@@ -44,37 +44,51 @@ void Attack::Control() {
 void Attack::Update() {
     timer += gameTime;
 
-    if (timer >= duration) {
-        this->Die();
-    }
+    // Se for ORBITAL, ele ignora o timer de morte (duration)
+    if (attackType == AttackType::ORBITAL && owner) {
+        // Incrementa o ângulo global
+        angle += orbitSpeed * gameTime;
 
-    if (attackType == AttackType::MELEE && owner) {
-        MoveTo(owner->X(), owner->Y());
+        // Calcula o espaçamento (360 graus / total de objetos)
+        // 2 * PI = 6.28318f
+        float spacing = 6.28318f / totalOrbitals;
+        float finalAngle = angle + (orbitIndex * spacing);
+
+        // Define a nova posição baseada no seno e cosseno
+        float newX = owner->X() + cos(finalAngle) * orbitRadius;
+        float newY = owner->Y() + sin(finalAngle) * orbitRadius;
+
+        MoveTo(newX, newY);
     }
     else {
-        ApplyPhysics();
+        // Lógica original para projéteis e melee
+        if (timer >= duration) {
+            this->Die();
+        }
+
+        if (attackType == AttackType::MELEE && owner) {
+            MoveTo(owner->X(), owner->Y());
+        }
+        else {
+            ApplyPhysics();
+        }
     }
 }
 
 void Attack::OnCollision(Object* obj) {
     if (!obj || !owner || !alive) return;
-
-    // 1. Não colidir com o próprio dono ou outros ataques
     if (obj == owner || obj->Type() == ATTACK) return;
 
-    // 2. Se colidir com Parede ou Comida (Projectile morre)
-    if (obj->Type() == WALL || obj->Type() == FOOD) {
-        return;
-    }
-
-    // 3. Se colidir com inimigo OU Player (Dano e desaparece)
     if (obj->Type() == GHOST || obj->Type() == ENEMY || obj->Type() == PLAYER) {
         Entity* target = static_cast<Entity*>(obj);
         if (target) {
             target->TakeDamage(this);
-            this->Die();
-        }
 
+            // REGRA: Se NÃO for orbital, morre ao tocar. Se for, continua vivo.
+            if (attackType != AttackType::ORBITAL) {
+                this->Die();
+            }
+        }
     }
 }
 

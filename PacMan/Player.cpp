@@ -8,6 +8,13 @@
 #include "Attack.h"
 #include <string>
 
+void Player::UpdateOrbitalPositions() {
+    int total = orbitals.size();
+    for (int i = 0; i < total; i++) {
+        orbitals[i]->SetOrbitParams(i, total);
+    }
+}
+
 Player::Player() : Entity() {
     type = PLAYER;
     sprite = new Sprite("Resources/Player/Rato.png");
@@ -27,15 +34,15 @@ Player::Player() : Entity() {
 
 void Player::OnCollision(Object* obj) {
     Entity::OnCollision(obj);
-
+    
     if (obj->Type() == PORTAL) {
         Portal* p = (Portal*)obj;
         LevelMake* lvl = static_cast<LevelMake*>(Engine::game);
-
         if (lvl && !lvl->IsChangingStage()) {
             lvl->BeginStageChange();
 
             int nextStage = p->targetBG;
+
             lvl->SetStage(nextStage);
 
             const float SCREEN_WIDTH = 1300.0f;
@@ -69,8 +76,26 @@ void Player::OnCollision(Object* obj) {
     }
 
     // 2. Lógica específica do Player (Comida)
+    // No OnCollision do Player
     if (obj->Type() == FOOD) {
         SetHp(GetHp() + 10);
+
+        // Cria o orbital (duration 0.0f pois ele é permanente no Update)
+        Attack* orb = new Attack(
+            this, 0.0f, damage, Attack::AttackType::ORBITAL,
+            0, 0, 500.0f, 20 // sizeBox menor para a aura
+        );
+
+        // Adiciona na lista do Player e atualiza todos
+        orbitals.push_back(orb);
+        UpdateOrbitalPositions();
+
+        // Lógica original do seu projeto
+        LevelMake* lvl = static_cast<LevelMake*>(Engine::game);
+        if (lvl) { 
+            lvl->comeuItem = true;
+        }
+
     }
 }
 
@@ -124,7 +149,7 @@ void Player::Control() {
 
         Attack* atk = new Attack(
             this, 0.3f, damage, Attack::AttackType::PROJECTILE,
-            atkVelX, atkVelY, 1000.0f, 5
+            atkVelX, atkVelY, 1000.0f, 10
         );
 
         attackTimer = attackCooldown;

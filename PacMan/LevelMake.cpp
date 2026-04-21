@@ -82,6 +82,19 @@ void LevelMake::LoadLevel(std::string path)
     file.close();
 }
 
+void LevelMake::DrawCentralMessage(const std::string& text, Color color, float x, float y) {
+    if (text.empty() || consolas == nullptr) return;
+
+    // Se você passar x = -1, a função centraliza automaticamente no eixo X
+    float finalX = x;
+    if (x == -1.0f) {
+        float textWidth = text.length() * 8.0f;
+        finalX = window->CenterX() - (textWidth / 2.0f);
+    }
+
+    consolas->Draw(finalX, y, text, color);
+}
+
 // ------------------------------------------------------------------------------
 
 void LevelMake::Init(float gravity, int maxFood, int maxGhost, string levelBackground)
@@ -156,14 +169,23 @@ void LevelMake::Update()
     scene->CollisionDetection();
     UpdateStageTransition(gameTime);
 
-    // Se a sala ainda não foi limpa, verificamos a existência de inimigos na Scene
-    if (stages != nullptr && !stages[currentBG].visited)
-    {
-        
-        if ( ghostAlive == 0)
+    // Verifica se a sala ainda não foi concluída
+    if (stages != nullptr && !stages[currentBG].visited) {
+
+        // CONDIÇÃO 1: Inimigos mortos e comida ainda não spawnada
+        // foodSpawned é uma variável booleana que você deve adicionar à classe
+        if (ghostAlive == 0 && !foodSpawned)
         {
+            addFood(currentBG);
+            foodSpawned = true; // Garante que spawna apenas UMA comida
+        }
+
+        // CONDIÇÃO 2: Player consumiu o item
+        if (comeuItem) {
             stages[currentBG].visited = true;
             CreatePortalsForCurrentStage();
+            foodSpawned = false; // Reseta para a próxima sala
+            comeuItem = false;   // Reseta o estado de consumo
         }
     }
 
@@ -173,7 +195,6 @@ void LevelMake::Update()
         Engine::Next<Home>();
     }
 }
-
 // ------------------------------------------------------------------------------
 
 void LevelMake::Draw()
@@ -182,41 +203,32 @@ void LevelMake::Draw()
     if (stages != nullptr && stages[currentBG].background != nullptr)
         stages[currentBG].background->Draw(window->CenterX(), window->CenterY(), Layer::BACK);
 
-    // 2. Desenha os Objetos da Cena (Player, Ghosts, Walls)
+    // 2. Desenha os Objetos da Cena
     scene->Draw();
 
-    // 3. Interface de Texto (HUD)
+    // 2. MENSAGEM DE HP (Logo abaixo da principal)
     if (player != nullptr && consolas != nullptr)
     {
-        // Cor dinâmica para o HP
-        Color hpColor = (player->GetHp() < player->GetMaxHp() * 0.3f)
-            ? Color(1.0f, 0.2f, 0.2f, 1.0f) // Vermelho se baixo
-            : Color(1.0f, 1.0f, 1.0f, 1.0f);
-
-        // HP do Jogador
-        std::string hpStr = "HP: " + std::to_string((int)player->GetHp());
-        consolas->Draw(40, 40, hpStr, hpColor);
-
-        // Contador de Inimigos Restantes
-        std::string ghostStr = "Inimigos: " + std::to_string(ghostAlive);
-        consolas->Draw(40, 65, ghostStr, Color(1.0f, 1.0f, 0.4f, 1.0f));
-
-        // Índice do Estágio Atual
-        std::string stageStr = "Estagio: " + std::to_string(currentBG + 1);
-        consolas->Draw(window->Width() - 150, 40, stageStr, Color(0.8f, 0.8f, 1.0f, 1.0f));
-
-        // Status da Sala (Se os portais estão abertos)
-        if (stages != nullptr) {
-            if (stages[currentBG].visited) {
-                consolas->Draw(window->CenterX() - 60, 40, "PORTAIS ABERTOS", Color(0.2f, 1.0f, 0.2f, 1.0f));
-            }
-            else {
-                consolas->Draw(window->CenterX() - 70, 40, "DERROTE OS FANTASMAS", Color(1.0f, 0.5f, 0.0f, 1.0f));
-            }
+        // 1. MENSAGEM DE STATUS (Centralizada no topo)
+        if (ghostAlive > 0) {
+            DrawCentralMessage("DERROTE OS FANTASMAS", Color(1.0f, 0.5f, 0.0f, 1.0f), -1.0f, 40.0f);
         }
+        else if (!comeuItem) {
+            DrawCentralMessage("ITEM DISPONIVEL! CONSUMA PARA SAIR", Color(0.4f, 0.8f, 1.0f, 1.0f), -1.0f, 40.0f);
+        }
+        else {
+            DrawCentralMessage("PORTAIS ABERTOS!", Color(0.2f, 1.0f, 0.2f, 1.0f), -1.0f, 40.0f);
+        }
+
+        // 2. VIDA DO JOGADOR (Um pouco mais abaixo)
+        std::string hpStr = "HP: " + std::to_string((int)player->GetHp());
+        DrawCentralMessage(hpStr, Color(1.0f, 1.0f, 1.0f, 1.0f), -1.0f, 70.0f);
+
+        // 3. ESTÁGIO (No canto inferior direito ou centralizado abaixo)
+        std::string stageStr = "ESTAGIO: " + std::to_string(currentBG + 1);
+        DrawCentralMessage(stageStr, Color(0.8f, 0.8f, 1.0f, 1.0f), -1.0f, 100.0f);
     }
 
-    // 4. Debug: Caixas de Colisão
     if (viewBBox)
         scene->DrawBBox();
 }
