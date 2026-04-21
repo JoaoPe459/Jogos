@@ -10,7 +10,7 @@
 
 Player::Player() : Entity() {
     type = PLAYER;
-    sprite = new Sprite("Resources/Rato.png");
+    sprite = new Sprite("Resources/Player/Rato.png");
     BBox(new Rect(-80, -40, 80, 40));
     moves->setSpeed(500.0f);
 
@@ -21,7 +21,7 @@ Player::Player() : Entity() {
 
     calories = 0.0f;
     stamina = 100.0f;
-    damage = 10;
+    damage = 15;
 
 }
 
@@ -82,47 +82,51 @@ void Player::Control() {
     float targetVX = 0;
     float targetVY = 0;
 
-    if (window->KeyDown(VK_LEFT))  targetVX = -baseSpeed;
-    if (window->KeyDown(VK_RIGHT)) targetVX = baseSpeed;
-    if (window->KeyDown(VK_UP))    targetVY = -baseSpeed;
-    if (window->KeyDown(VK_DOWN))  targetVY = baseSpeed;
+    // Detecta entrada
+    if (window->KeyDown('A')) targetVX = -baseSpeed;
+    if (window->KeyDown('D')) targetVX = baseSpeed;
+    if (window->KeyDown('W')) targetVY = -baseSpeed;
+    if (window->KeyDown('S')) targetVY = baseSpeed;
 
+    // --- CORREÇÃO DE MOVIMENTO ---
+    // Se estiver movendo na diagonal, normaliza para não ser mais rápido
+    if (targetVX != 0 && targetVY != 0) {
+        float factor = 0.7071f; // (1 / sqrt(2))
+        targetVX *= factor;
+        targetVY *= factor;
+    }
+
+    // Aplica o Lerp (Aceleração/Fricção)
     float currentVX = moves->getVelX();
     float currentVY = moves->getVelY();
-
     float lerpFactor = accelerationRate * gameTime;
     if (lerpFactor > 1.0f) lerpFactor = 1.0f;
 
     moves->setVelX(currentVX + (targetVX - currentVX) * lerpFactor);
     moves->setVelY(currentVY + (targetVY - currentVY) * lerpFactor);
 
-
-    // Atualiza o timer de cooldown
+    // --- LÓGICA DE ATAQUE ---
     if (attackTimer > 0) { attackTimer -= gameTime; }
 
     if (window->KeyDown(VK_SPACE) && attackTimer <= 0) {
 
-        float atkVelX = 0.0f;
+        // Define uma direção padrão caso o jogador esteja parado (ex: atirar para a direita)
+        float atkVelX = baseSpeed * 2.0f;
         float atkVelY = 0.0f;
 
+        // Se o jogador estiver segurando alguma tecla, atira naquela direção
         if (targetVX != 0 || targetVY != 0) {
             atkVelX = targetVX * 2.0f;
             atkVelY = targetVY * 2.0f;
         }
+        // Opcional: Se ele estiver parado, você pode usar a última direção salva
+        // ou a velocidade atual do corpo (moves->getVelX())
 
         Attack* atk = new Attack(
-            this,               // Criador
-            0.3f,               // Duração (lifetime)
-            damage,             // Dano
-            Attack::AttackType::PROJECTILE, // Tipo do ataque
-            atkVelX,            // Velocidade X
-            atkVelY,            // Velocidade Y
-            1000.0f,             // Força de knockback
-			5				  // Tamanho da hitbox
+            this, 0.3f, damage, Attack::AttackType::PROJECTILE,
+            atkVelX, atkVelY, 1000.0f, 5
         );
 
-
-        // 3. Resetar o cooldown
         attackTimer = attackCooldown;
     }
 }

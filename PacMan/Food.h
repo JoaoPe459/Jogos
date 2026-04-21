@@ -8,58 +8,39 @@
 // Descrição:   Comida do PacMan
 //
 **********************************************************************************/
-
 #ifndef _PACMAN_FOOD_H_
 #define _PACMAN_FOOD_H_
 
-// ---------------------------------------------------------------------------------
-// Inclusões
-
-#include "Types.h"                      // tipos específicos da engine
-#include "Sprite.h"                     // interface de Sprites
+#include "Types.h"
+#include "Sprite.h"
 #include "PacMan.h"
 #include "Entity.h"
-
-
-
-// ---------------------------------------------------------------------------------
 
 class Food : public Entity
 {
 private:
-    Sprite* foodSprite = new Sprite("Resources/Food.png");
-    Sprite * sprite = nullptr; // sprite da comida
+    // --- Novos membros para múltiplos sprites ---
+    Sprite** sprites = nullptr;     // Array dinâmico de ponteiros de Sprite
+    Sprite* currentSprite = nullptr; // Sprite selecionado para esta instância
+    int spriteCount = 0;
+    // --------------------------------------------
+
     MovementType moveType;
     int dirX = 1;
     int dirY = 1;
 
 public:
-    Food();                             // construtor
-    ~Food();                            // destrutor
+    Food();
+    ~Food();
 
-
-    void Draw() override;                        // desenho do objeto
+    void Draw() override;
     void Control() override;
-	void HandleScreenWrap();              // lógica de teletransporte
-    void RespawnAtEdge();
-
+    void HandleScreenWrap();
     void OnCollision(Object* obj) override;
-
     void Update() override;
 
-    void RandomizeMovement() {
-        moveType = static_cast<MovementType>(rand() % 3);
-        dirX = (rand() % 2 == 0) ? 1 : -1;
-        dirY = (rand() % 2 == 0) ? 1 : -1;
-    }
+    // Função para sortear o sprite
+    void RandomizeSprite();
 };
-
-// ---------------------------------------------------------------------------------
-
-
-
-
-
-// ---------------------------------------------------------------------------------
 
 #endif

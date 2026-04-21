@@ -66,7 +66,7 @@ Ghost::Ghost() : Entity()
 
     this->MoveTo(randomX, randomY);
 
-	damage = 10;
+	damage = 7;
     hp = 30;
 	maxHp = 30;
 }
