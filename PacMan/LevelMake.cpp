@@ -169,7 +169,7 @@ void LevelMake::Update()
 
     if (window->KeyPress('B')) viewBBox = !viewBBox;
 
-    if (window->KeyPress(VK_ESCAPE)) {
+    if (player->GetHp() <= 0) {
         Engine::Next<Home>();
     }
 }
@@ -178,24 +178,45 @@ void LevelMake::Update()
 
 void LevelMake::Draw()
 {
+    // 1. Desenha o Fundo
     if (stages != nullptr && stages[currentBG].background != nullptr)
         stages[currentBG].background->Draw(window->CenterX(), window->CenterY(), Layer::BACK);
 
+    // 2. Desenha os Objetos da Cena (Player, Ghosts, Walls)
     scene->Draw();
 
+    // 3. Interface de Texto (HUD)
     if (player != nullptr && consolas != nullptr)
     {
+        // Cor dinâmica para o HP
         Color hpColor = (player->GetHp() < player->GetMaxHp() * 0.3f)
-            ? Color(1.0f, 0.2f, 0.2f, 1.0f)
+            ? Color(1.0f, 0.2f, 0.2f, 1.0f) // Vermelho se baixo
             : Color(1.0f, 1.0f, 1.0f, 1.0f);
 
+        // HP do Jogador
         std::string hpStr = "HP: " + std::to_string((int)player->GetHp());
         consolas->Draw(40, 40, hpStr, hpColor);
 
-		std::string calStr = "Bichos vivos: " + std::to_string((int)ghostAlive);
-		consolas->Draw(40, 60, calStr, Color(1.0f, 1.0f, 1.0f, 1.0f));
+        // Contador de Inimigos Restantes
+        std::string ghostStr = "Inimigos: " + std::to_string(ghostAlive);
+        consolas->Draw(40, 65, ghostStr, Color(1.0f, 1.0f, 0.4f, 1.0f));
+
+        // Índice do Estágio Atual
+        std::string stageStr = "Estagio: " + std::to_string(currentBG + 1);
+        consolas->Draw(window->Width() - 150, 40, stageStr, Color(0.8f, 0.8f, 1.0f, 1.0f));
+
+        // Status da Sala (Se os portais estão abertos)
+        if (stages != nullptr) {
+            if (stages[currentBG].visited) {
+                consolas->Draw(window->CenterX() - 60, 40, "PORTAIS ABERTOS", Color(0.2f, 1.0f, 0.2f, 1.0f));
+            }
+            else {
+                consolas->Draw(window->CenterX() - 70, 40, "DERROTE OS FANTASMAS", Color(1.0f, 0.5f, 0.0f, 1.0f));
+            }
+        }
     }
 
+    // 4. Debug: Caixas de Colisão
     if (viewBBox)
         scene->DrawBBox();
 }

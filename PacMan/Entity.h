@@ -22,6 +22,8 @@ protected:
     bool invulnerable = false;
     float invulTimer = 0.0f;
 
+	int damage = 1; // Dano base causado por este Entity (pode ser usado por ataques)
+
     void Die();
     void HandleWallCollision(Object* wall);
     void ApplyKnockback(Object* source, float force);

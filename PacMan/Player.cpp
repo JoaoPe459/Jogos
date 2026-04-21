@@ -21,6 +21,7 @@ Player::Player() : Entity() {
 
     calories = 0.0f;
     stamina = 100.0f;
+    damage = 10;
 
 }
 
@@ -111,13 +112,13 @@ void Player::Control() {
 
         Attack* atk = new Attack(
             this,               // Criador
-            0.2f,               // Duração (lifetime)
-            10,                  // Dano
+            0.3f,               // Duração (lifetime)
+            damage,             // Dano
             Attack::AttackType::PROJECTILE, // Tipo do ataque
             atkVelX,            // Velocidade X
             atkVelY,            // Velocidade Y
-            2000.0f,             // Força de knockback
-			30				  // Tamanho da hitbox
+            1000.0f,             // Força de knockback
+			5				  // Tamanho da hitbox
         );
 
 

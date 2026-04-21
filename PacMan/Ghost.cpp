@@ -65,6 +65,10 @@ Ghost::Ghost() : Entity()
     float randomY = (float)(rand() % rangeY) + margin;
 
     this->MoveTo(randomX, randomY);
+
+	damage = 10;
+    hp = 30;
+	maxHp = 30;
 }
 
 Ghost::~Ghost() {
@@ -169,7 +173,7 @@ void Ghost::AttackPlayer() {
     float velY = (diffY / distance) * projVel;
 
     // Cria o ataque: owner, lifetime, damage, type, impulseX, impulseY, knockback
-    Attack* bullet = new Attack(this, 1.5f, 10, Attack::AttackType::PROJECTILE, velX, velY, 100.0f);
+    Attack* bullet = new Attack(this, 1.5f, damage, Attack::AttackType::PROJECTILE, velX, velY, 100.0f, 5);
 
 }
 

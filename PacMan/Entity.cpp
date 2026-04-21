@@ -14,6 +14,7 @@ Entity::Entity() {
     mass = 1.0f;
     invulnerable = false;
     invulTimer = 0.0f;
+	damage = 1;
 }
 
 Entity::~Entity() {
@@ -22,11 +23,7 @@ Entity::~Entity() {
 
 
 void Entity::Update() {
-    if (!alive) {
-        return;
-    }
-
-    if (hp <= 0) {
+    if (hp <= 0 || !alive) {
         hp = 0;
         this->Die();
 		LevelMake* lvl = static_cast<LevelMake*>(Engine::game);
