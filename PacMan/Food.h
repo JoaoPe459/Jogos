@@ -45,6 +45,8 @@ public:
 
     void OnCollision(Object* obj) override;
 
+    void Update() override;
+
     void RandomizeMovement() {
         moveType = static_cast<MovementType>(rand() % 3);
         dirX = (rand() % 2 == 0) ? 1 : -1;

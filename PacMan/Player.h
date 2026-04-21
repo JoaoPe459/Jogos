@@ -22,6 +22,7 @@ public:
 
     void Control() override;
     void Draw() override;
+    void Update();
     void OnCollision(Object* obj) override;
 
     void Eat(float amount);

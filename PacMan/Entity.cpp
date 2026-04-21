@@ -20,9 +20,19 @@ Entity::~Entity() {
     delete moves;
 }
 
-void Entity::Update() {
-    if (!alive) return;
 
+void Entity::Update() {
+    if (!alive) {
+        return;
+    }
+
+    if (hp <= 0) {
+        hp = 0;
+        this->Die();
+		LevelMake* lvl = static_cast<LevelMake*>(Engine::game);
+        lvl->addFood(lvl->GetCurrentStage());
+        lvl->ghostAlive--;
+    }
     // Gerenciamento de Invulnerabilidade
     if (invulnerable) {
         invulTimer -= gameTime;
@@ -31,25 +41,15 @@ void Entity::Update() {
             invulTimer = 0.0f;
         }
     }
-
-    Control();
     ApplyPhysics();
     HandleScreenLimits();
 }
 
 void Entity::TakeDamage(Object* source) {
     if (!alive || invulnerable) return;
-
     hp -= source ? static_cast<Attack*>(source)->GetDamage() : 1;
-
-    // Se houver uma fonte de dano, aplica knockback automático
     if (source) {
-        ApplyKnockback(source, 1000.0f);
-    }
-
-    if (hp <= 0) {
-        hp = 0;
-        Die();
+        ApplyKnockback(source, 200.0f);
     }
     else {
         // Ativa frames de invencibilidade ao sofrer dano (ex: 0.1 segundos)
@@ -81,34 +81,38 @@ void Entity::ApplyPhysics() {
 }
 
 void Entity::OnCollision(Object* obj) {
-    if (obj->Type() == FOOD || !alive) return;
+    // 1. Segurança básica: verifica se este objeto ou o alvo são nulos ou já morreram
+    if (!obj || !alive) return;
 
-    if (obj->Type() == ATTACK) {
-        Attack* atk = static_cast<Attack*>(obj);
-        if (atk->GetOwner() == this) return;
-
-        this->TakeDamage(atk);
-        return;
-    }
+    // 2. Filtros de colisão simples
+    if (obj->Type() == FOOD) return;
 
     if (obj->Type() == WALL) {
         HandleWallCollision(obj);
         return;
     }
 
-    if (obj->Type() == PLAYER || obj->Type() == GHOST) {
-        Entity* other = static_cast<Entity*>(obj);
+    // 3. Cast seguro para Entity
+    // Como Player e Ghost herdam de Entity, este cast é válido para esses tipos
+    Entity* other = static_cast<Entity*>(obj);
 
-        float otherVX = other->moves->getVelX();
-        float otherVY = other->moves->getVelY();
-        float speedSum = sqrt(otherVX * otherVX + otherVY * otherVY);
-        float impactForce = speedSum * other->getMass();
+    // 4. VERIFICAÇÃO CRÍTICA DO ALIVE
+    // Se o objeto 'other' morreu em uma colisão processada milissegundos antes
+    // no mesmo frame, o check 'other->IsAlive()' impede o acesso a ponteiros inválidos.
+    if (other && other->IsAlive()) {
 
-        ApplyKnockback(obj, impactForce);
+        if (obj->Type() == PLAYER || obj->Type() == GHOST) {
+            // Agora é seguro acessar membros da Entity/Outros componentes
+            float otherVX = other->moves->getVelX();
+            float otherVY = other->moves->getVelY();
+            float speedSum = sqrt(otherVX * otherVX + otherVY * otherVY);
 
+            ApplyKnockback(obj, 20);
 
-        if (obj->Type() == GHOST) {
-            static_cast<Ghost*>(obj)->RandomizeMovement();
+            if (obj->Type() == GHOST) {
+                // Cast seguro pois verificamos o Type() acima
+                static_cast<Ghost*>(obj)->RandomizeMovement();
+            }
         }
     }
 }
@@ -138,18 +142,6 @@ float Entity::getMass() const {
 }
 
 
-void Entity::Die() {
-    if (!alive) { return; } // Evita chamadas duplicadas
-    alive = false;
-
-    if (Engine::game) {
-        LevelMake* lvl = static_cast<LevelMake*>(Engine::game);
-        if (lvl && lvl->GetScene()) {
-            lvl->GetScene()->Delete(this, MOVING);
-            //lvl->GetScene()->Delete(this, STATIC);
-        }
-    }
-}
 
 void Entity::HandleWallCollision(Object* wall) {
     Rect* r1 = static_cast<Rect*>(this->BBox());
@@ -271,6 +263,14 @@ void Entity::HandleScreenLimits() {
 
 void Entity::ApplyImpulse(float vx, float vy)
 {
+}
+
+void Entity::Die() {
+    if (!alive) return;
+    alive = false;
+
+    LevelMake* lvl = static_cast<LevelMake*>(Engine::game);
+    lvl->GetScene()->Delete(this, this->Type());
 }
 
 void Entity::Draw() {

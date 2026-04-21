@@ -375,7 +375,7 @@ bool Scene::Collision(Object* oa, Object* ob)
 {
     // um dos objetos não tem bounding box
     if (!(oa->BBox() && ob->BBox()))
-        return false;
+         return false;
 
     switch (oa->BBox()->Type())
     {
@@ -521,11 +521,11 @@ void Scene::CollisionDetection()
     if (!collisions.empty())
     {
         for (auto [a,b] : collisions)
-        {
-            a->OnCollision(b);
-            b->OnCollision(a);
+            {
+                a->OnCollision(b);
+                b->OnCollision(a);
+            }
         }
-    }
 
     ClearDeleted();
 }

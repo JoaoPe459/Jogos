@@ -1,64 +1,114 @@
 #include "PacMan.h"
 #include "Ghost.h"
 #include "Attack.h"
+#include <filesystem>
+#include <vector>
 
+namespace fs = std::filesystem;
 
 
 Ghost::Ghost() : Entity()
 {
-    type = GHOST;
+    type = ENEMY;
+
+    // --- 1. CARREGAMENTO AUTOMÁTICO DA PASTA ---
+    std::string path = "Resources/Enemy";
+    std::vector<std::string> filePaths;
+
+    if (fs::exists(path) && fs::is_directory(path)) {
+        for (const auto& entry : fs::directory_iterator(path)) {
+            std::string ext = entry.path().extension().string();
+            if (ext == ".png" || ext == ".jpg") {
+                filePaths.push_back(entry.path().string());
+            }
+        }
+    }
+
+    spriteCount = static_cast<int>(filePaths.size());
+
+    // Inicializa o array dinâmico se houver arquivos
+    if (spriteCount > 0) {
+        sprites = new Sprite * [spriteCount];
+        for (int i = 0; i < spriteCount; i++) {
+            sprites[i] = new Sprite(filePaths[i].c_str());
+        }
+    }
+
+    // --- 2. DEFINIÇÃO DO SPRITE ATUAL ---
     RandomizeSprite();
 
-    BBox(new Rect(-20, -20, 20, 20));
-    MoveTo(200.0f, 450.0f);
+    // --- 3. DEFINIÇÃO DA BBOX (Baseada no sprite carregado) ---
+    if (currentSprite) {
+        // Criamos a BBox centralizada no sprite sorteado
+        float h = (float)currentSprite->Height();
+        float w = (float)currentSprite->Width();
+        // Exemplo: Rect(topo, esquerda, baixo, direita) relativo ao centro
+        BBox(new Rect(-h / 2, -w / 2, h / 2, w / 2));
+    }
 
-    // Ajusta a velocidade inicial através do objeto moves da Entity
+    // --- 4. AJUSTES DE MOVIMENTAÇÃO E SPAWN ---
     moves->setSpeed(static_cast<float>(500.0f - (rand() % 200)));
     moveType = static_cast<MovementType>(rand() % 3);
 
     dirX = (rand() % 2 == 0) ? 1 : -1;
     dirY = (rand() % 2 == 0) ? 1 : -1;
     setMass(1.2f);
+
+    float margin = 50.0f;
+    int rangeX = (int)(window->Width() - (margin * 2));
+    int rangeY = (int)(window->Height() - (margin * 2));
+
+    if (rangeX <= 0) rangeX = 1;
+    if (rangeY <= 0) rangeY = 1;
+
+    float randomX = (float)(rand() % rangeX) + margin;
+    float randomY = (float)(rand() % rangeY) + margin;
+
+    this->MoveTo(randomX, randomY);
 }
 
-Ghost::~Ghost()
-{
-    delete redSprite; redSprite = nullptr;
-    delete blueSprite; blueSprite = nullptr;
-    delete orangeSprite; orangeSprite = nullptr;
-    delete pinkSprite; pinkSprite = nullptr;
-    //delete sprite; sprite = nullptr;
+Ghost::~Ghost() {
+    if (sprites != nullptr) {
+        for (int i = 0; i < spriteCount; i++) {
+            delete sprites[i];
+        }
+        delete[] sprites;
+    }
 }
 
 void Ghost::Draw()
 {
-    sprite->Draw(X(), Y());
+    if (currentSprite) {
+        currentSprite->Draw(X(), Y());
+    }
+}
+
+void Ghost::Update() {
+    Entity::Update();
+    Control();
 }
 
 void Ghost::OnCollision(Object* obj) {
     Entity::OnCollision(obj);
 
     // 2. Lógica específica do Ghost: mudar direção ao bater em algo sólido
-    if (obj->Type() == WALL || obj->Type() == GHOST || obj->Type() == PORTAL) {
+    if (obj->Type() == WALL || obj->Type() == GHOST || obj->Type() == PORTAL || obj->Type() == FOOD) {
         this->RandomizeMovement();
     }
 }
 
 void Ghost::Control() {
     if (!playerTarget) {
-        // Se não houver alvo, mantém o comportamento de Wrap da tela
         HandleScreenWrap();
         return;
     }
 
     attackTimer += gameTime;
 
-    // Vetor de direção até o jogador
     float diffX = playerTarget->X() - X();
     float diffY = playerTarget->Y() - Y();
     float distance = sqrt(diffX * diffX + diffY * diffY);
 
-    // Normalização do vetor de direção
     float dirToPlayerX = (distance > 0) ? diffX / distance : 0;
     float dirToPlayerY = (distance > 0) ? diffY / distance : 0;
 
@@ -66,60 +116,43 @@ void Ghost::Control() {
     float targetVY = 0;
     float speed = moves->getSpeed();
 
-    // ESTADO: PRONTO PARA ATACAR
-    if (attackTimer >= attackCooldown) {
-        // Aproxima-se o máximo possível
+    // Se estiver em cooldown, ele foge se o player chegar perto
+    if (attackTimer < attackCooldown) {
+        if (distance < 200.0f) { // Se o player chegar perto durante o cooldown
+            targetVX = -dirToPlayerX * speed;
+            targetVY = -dirToPlayerY * speed;
+        }
+        else {
+            // Movimento errático ou lento enquanto recarrega
+            targetVX = moves->getVelX();
+            targetVY = moves->getVelY();
+        }
+    }
+    else {
+        // Modo Perseguição
         targetVX = dirToPlayerX * speed;
         targetVY = dirToPlayerY * speed;
 
-        // Se estiver perto o suficiente, ataca e reseta o timer
         if (distance < 150.0f) {
             AttackPlayer();
             attackTimer = 0.0f;
         }
     }
-    // ESTADO: EM COOLDOWN (Fuga)
-    else {
-        if (distance < safeDistance) {
-            // Inverte a direção para se afastar
-            targetVX = -dirToPlayerX * speed;
-            targetVY = -dirToPlayerY * speed;
-        }
-        else {
-            // Se já estiver longe o suficiente, fica parado ou circula
-            targetVX = 0;
-            targetVY = 0;
-        }
-    }
 
-    // Aplicação suave da velocidade usando o Lerp que você já criou
-    float accelerationRate = 5.0f;
+    // Aumente o accelerationRate se parecer "lento" para virar
+    float accelerationRate = 10.0f;
     float lerpFactor = accelerationRate * gameTime;
     if (lerpFactor > 1.0f) lerpFactor = 1.0f;
 
-    float currentVX = moves->getVelX();
-    float currentVY = moves->getVelY();
-
-    moves->setVelX(currentVX + (targetVX - currentVX) * lerpFactor);
-    moves->setVelY(currentVY + (targetVY - currentVY) * lerpFactor);
+    moves->setVelX(moves->getVelX() + (targetVX - moves->getVelX()) * lerpFactor);
+    moves->setVelY(moves->getVelY() + (targetVY - moves->getVelY()) * lerpFactor);
 
     HandleScreenWrap();
 }
 
 void Ghost::RandomizeSprite() {
-    int randomValue = rand() % 4;
-    SetSpriteByIndex(randomValue);
-}
-
-void Ghost::SetSpriteByIndex(int index) {
-    switch (index) {
-    case 0: this->sprite = redSprite; break;
-    case 1: this->sprite = blueSprite; break;
-    case 2: this->sprite = orangeSprite; break;
-    case 3: this->sprite = pinkSprite; break;
-    default:
-        this->sprite = redSprite;
-        break;
+    if (spriteCount > 0 && sprites != nullptr) {
+        currentSprite = sprites[rand() % spriteCount];
     }
 }
 
@@ -136,6 +169,7 @@ void Ghost::AttackPlayer() {
     float velY = (diffY / distance) * projVel;
 
     // Cria o ataque: owner, lifetime, damage, type, impulseX, impulseY, knockback
-    Attack* bullet = new Attack(this, 1.5f, 5, Attack::AttackType::PROJECTILE, velX, velY, 100.0f);
+    Attack* bullet = new Attack(this, 1.5f, 10, Attack::AttackType::PROJECTILE, velX, velY, 100.0f);
 
 }
+

@@ -22,7 +22,7 @@ protected:
     bool invulnerable = false;
     float invulTimer = 0.0f;
 
-    virtual void Die();
+    void Die();
     void HandleWallCollision(Object* wall);
     void ApplyKnockback(Object* source, float force);
 
@@ -31,11 +31,9 @@ protected:
 public:
     Entity();
     virtual ~Entity();
-
     virtual void Update() override;
     virtual void Draw() override;
     virtual void OnCollision(Object* obj) override;
-
     virtual void Control() = 0;
 
     void ApplyPhysics();
@@ -45,6 +43,7 @@ public:
     // --- Getters e Setters de Combate ---
     void SetMaxHp(int value);
     void SetHp(int value);
+	void SetAlive(bool value) { alive = value; }
     int GetHp() const;
     int GetMaxHp() const;
     bool IsAlive() const;

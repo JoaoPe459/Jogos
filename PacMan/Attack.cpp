@@ -4,6 +4,8 @@
 #include "Engine.h"
 #include "LevelMake.h"
 
+class Scene;
+
 Attack::Attack(Entity* creator, float lifeTime, int dmg, AttackType type, float impulseX, float impulseY, float knockbackForce, int sizeBox) {
     owner = creator;
     duration = lifeTime;
@@ -28,7 +30,7 @@ Attack::Attack(Entity* creator, float lifeTime, int dmg, AttackType type, float 
     if (Engine::game) {
         LevelMake* lvl = static_cast<LevelMake*>(Engine::game);
         if (lvl && lvl->GetScene()) {
-            lvl->GetScene()->Add(this, MOVING);
+            lvl->GetScene()->Add(this, STATIC);
         }
     }
 }
@@ -44,10 +46,8 @@ void Attack::Update() {
 
     if (timer >= duration) {
         this->Die();
-        return;
     }
 
-    // Se for um ataque MELEE, ele "gruda" no dono
     if (attackType == AttackType::MELEE && owner) {
         MoveTo(owner->X(), owner->Y());
     }
@@ -59,35 +59,22 @@ void Attack::Update() {
 void Attack::OnCollision(Object* obj) {
     if (!obj || !owner || !alive) return;
 
-    // 1. Não colidir com o próprio dono
-    if (obj == owner) return;
+    // 1. Não colidir com o próprio dono ou outros ataques
+    if (obj == owner || obj->Type() == ATTACK) return;
 
-    // 2. Parede destrói projéteis, mas talvez não ataques corpo-a-corpo
-    if (obj->Type() == WALL) {
-        if (attackType == AttackType::PROJECTILE) {
-            this->Die();
-        }
+    // 2. Se colidir com Parede ou Comida (Projectile morre)
+    if (obj->Type() == WALL || obj->Type() == FOOD) {
         return;
     }
 
-    // 3. Se colidir com uma Entity (Player, Ghost, etc.)
-    // Verificamos se o objeto colidido herda de Entity usando o Type()
-    if (obj->Type() == PLAYER || obj->Type() == GHOST || obj->Type() == ENEMY) {
+    // 3. Se colidir com inimigo OU Player (Dano e desaparece)
+    if (obj->Type() == GHOST || obj->Type() == ENEMY || obj->Type() == PLAYER) {
         Entity* target = static_cast<Entity*>(obj);
-
-        // Aplica o dano
-        target->TakeDamage(this);
-
-        // Se não for um ataque persistente (área), o ataque morre ao atingir o primeiro alvo
-        if (attackType == AttackType::PROJECTILE) {
+        if (target) {
+            target->TakeDamage(this);
             this->Die();
         }
-    }
 
-    // 4. Se colidir com um portal
-	if (obj->Type() == PORTAL) {
-		this->Die();
-        return;
     }
 }
 

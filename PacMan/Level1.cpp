@@ -28,9 +28,7 @@ void Level1::Init() {
     consolas->Spacing("Resources/consolas12.dat");
 
     // Inicializa o restante da lógica (fantasmas, comida, etc)
-    LevelMake::Init(0.0f, 10 , 10, "");
-    ghostInit();
-    foodInit();
+    LevelMake::Init(0.0f, 3 , 3, "");
     SetStage(0);
 }
 
@@ -41,14 +39,10 @@ void Level1::Init() {
 
 void Level1::Update()
 {
-    
-
+    LevelMake::Update();
     if (window->KeyPress('N')) {
         Engine::Next<Level2>();
-        return;
     }
-
-    LevelMake::Update();
 }
 
 // ------------------------------------------------------------------------------

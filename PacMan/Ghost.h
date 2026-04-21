@@ -15,11 +15,9 @@ enum class SpriteType {
 class Ghost : public Entity
 {
 private:
-    Sprite* redSprite = new Sprite("Resources/GhostRedR.png");
-    Sprite* blueSprite = new Sprite("Resources/GhostBlueR.png");
-    Sprite* orangeSprite = new Sprite("Resources/GhostOrangeD.png");
-    Sprite* pinkSprite = new Sprite("Resources/GhostPinkD.png");
-    Sprite* sprite;
+    Sprite** sprites = nullptr; // Array de ponteiros (vetor normal dinâmico)
+    Sprite* currentSprite = nullptr;
+    int spriteCount = 0;
 
     MovementType moveType;
     int dirX = 1;
@@ -52,6 +50,8 @@ public:
     void SetSpriteByIndex(int index);
 
     void SetTarget(Entity* target) { playerTarget = target; }
+
+    void Update();
 };
 
 #endif

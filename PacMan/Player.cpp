@@ -130,6 +130,11 @@ void Player::Draw() {
     sprite->Draw(X(), Y());
 }
 
+void Player::Update() {
+    Entity::Update();
+    Control();
+}
+
 
 Player::~Player() {
     if (sprite) {

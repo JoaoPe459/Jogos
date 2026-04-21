@@ -2,7 +2,7 @@
 // LevelMake (Arquivo de Cabeçalho)
 //
 // Criação:     18 Jan 2013
-// Atualização: 17 Apr 2026
+// Atualização: 21 Apr 2026
 // Compilador:  Visual C++ 2022
 //
 // Descrição:   Sistema de estágios com HUB e portais circulares
@@ -33,17 +33,24 @@
 struct PortalData {
     float x, y;
     int targetBG;
-
-    // Opcional: direção do portal (útil pra spawn offset)
     int direction; // 0=UP, 1=DOWN, 2=LEFT, 3=RIGHT
 };
 
-// Definição de um cenário completo
+// Definição de um cenário completo.
+//
+// ATENÇÃO — propriedade de memória:
+//   background e portals   → StageConfig é dono, Finalize() os deleta.
+//   ghosts[] e foods[]     → são arrays de RASTREAMENTO apenas.
+//                            Os objetos pertencem à Scene (adicionados via Add()).
+//                            Finalize() libera apenas os arrays, nunca os objetos.
 struct StageConfig {
-    Sprite* background;
-    PortalData* portals;
-    int portalCount;
-    float spawnX, spawnY;
+    Sprite* background = nullptr;
+    PortalData* portals = nullptr;
+    int         portalCount = 0;
+    float       spawnX = 0.0f;
+    float       spawnY = 0.0f;
+	bool visited = false;
+
 };
 
 // ------------------------------------------------------------------------------
@@ -56,48 +63,53 @@ protected:
     Sprite* backg = nullptr;
     Scene* scene = nullptr;
     Sprite* foodSprite = nullptr;
-
     Font* consolas = nullptr;
 
-    bool viewBBox = false;
+    bool    viewBBox = false;
 
     StageConfig* stages = nullptr;
-    int bgCount = 0;
-    int currentBG = 0;
+    int          bgCount = 0;
+    int          currentBG = 0;
 
+    // Rastreamento dos portais ativos na cena (Scene é dona dos objetos)
     Entity** activePortals = nullptr;
-    int activePortalCount = 0;
+    int      activePortalCount = 0;
 
-    int MAX_FOOD = 0;
     int MAX_GHOSTS = 0;
+    
 
     Player* player = nullptr;
-    Food** foods = nullptr;
-    Entity** entities = nullptr;
-
-    int foodCount = 0;
-    int entityCount = 0;
 
     // -------- CONTROLE DE TRANSIÇÃO --------
-    bool changingStage = false;
+    bool  changingStage = false;
     float changeCooldown = 0.0f;
 
     void LoadLevel(std::string path);
 
 public:
     // -------- CICLO DO JOGO --------
-    void Init() override;
+    void Init() {};
     void Init(float, int, int, std::string);
-    void Update() override;
-    void Draw() override;
+    void Update()   override;
+    void Draw()     override;
     void Finalize() override;
 
     // -------- ACESSO À CENA --------
     Scene* GetScene() { return scene; }
 
-    // -------- INICIALIZAÇÃO --------
-    void ghostInit();
-    void foodInit();
+    // -------- INICIALIZAÇÃO DE ENTIDADES --------
+    void ghostInit(int stageIndex);
+    void foodInit(int stageIndex = -1);
+
+    Ghost* addGhost(int stageIndex);
+
+    Food* addFood(int stageIndex);
+
+    // Sobrecargas de conveniência — operam sobre o estágio atual
+    void ghostInit() { ghostInit(currentBG); }
+    void foodInit() { foodInit(currentBG); }
+
+    void Remove(Object* obj, int type);
     void GenerateMaze(Scene* scene, Window* window, int tileSize);
 
     // -------- SISTEMA DE STAGE --------
@@ -107,18 +119,14 @@ public:
     float GetSpawnX(int index) const;
     float GetSpawnY(int index) const;
 
-    // -------- CONTROLE DE PORTAL (NOVO) --------
-    bool IsChangingStage() const { return changingStage; }
-
+    // -------- CONTROLE DE PORTAL --------
+    bool IsChangingStage()  const { return changingStage; }
     void BeginStageChange() { changingStage = true; }
-
-    void SetStageChangeCooldown(float time) {
-        changeCooldown = time;
-    }
-
+    void SetStageChangeCooldown(float time) { changeCooldown = time; }
     void UpdateStageTransition(float dt);
-
-    int GetCurrentStage() const { return currentBG; }
+    int  GetCurrentStage() const { return currentBG; }
+    void CreatePortalsForCurrentStage();
+    int ghostAlive = 0;
 };
 
 #endif

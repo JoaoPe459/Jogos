@@ -20,8 +20,6 @@
 void Level2::Init()
 {
     LevelMake::Init(600, 5, 5, "Resources/Level2.jpg");
-    LevelMake::ghostInit();
-    LevelMake::foodInit();
 
     int tileSize = 44;
     //GenerateMaze(scene, window, tileSize);
@@ -31,17 +29,6 @@ void Level2::Init()
 
 void Level2::Update()
 {
-    for (int i = 0; i < entityCount; i++) {
-        if (entities[i] != nullptr && !entities[i]->IsAlive()) {
-            entities[i]->MoveTo(window->CenterX(), window->CenterY());
-        }
-    }
-
-    for (int i = 0; i < foodCount; i++) {
-        if (foods[i] != nullptr && !foods[i]->IsAlive()) {
-            foods[i]->MoveTo(200.0f + (rand() % 400), 200.0f + (rand() % 300));
-        }
-    }
 
     if (window->KeyPress(VK_ESCAPE)) {
         Engine::Next<Home>();
