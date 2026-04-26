@@ -17,7 +17,22 @@ void Player::UpdateOrbitalPositions() {
 
 Player::Player() : Entity() {
     type = PLAYER;
-    sprite = new Sprite("Resources/Player/Rato.png");
+    walking = new TileSet("Resources/Walking.png", 55, 95, 8, 40);
+    anim = new Animation(walking, 0.060f, true);
+
+    uint SeqUp[8] = { 16, 17, 18, 19, 20, 21, 22, 23 };
+    uint SeqDown[8] = { 24, 25, 26, 27, 28, 29, 30, 31 };
+    uint SeqLeft[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
+    uint SeqRight[8] = { 15, 14, 13, 12, 11, 10, 9, 8 };
+    uint SeqStill[1] = { 32 };
+
+    anim->Add(WALKUP, SeqUp, 8);
+    anim->Add(WALKDOWN, SeqDown, 8);
+    anim->Add(WALKLEFT, SeqLeft, 8);
+    anim->Add(WALKRIGHT, SeqRight, 8);
+    anim->Add(STILL, SeqStill, 1);
+
+    state = STILL;
     BBox(new Rect(-80, -40, 80, 40));
     moves->setSpeed(500.0f);
 
@@ -107,11 +122,33 @@ void Player::Control() {
     float targetVX = 0;
     float targetVY = 0;
 
+
+    if (window->KeyUp(VK_UP) && window->KeyUp(VK_DOWN) && window->KeyUp(VK_LEFT) && window->KeyUp(VK_RIGHT))
+    {
+        state = STILL;
+    }
+
     // Detecta entrada
-    if (window->KeyDown('A')) targetVX = -baseSpeed;
-    if (window->KeyDown('D')) targetVX = baseSpeed;
-    if (window->KeyDown('W')) targetVY = -baseSpeed;
-    if (window->KeyDown('S')) targetVY = baseSpeed;
+    if (window->KeyDown('A')) {
+        targetVX = -baseSpeed;
+		state = WALKLEFT;
+    }
+    if (window->KeyDown('D')) {
+        targetVX = baseSpeed;
+        state = WALKRIGHT;
+    }
+    if (window->KeyDown('W')) {
+        targetVY = -baseSpeed;
+        state = WALKUP;
+    }
+    if (window->KeyDown('S')) {
+        targetVY = baseSpeed;
+		state = WALKDOWN;
+    }
+
+    anim->Select(state);
+    anim->NextFrame();
+
 
     // --- CORREÇÃO DE MOVIMENTO ---
     // Se estiver movendo na diagonal, normaliza para não ser mais rápido
@@ -156,8 +193,9 @@ void Player::Control() {
     }
 }
 
-void Player::Draw() {
-    sprite->Draw(X(), Y());
+void Player::Draw()
+{
+    anim->Draw(x, y, z);
 }
 
 void Player::Update() {
@@ -167,7 +205,6 @@ void Player::Update() {
 
 
 Player::~Player() {
-    if (sprite) {
-        delete sprite;
-    }
+    delete anim;
+    delete walking;
 }

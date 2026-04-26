@@ -8,6 +8,8 @@
 
 class LevelMake;
 
+enum EntityState { STILL, WALKUP, WALKDOWN, WALKLEFT, WALKRIGHT };
+
 class Entity : public Object {
 protected:
     Moves* moves = nullptr;
@@ -31,6 +33,9 @@ protected:
     void HandleScreenWrap();
 
 public:
+
+    EntityState state = STILL;
+
     Entity();
     virtual ~Entity();
     virtual void Update() override;

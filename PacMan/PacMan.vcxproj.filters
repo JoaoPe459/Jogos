@@ -117,6 +117,9 @@
     <ClCompile Include="TileSet.cpp">
       <Filter>Engine\Arquivos de Origem</Filter>
     </ClCompile>
+    <ClCompile Include="Animation.cpp">
+      <Filter>Engine\Arquivos de Origem</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">

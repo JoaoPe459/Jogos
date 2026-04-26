@@ -4,10 +4,12 @@
 #include "Entity.h"
 #include "Attack.h"
 #include "Font.h"
+#include "Animation.h"
 
 class Player : public Entity {
 private:
-    Sprite* sprite = nullptr;
+    TileSet   * walking;                // folha de sprites do personagem
+    Animation * anim;                   // animação do personagem
     // Atributos exclusivos do Player (não existem em Entity)
     float calories = 0.0f;
     float stamina = 100.0f;
