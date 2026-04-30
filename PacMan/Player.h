@@ -29,8 +29,6 @@ public:
     void Update();
     void OnCollision(Object* obj) override;
 
-    void Eat(float amount);
-
 };
 
 #endif

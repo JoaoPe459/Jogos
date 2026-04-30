@@ -6,11 +6,11 @@ STAGE 0 Resources/Background/Background1.png 650 400   # Topo Esquerda
 STAGE 1 Resources/Background/Background2.png 650 400   # HUB Central
 STAGE 2 Resources/Background/Background2.1.png 650 400 # Topo Direita
 STAGE 3 Resources/Background/Background2.2.png 650 400 # Meio Esquerda
-STAGE 4 Resources/Background/Background2.3.png 650 400 # Meio Direita
+STAGE 4 Resources/Background/BackgroundTutorial.png 650 400 # Meio Direita
 STAGE 5 Resources/Background/Background3.png 650 400   # Baixo Esquerda
 STAGE 6 Resources/Background/Background3.1.png 650 400 # Baixo Centro
 STAGE 7 Resources/Background/Background3.2.png 650 400 # Baixo Direita
-STAGE 8 Resources/Background/Background1.png 650 400   # Topo Centro (Reutilizado p/ completar)
+STAGE 8 Resources/Background/Background2.3.png 650 400   # Topo Centro (Reutilizado p/ completar)
 
 # ---------------------------------------------------------
 # CONEXÕES (Baseado na posição geográfica do 3x3)

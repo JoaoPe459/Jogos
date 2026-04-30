@@ -4,38 +4,70 @@
 #include "Engine.h"
 #include "LevelMake.h"
 
+
 class Scene;
 
-Attack::Attack(Entity* creator, float lifeTime, int dmg, AttackType type, float impulseX, float impulseY, float knockbackForce, int sizeBox) {
-    owner = creator;
-    duration = lifeTime;
-    timer = 0.0f;
+namespace fs = std::filesystem;
 
-    damage = dmg;
-    knockback = knockbackForce;
-    attackType = type;
+Attack::Attack(string path,
+    int titleWidth,
+    int titleHeigth,
+    int titleColuns,
+    int titleLines,
+    uint up[8],
+    uint down[8],
+    uint left[8],
+    uint right[8],
+    uint still[1],
+    Entity* creator,
+    float lifeTime,
+    int dmg,
+    float knockbackForce,
+    AttackType type,
+    float sizeBox,
+    float velX,
+    float velY
+)
+{
+    walking = new TileSet(path, titleWidth, titleHeigth, titleColuns, titleLines);
+    currentAnimation = new Animation(walking, 0.060f, true);
+    currentAnimation->Add(WALKUP, up, 8);
+    currentAnimation->Add(WALKDOWN, down, 8);
+    currentAnimation->Add(WALKLEFT, left, 8);
+    currentAnimation->Add(WALKRIGHT,right, 8);
+    currentAnimation->Add(STILL, still, 1);
 
+
+    // 2. Atribuição de Atributos
+    this->owner = creator;
+    this->duration = lifeTime;
+    this->timer = 0.0f;
+    this->damage = dmg;
+    this->knockback = knockbackForce;
+    this->attackType = type;
     this->type = ATTACK;
 
+    // 3. Física e Posicionamento
     BBox(new Rect(-sizeBox, -sizeBox, sizeBox, sizeBox));
 
     if (owner) {
         MoveTo(owner->X(), owner->Y());
     }
 
-    mass = 0.5f;
-    moves->setVelX(impulseX);
-    moves->setVelY(impulseY);
-
-    if (Engine::game) {
-        LevelMake* lvl = static_cast<LevelMake*>(Engine::game);
-        if (lvl && lvl->GetScene()) {
-            lvl->GetScene()->Add(this, STATIC);
+    this->mass = 0.5f;
+    moves->setVelX(velX);
+    moves->setVelY(velY);
+    // 4. Registro na Cena (Segurança extra com cast)
+    if (auto* lvl = dynamic_cast<LevelMake*>(Engine::game)) {
+        if (auto* scene = lvl->GetScene()) {
+            scene->Add(this, STATIC);
         }
     }
 }
 
 Attack::~Attack() {
+    delete walking;
+    delete currentAnimation;
 }
 
 void Attack::Control() {
@@ -43,7 +75,8 @@ void Attack::Control() {
 
 void Attack::Update() {
     timer += gameTime;
-
+    currentAnimation->Select(WALKUP);
+    currentAnimation->NextFrame();
     // Se for ORBITAL, ele ignora o timer de morte (duration)
     if (attackType == AttackType::ORBITAL && owner) {
         // Incrementa o ângulo global
@@ -93,7 +126,7 @@ void Attack::OnCollision(Object* obj) {
 }
 
 void Attack::Draw() {
-    // Implementação visual (Sprite ou formas geométricas)
+    currentAnimation->Draw(x, y, z);
 }
 
 Entity* Attack::GetOwner() const { return owner; }

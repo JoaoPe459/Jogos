@@ -96,9 +96,29 @@ void Player::OnCollision(Object* obj) {
         SetHp(GetHp() + 10);
 
         // Cria o orbital (duration 0.0f pois ele é permanente no Update)
-        Attack* orb = new Attack(
-            this, 0.0f, damage, Attack::AttackType::ORBITAL,
-            0, 0, 500.0f, 20 // sizeBox menor para a aura
+        uint SeqUp[8] = { 1, 2, 3, 4, 5, 6, 7, 8 };
+        uint SeqDown[8] = { 9, 10, 11, 12, 13, 14, 15, 16 };
+        uint SeqLeft[8] = { 17, 18, 19, 20, 21, 22, 23, 24 };
+        uint SeqRight[8] = { 25 , 26, 27, 28, 29, 30, 31, 32 };
+        uint SeqStill[1] = { 32 };
+        Attack* orb = new Attack("Resources/Effects/Attackplayer.png",
+            64,
+            64,
+            8,
+            8,
+            SeqUp,
+            SeqDown,
+            SeqLeft,
+            SeqRight,
+            SeqStill,
+            this,
+            0.0f,
+            10,
+            500.0f,
+            Attack::AttackType::EXPLOSION,
+            20,
+            100,
+            100
         );
 
         // Adiciona na lista do Player e atualiza todos
@@ -184,9 +204,29 @@ void Player::Control() {
         // Opcional: Se ele estiver parado, você pode usar a última direção salva
         // ou a velocidade atual do corpo (moves->getVelX())
 
-        Attack* atk = new Attack(
-            this, 0.3f, damage, Attack::AttackType::PROJECTILE,
-            atkVelX, atkVelY, 1000.0f, 10
+        uint SeqUp[8] = { 1, 2, 3, 4, 5, 6, 7, 8 };
+        uint SeqDown[8] = { 9, 10, 11, 12, 13, 14, 15, 16 };
+        uint SeqLeft[8] = { 17, 18, 19, 20, 21, 22, 23, 24 };
+        uint SeqRight[8] = { 25 , 26, 27, 28, 29, 30, 31, 32 };
+        uint SeqStill[1] = { 32 };
+        Attack* bullet = new Attack("Resources/Effects/Attackplayer.png",
+            64,
+            64,
+            8,
+            8,
+            SeqUp,
+            SeqDown,
+            SeqLeft,
+            SeqRight,
+            SeqStill,
+            this,
+            0.3f,
+            10,
+            500.0f,
+            Attack::AttackType::EXPLOSION,
+            20,
+            atkVelX,
+            atkVelY
         );
 
         attackTimer = attackCooldown;

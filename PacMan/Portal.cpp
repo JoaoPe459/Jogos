@@ -4,7 +4,7 @@
 Portal::Portal(float x, float y, int bgIndex) {
     type = PORTAL;
     targetBG = bgIndex;
-    sprite = new Sprite("Resources/Portal.png");
+    sprite = new Sprite("Resources/Doors/Porta1.png");
     MoveTo(x, y);
     BBox(new Rect(-16, -16, 16, 16));
 }
@@ -17,9 +17,7 @@ void Portal::Update() {
 }
 
 void Portal::Draw() {
-    if (sprite) {
-        sprite->Draw(x, y, Layer::FRONT);
-    }
+    sprite->Draw(x, y, Layer::FRONT);
 }
 
 void Portal::Control() {

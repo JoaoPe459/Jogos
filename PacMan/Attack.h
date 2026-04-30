@@ -2,6 +2,10 @@
 #define _ATTACK_H_
 
 #include "Entity.h"
+#include "Animation.h"
+#include "TileSet.h"
+#include <filesystem>
+#include <vector>
 
 class Attack : public Entity {
 public:
@@ -26,18 +30,16 @@ private:
     float knockback;
 
     Entity* owner;
-
     AttackType attackType;
+    TileSet* walking;
+    Animation* currentAnimation = nullptr; // Sprite selecionado para esta instância
+    int spriteCount = 0;
+
 
 public:
-    Attack(Entity* creator,
-    float lifeTime,
-    int damage,
-    AttackType type = AttackType::GENERIC,
-    float impulseX = 0.0f,
-    float impulseY = 0.0f,
-    float knockbackForce = 0.0f,
-    int sizeBox = 40);
+    
+
+    Attack(string path, int titleWidth, int titleHeigth, int titleColuns, int titleLines, uint up[8], uint down[8], uint left[8], uint right[8], uint still[1], Entity* creator, float lifeTime, int dmg, float knockbackForce, AttackType type, float sizeBox, float velX, float velY);
 
     ~Attack();
 

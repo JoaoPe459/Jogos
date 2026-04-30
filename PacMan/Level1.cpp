@@ -28,8 +28,8 @@ void Level1::Init() {
     consolas->Spacing("Resources/consolas12.dat");
 
     // Inicializa o restante da lógica (fantasmas, comida, etc)
-    LevelMake::Init(0.0f, 3 , 3, "");
-    SetStage(0);
+    LevelMake::Init(0.0f, 0 , 0, "");
+    SetStage(4);
 }
 
 // ------------------------------------------------------------------------------

@@ -168,12 +168,34 @@ void Ghost::AttackPlayer() {
     float diffY = playerTarget->Y() - Y();
     float distance = sqrt(diffX * diffX + diffY * diffY);
 
-    float projVel = 400.0f; // Velocidade do tiro
+    float projVel = 400.0f; 
     float velX = (diffX / distance) * projVel;
     float velY = (diffY / distance) * projVel;
-
     // Cria o ataque: owner, lifetime, damage, type, impulseX, impulseY, knockback
-    Attack* bullet = new Attack(this, 1.5f, damage, Attack::AttackType::PROJECTILE, velX, velY, 100.0f, 5);
+    uint SeqUp[8] = { 1, 2, 3, 4, 5, 6, 7, 8 };
+    uint SeqDown[8] = { 9, 10, 11, 12, 13, 14, 15, 16 };
+    uint SeqLeft[8] = { 17, 18, 19, 20, 21, 22, 23, 24 };
+    uint SeqRight[8] = { 25 , 26, 27, 28, 29, 30, 31, 32};
+    uint SeqStill[1] = { 32 };
+    Attack* bullet = new Attack("Resources/Effects/Attackplayer.png",
+    64,
+    64,
+    8,
+    8,
+    SeqUp,
+    SeqDown,
+    SeqLeft,
+    SeqRight,
+    SeqStill,
+    this,
+    0.3f,
+    10,
+    500.0f,
+    Attack::AttackType::EXPLOSION,
+    15,
+    velX,
+    velY
+    );
 
 }
 
