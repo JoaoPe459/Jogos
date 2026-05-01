@@ -75,7 +75,22 @@ void Attack::Control() {
 
 void Attack::Update() {
     timer += gameTime;
-    currentAnimation->Select(WALKUP);
+    if (moves->getVelY() < 0) {
+        currentAnimation->Select(WALKUP);
+    }
+    else if (moves->getVelY() > 0) {
+        currentAnimation->Select(WALKDOWN);
+    }
+    else if (moves->getVelX() < 0) {
+        currentAnimation->Select(WALKLEFT);
+    }
+    else if (moves->getVelX() > 0) {
+        currentAnimation->Select(WALKRIGHT);
+    }
+    else {
+        currentAnimation->Select(STILL);
+    }
+
     currentAnimation->NextFrame();
     // Se for ORBITAL, ele ignora o timer de morte (duration)
     if (attackType == AttackType::ORBITAL && owner) {

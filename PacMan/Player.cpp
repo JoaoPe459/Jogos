@@ -142,43 +142,25 @@ void Player::Control() {
     float targetVX = 0;
     float targetVY = 0;
 
-
-    if (window->KeyUp(VK_UP) && window->KeyUp(VK_DOWN) && window->KeyUp(VK_LEFT) && window->KeyUp(VK_RIGHT))
-    {
+    // --- LOGICA DE MOVIMENTAÇÃO (WASD) ---[cite: 4]
+    if (window->KeyUp('W') && window->KeyUp('S') && window->KeyUp('A') && window->KeyUp('D')) {
         state = STILL;
     }
 
-    // Detecta entrada
-    if (window->KeyDown('A')) {
-        targetVX = -baseSpeed;
-		state = WALKLEFT;
-    }
-    if (window->KeyDown('D')) {
-        targetVX = baseSpeed;
-        state = WALKRIGHT;
-    }
-    if (window->KeyDown('W')) {
-        targetVY = -baseSpeed;
-        state = WALKUP;
-    }
-    if (window->KeyDown('S')) {
-        targetVY = baseSpeed;
-		state = WALKDOWN;
-    }
+    if (window->KeyDown('A')) { targetVX = -baseSpeed; state = WALKLEFT; }
+    if (window->KeyDown('D')) { targetVX = baseSpeed; state = WALKRIGHT; }
+    if (window->KeyDown('W')) { targetVY = -baseSpeed; state = WALKUP; }
+    if (window->KeyDown('S')) { targetVY = baseSpeed; state = WALKDOWN; }
 
     anim->Select(state);
     anim->NextFrame();
 
-
-    // --- CORREÇÃO DE MOVIMENTO ---
-    // Se estiver movendo na diagonal, normaliza para não ser mais rápido
     if (targetVX != 0 && targetVY != 0) {
         float factor = 0.7071f; // (1 / sqrt(2))
         targetVX *= factor;
         targetVY *= factor;
     }
 
-    // Aplica o Lerp (Aceleração/Fricção)
     float currentVX = moves->getVelX();
     float currentVY = moves->getVelY();
     float lerpFactor = accelerationRate * gameTime;
@@ -187,46 +169,47 @@ void Player::Control() {
     moves->setVelX(currentVX + (targetVX - currentVX) * lerpFactor);
     moves->setVelY(currentVY + (targetVY - currentVY) * lerpFactor);
 
-    // --- LÓGICA DE ATAQUE ---
     if (attackTimer > 0) { attackTimer -= gameTime; }
 
-    if (window->KeyDown(VK_SPACE) && attackTimer <= 0) {
+    // Detecta direção pelas setas
+    bool shootUp = window->KeyDown(VK_UP);
+    bool shootDown = window->KeyDown(VK_DOWN);
+    bool shootLeft = window->KeyDown(VK_LEFT);
+    bool shootRight = window->KeyDown(VK_RIGHT);
 
-        // Define uma direção padrão caso o jogador esteja parado (ex: atirar para a direita)
-        float atkVelX = baseSpeed * 2.0f;
+    if ((shootUp || shootDown || shootLeft || shootRight) && attackTimer <= 0) {
+        float atkVelX = 0.0f;
         float atkVelY = 0.0f;
+        float projectileSpeed = baseSpeed * 2.5f; // Velocidade do tiro
 
-        // Se o jogador estiver segurando alguma tecla, atira naquela direção
-        if (targetVX != 0 || targetVY != 0) {
-            atkVelX = targetVX * 2.0f;
-            atkVelY = targetVY * 2.0f;
+        if (shootUp)    atkVelY = -projectileSpeed;
+        if (shootDown)  atkVelY = projectileSpeed;
+        if (shootLeft)  atkVelX = -projectileSpeed;
+        if (shootRight) atkVelX = projectileSpeed;
+
+        // Normaliza diagonal do tiro
+        if (atkVelX != 0 && atkVelY != 0) {
+            atkVelX *= 0.7071f;
+            atkVelY *= 0.7071f;
         }
-        // Opcional: Se ele estiver parado, você pode usar a última direção salva
-        // ou a velocidade atual do corpo (moves->getVelX())
 
         uint SeqUp[8] = { 1, 2, 3, 4, 5, 6, 7, 8 };
         uint SeqDown[8] = { 9, 10, 11, 12, 13, 14, 15, 16 };
         uint SeqLeft[8] = { 17, 18, 19, 20, 21, 22, 23, 24 };
         uint SeqRight[8] = { 25 , 26, 27, 28, 29, 30, 31, 32 };
         uint SeqStill[1] = { 32 };
-        Attack* bullet = new Attack("Resources/Effects/Attackplayer.png",
-            64,
-            64,
-            8,
-            8,
-            SeqUp,
-            SeqDown,
-            SeqLeft,
-            SeqRight,
-            SeqStill,
+
+        new Attack("Resources/Effects/Attackplayer.png",
+            64, 64, 8, 8,
+            SeqUp, SeqDown, SeqLeft, SeqRight, SeqStill,
             this,
-            0.3f,
-            10,
-            500.0f,
-            Attack::AttackType::EXPLOSION,
-            20,
-            atkVelX,
-            atkVelY
+            0.4f,        // Duração
+            15,          // Dano
+            500.0f,      // Knockback
+            Attack::AttackType::PROJECTILE, // Tipo projétil para mover
+            25,          // SizeBox
+            atkVelX,     // Velocidade X calculada pelas setas
+            atkVelY      // Velocidade Y calculada pelas setas
         );
 
         attackTimer = attackCooldown;
