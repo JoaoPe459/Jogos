@@ -45,10 +45,9 @@ Food::Food() : Entity()
         BBox(new Rect(-5, -5, 5, 5));
     }
 
-    // --- 3. POSICIONAMENTO ---
-    float margin = 40.0f;
-    float randomX = (float)(rand() % (int)(window->Width() - (margin * 2))) + margin;
-    float randomY = (float)(rand() % (int)(window->Height() - (margin * 2))) + margin;
+
+    float randomX = (window->Width()/2);
+    float randomY = (window->Height()/2);
     this->MoveTo(randomX, randomY);
 
     moves->setSpeed(0.0f);

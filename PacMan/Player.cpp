@@ -6,6 +6,7 @@
 #include "LevelMake.h"
 #include "Portal.h"
 #include "Attack.h"
+#include "Enemy.h"
 #include <string>
 
 void Player::UpdateOrbitalPositions() {

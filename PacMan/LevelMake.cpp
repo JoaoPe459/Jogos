@@ -17,6 +17,7 @@
 #include <sstream>
 #include <cstdlib>
 
+
 using std::ifstream;
 using std::string;
 
@@ -246,10 +247,20 @@ void LevelMake::ghostInit(int stageIndex)
     
     for (int i = 0; i < MAX_GHOSTS; i++)
     {
-        addGhost(stageIndex);
+        addSnowman(stageIndex);
     }
     
 
+}
+
+Enemy* LevelMake::addSnowman(int stageIndex) {
+    Enemy* snowman = new Enemy();
+    snowman->SetTarget(player);
+
+    if (stageIndex == currentBG) {
+        scene->Add(snowman, MOVING);
+    }
+    return snowman;
 }
 
 Ghost* LevelMake::addGhost(int stageIndex) {
@@ -260,6 +271,8 @@ Ghost* LevelMake::addGhost(int stageIndex) {
     }
     return ghost;
 }
+
+
 
 Food* LevelMake::addFood(int stageIndex) {
     Food* food = new Food();

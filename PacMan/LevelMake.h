@@ -26,6 +26,7 @@
 #include "Ghost.h"
 #include "Food.h"
 #include "Wall.h"
+#include "Enemy.h"
 
 // ------------------------------------------------------------------------------
 // Estruturas
@@ -103,6 +104,8 @@ public:
     void foodInit(int stageIndex = -1);
 
     Ghost* addGhost(int stageIndex);
+
+    Enemy* addSnowman(int stageIndex);
 
     Food* addFood(int stageIndex);
 
