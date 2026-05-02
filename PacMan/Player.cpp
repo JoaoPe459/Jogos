@@ -18,23 +18,21 @@ void Player::UpdateOrbitalPositions() {
 
 Player::Player() : Entity() {
     type = PLAYER;
-    walking = new TileSet("Resources/Walking.png", 55, 95, 8, 40);
+    walking = new TileSet("Resources/Player/RatoWalk1.png", 76, 54, 8, 16);
     anim = new Animation(walking, 0.060f, true);
 
-    uint SeqUp[8] = { 16, 17, 18, 19, 20, 21, 22, 23 };
-    uint SeqDown[8] = { 24, 25, 26, 27, 28, 29, 30, 31 };
-    uint SeqLeft[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
-    uint SeqRight[8] = { 15, 14, 13, 12, 11, 10, 9, 8 };
-    uint SeqStill[1] = { 32 };
+    uint SeqRight[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
+    uint SeqLeft[8] = { 8, 9, 10, 11, 12, 13, 14, 15 };
+    uint SeqStill[1] = { 0 };
 
-    anim->Add(WALKUP, SeqUp, 8);
-    anim->Add(WALKDOWN, SeqDown, 8);
+    anim->Add(WALKUP, SeqRight, 8);
+    anim->Add(WALKDOWN, SeqRight, 8);
     anim->Add(WALKLEFT, SeqLeft, 8);
     anim->Add(WALKRIGHT, SeqRight, 8);
     anim->Add(STILL, SeqStill, 1);
 
     state = STILL;
-    BBox(new Rect(-80, -40, 80, 40));
+    BBox(new Rect(-38, -27, 38, 27));
     moves->setSpeed(500.0f);
 
     type = PLAYER;      
@@ -63,7 +61,7 @@ void Player::OnCollision(Object* obj) {
 
             const float SCREEN_WIDTH = 1300.0f;
             const float SCREEN_HEIGHT = 800.0f;
-            const float MARGIN = 80.0f; // Distância da borda para não spawnar dentro do portal
+            const float MARGIN = 170.0f; // Folga para nascer depois da porta fechada sem ficar preso
 
             float newX = SCREEN_WIDTH / 2;  // Default Centro
             float newY = SCREEN_HEIGHT / 2; // Default Centro

@@ -64,6 +64,7 @@ protected:
     Sprite* backg = nullptr;
     Scene* scene = nullptr;
     Sprite* foodSprite = nullptr;
+    Sprite* heartSprite = nullptr;
     Font* consolas = nullptr;
 
     bool    viewBBox = false;
@@ -130,7 +131,11 @@ public:
     void UpdateStageTransition(float dt);
     int  GetCurrentStage() const { return currentBG; }
     void CreatePortalsForCurrentStage();
+    void CreateClosedDoorsForCurrentStage();
+    void ClearActivePortals();
+    float PortalRotation(float x, float y) const;
     void DrawCentralMessage(const std::string& text, Color color, float x, float y);
+    void DrawHeartHealth();
     
     int ghostAlive = 0;
     bool comeuItem = false;

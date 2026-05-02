@@ -15,7 +15,10 @@ public:
     int targetBG;
     Sprite* sprite;
     Direction direction;
+    float rotation = 0.0f;
+    bool open = true;
     Portal(float x, float y, int bgIndex);
+    Portal(float x, float y, int bgIndex, bool isOpen, float doorRotation);
 
     // Destrutor para limpar o sprite
     ~Portal();

@@ -168,7 +168,7 @@ void Ghost::AttackPlayer() {
     float diffY = playerTarget->Y() - Y();
     float distance = sqrt(diffX * diffX + diffY * diffY);
 
-    float projVel = 400.0f; 
+    float projVel = 800.0f; 
     float velX = (diffX / distance) * projVel;
     float velY = (diffY / distance) * projVel;
     // Cria o ataque: owner, lifetime, damage, type, impulseX, impulseY, knockback
@@ -188,10 +188,10 @@ void Ghost::AttackPlayer() {
     SeqRight,
     SeqStill,
     this,
-    0.3f,
+    1.5f,
     10,
     500.0f,
-    Attack::AttackType::EXPLOSION,
+    Attack::AttackType::PROJECTILE,
     15,
     velX,
     velY

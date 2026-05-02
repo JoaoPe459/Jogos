@@ -59,7 +59,7 @@ Enemy::Enemy() : Entity()
 
     this->MoveTo(randomX, randomY);
 
-    damage = 50;
+    damage = 30;
     hp = 100;
     maxHp = 100;
 }
@@ -164,7 +164,7 @@ void Enemy::AttackPlayer() {
     float diffY = playerTarget->Y() - Y();
     float distance = sqrt(diffX * diffX + diffY * diffY);
 
-    float projVel = 400.0f;
+    float projVel = 600.0f;
     float velX = (diffX / distance) * projVel;
     float velY = (diffY / distance) * projVel;
     // Cria o ataque: owner, lifetime, damage, type, impulseX, impulseY, knockback
@@ -184,7 +184,7 @@ void Enemy::AttackPlayer() {
         SeqRight,
         SeqStill,
         this,
-        0.3f,
+        0.6f,
         damage,
         500.0f,
         Attack::AttackType::EXPLOSION,

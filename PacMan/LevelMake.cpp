@@ -96,6 +96,45 @@ void LevelMake::DrawCentralMessage(const std::string& text, Color color, float x
     consolas->Draw(finalX, y, text, color);
 }
 
+void LevelMake::DrawHeartHealth()
+{
+    if (player == nullptr || heartSprite == nullptr) return;
+
+    // Etapa 1: define quantos coracoes representam a vida maxima do jogador.
+    const int heartCount = 10;
+    const int maxHp = player->GetMaxHp();
+    int hp = player->GetHp();
+
+    if (hp < 0) hp = 0;
+
+    // Etapa 2: converte o HP atual para uma quantidade proporcional de coracoes.
+    int filledHearts = 0;
+    if (maxHp > 0 && hp > 0)
+        filledHearts = (hp * heartCount + maxHp - 1) / maxHp;
+
+    if (filledHearts > heartCount)
+        filledHearts = heartCount;
+
+    // Etapa 3: centraliza a fileira de coracoes no topo do HUD.
+    const float scale = 2.0f;
+    const float spacing = 6.0f;
+    const float heartWidth = heartSprite->Width() * scale;
+    const float totalWidth = (heartWidth * heartCount) + (spacing * (heartCount - 1));
+    const float startX = window->CenterX() - (totalWidth / 2.0f) + (heartWidth / 2.0f);
+    const float y = 72.0f;
+
+    for (int i = 0; i < heartCount; i++)
+    {
+        // Etapa 4: desenha coracao cheio para HP atual e apagado para HP perdido.
+        const bool filled = i < filledHearts;
+        const Color color = filled
+            ? Color(1.0f, 1.0f, 1.0f, 1.0f)
+            : Color(0.2f, 0.2f, 0.2f, 0.35f);
+
+        heartSprite->Draw(startX + i * (heartWidth + spacing), y, Layer::FRONT, scale, 0.0f, color);
+    }
+}
+
 // ------------------------------------------------------------------------------
 
 void LevelMake::Init(float gravity, int maxFood, int maxGhost, string levelBackground)
@@ -103,6 +142,7 @@ void LevelMake::Init(float gravity, int maxFood, int maxGhost, string levelBackg
     if (scene) { delete scene;  scene = nullptr; }
     if (player) { delete player; player = nullptr; }
     if (backg) { delete backg;  backg = nullptr; }
+    if (heartSprite) { delete heartSprite; heartSprite = nullptr; }
 
     Physics::Setup(gravity);
     MAX_GHOSTS = maxGhost;
@@ -113,6 +153,8 @@ void LevelMake::Init(float gravity, int maxFood, int maxGhost, string levelBackg
     if (!levelBackground.empty()) {
         backg = new Sprite(levelBackground);
     }
+    // Carrega uma unica vez o sprite usado pelo HUD de vida.
+    heartSprite = new Sprite("Resources/Heart.png");
     player = new Player();
     scene->Add(player, MOVING);
 }
@@ -154,9 +196,12 @@ void LevelMake::Finalize()
     delete scene;
     scene = nullptr;
 
-    // backg e consolas nunca foram adicionados à Scene
+    // backg, heartSprite e consolas nunca foram adicionados à Scene
     delete backg;
     backg = nullptr;
+
+    delete heartSprite;
+    heartSprite = nullptr;
 
     delete consolas;
     consolas = nullptr;
@@ -221,13 +266,12 @@ void LevelMake::Draw()
             DrawCentralMessage("PORTAIS ABERTOS!", Color(0.2f, 1.0f, 0.2f, 1.0f), -1.0f, 40.0f);
         }
 
-        // 2. VIDA DO JOGADOR (Um pouco mais abaixo)
-        std::string hpStr = "HP: " + std::to_string((int)player->GetHp());
-        DrawCentralMessage(hpStr, Color(1.0f, 1.0f, 1.0f, 1.0f), -1.0f, 70.0f);
+        // 2. VIDA DO JOGADOR (em coracoes)
+        DrawHeartHealth();
 
         // 3. ESTÁGIO (No canto inferior direito ou centralizado abaixo)
         std::string stageStr = "ESTAGIO: " + std::to_string(currentBG + 1);
-        DrawCentralMessage(stageStr, Color(0.8f, 0.8f, 1.0f, 1.0f), -1.0f, 100.0f);
+        DrawCentralMessage(stageStr, Color(0.8f, 0.8f, 1.0f, 1.0f), -1.0f, 112.0f);
     }
 
     if (viewBBox)
@@ -298,21 +342,8 @@ void LevelMake::SetStage(int index)
     // 1. Limpeza do estágio anterior (remove referências da Scene)
 
 
-    // 2. Limpeza física dos portais ativos na Scene
-    if (activePortals != nullptr)
-    {
-        for (int i = 0; i < activePortalCount; i++)
-        {
-            if (activePortals[i] != nullptr)
-            {
-                static_cast<Entity*>(activePortals[i])->SetAlive(false);
-                scene->Delete(activePortals[i], STATIC);
-            }
-        }
-        delete[] activePortals;
-        activePortals = nullptr;
-        activePortalCount = 0;
-    }
+    // 2. Limpeza física dos portais/portas ativos na Scene
+    ClearActivePortals();
 
     // 3. Atualiza o índice do estágio atual
     currentBG = index;
@@ -327,6 +358,7 @@ void LevelMake::SetStage(int index)
         // Primeira vez: Criamos os fantasmas (as comidas nascerão na morte deles)
         ghostInit(currentBG);
 		ghostAlive = MAX_GHOSTS;
+        CreateClosedDoorsForCurrentStage();
     }
     else
     {
@@ -417,8 +449,7 @@ void LevelMake::UpdateStageTransition(float dt)
 
 void LevelMake::CreatePortalsForCurrentStage()
 {
-    // Prevenção: não criar se já houver portais ativos
-    if (activePortals != nullptr) return;
+    ClearActivePortals();
 
     activePortalCount = stages[currentBG].portalCount;
     if (activePortalCount > 0)
@@ -427,11 +458,63 @@ void LevelMake::CreatePortalsForCurrentStage()
         for (int i = 0; i < activePortalCount; i++)
         {
             PortalData& data = stages[currentBG].portals[i];
-            Portal* p = new Portal(data.x, data.y, data.targetBG);
+            Portal* p = new Portal(data.x, data.y, data.targetBG, true, PortalRotation(data.x, data.y));
             activePortals[i] = p;
             scene->Add(p, STATIC); // Adiciona fisicamente à Scene
         }
     }
+}
+
+void LevelMake::CreateClosedDoorsForCurrentStage()
+{
+    ClearActivePortals();
+
+    activePortalCount = stages[currentBG].portalCount;
+    if (activePortalCount > 0)
+    {
+        activePortals = new Entity * [activePortalCount];
+        for (int i = 0; i < activePortalCount; i++)
+        {
+            PortalData& data = stages[currentBG].portals[i];
+            Portal* p = new Portal(data.x, data.y, data.targetBG, false, PortalRotation(data.x, data.y));
+            activePortals[i] = p;
+            scene->Add(p, STATIC);
+        }
+    }
+}
+
+void LevelMake::ClearActivePortals()
+{
+    if (activePortals == nullptr) return;
+
+    for (int i = 0; i < activePortalCount; i++)
+    {
+        if (activePortals[i] != nullptr)
+        {
+            static_cast<Entity*>(activePortals[i])->SetAlive(false);
+            scene->Delete(activePortals[i], STATIC);
+        }
+    }
+
+    delete[] activePortals;
+    activePortals = nullptr;
+    activePortalCount = 0;
+}
+
+float LevelMake::PortalRotation(float x, float y) const
+{
+    const float pi = 3.14159265f;
+
+    if (y < 100.0f)
+        return 0.0f;
+    if (y > window->Height() - 100.0f)
+        return pi;
+    if (x < 100.0f)
+        return -pi / 2.0f;
+    if (x > window->Width() - 100.0f)
+        return pi / 2.0f;
+
+    return 0.0f;
 }
 
 // ------------------------------------------------------------------------------
