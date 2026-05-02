@@ -11,6 +11,7 @@
 
 #include "LevelMake.h"
 #include "Home.h"
+#include "PacMan.h"
 #include "Portal.h"
 
 #include <fstream>
@@ -458,7 +459,8 @@ void LevelMake::CreatePortalsForCurrentStage()
         for (int i = 0; i < activePortalCount; i++)
         {
             PortalData& data = stages[currentBG].portals[i];
-            Portal* p = new Portal(data.x, data.y, data.targetBG, true, PortalRotation(data.x, data.y));
+            // Converte a posicao antiga da borda da janela para a borda real do chao.
+            Portal* p = new Portal(PortalX(data.x), PortalY(data.y), data.targetBG, true, PortalRotation(data.x, data.y));
             activePortals[i] = p;
             scene->Add(p, STATIC); // Adiciona fisicamente à Scene
         }
@@ -476,7 +478,8 @@ void LevelMake::CreateClosedDoorsForCurrentStage()
         for (int i = 0; i < activePortalCount; i++)
         {
             PortalData& data = stages[currentBG].portals[i];
-            Portal* p = new Portal(data.x, data.y, data.targetBG, false, PortalRotation(data.x, data.y));
+            // A porta fechada fica visualmente no mesmo ponto do portal aberto.
+            Portal* p = new Portal(PortalX(data.x), PortalY(data.y), data.targetBG, false, PortalRotation(data.x, data.y));
             activePortals[i] = p;
             scene->Add(p, STATIC);
         }
@@ -515,6 +518,28 @@ float LevelMake::PortalRotation(float x, float y) const
         return pi / 2.0f;
 
     return 0.0f;
+}
+
+float LevelMake::PortalX(float x) const
+{
+    // Portais laterais eram definidos fora do chao; reposiciona para a borda jogavel.
+    if (x < 100.0f)
+        return PlayArea::Left;
+    if (x > window->Width() - 100.0f)
+        return PlayArea::Right;
+
+    return x;
+}
+
+float LevelMake::PortalY(float y) const
+{
+    // Portais de cima/baixo seguem a borda interna do piso do background.
+    if (y < 100.0f)
+        return PlayArea::Top;
+    if (y > window->Height() - 100.0f)
+        return PlayArea::Bottom;
+
+    return y;
 }
 
 // ------------------------------------------------------------------------------

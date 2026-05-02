@@ -134,6 +134,8 @@ public:
     void CreateClosedDoorsForCurrentStage();
     void ClearActivePortals();
     float PortalRotation(float x, float y) const;
+    float PortalX(float x) const;
+    float PortalY(float y) const;
     void DrawCentralMessage(const std::string& text, Color color, float x, float y);
     void DrawHeartHealth();
     

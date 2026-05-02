@@ -168,6 +168,7 @@ void Ghost::AttackPlayer() {
     float diffY = playerTarget->Y() - Y();
     float distance = sqrt(diffX * diffX + diffY * diffY);
 
+    // Velocidade maior aumenta o alcance real do tiro antes de ele expirar.
     float projVel = 800.0f; 
     float velX = (diffX / distance) * projVel;
     float velY = (diffY / distance) * projVel;
@@ -188,9 +189,11 @@ void Ghost::AttackPlayer() {
     SeqRight,
     SeqStill,
     this,
+    // Lifetime maior evita que o projetil suma antes de chegar ao player parado.
     1.5f,
     10,
     500.0f,
+    // PROJECTILE faz o ataque se comportar como tiro em movimento, nao como explosao curta.
     Attack::AttackType::PROJECTILE,
     15,
     velX,

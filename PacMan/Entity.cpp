@@ -236,23 +236,29 @@ void Entity::HandleScreenLimits() {
     float halfWidth = (r->Right() - r->Left()) / 2.0f;
     float halfHeight = (r->Bottom() - r->Top()) / 2.0f;
 
-    // Horizontal
-    if (X() < halfWidth) {
-        MoveTo(halfWidth, Y());
+    // Usa a bounding box para manter o objeto inteiro dentro do chao jogavel.
+    const float minX = PlayArea::Left + halfWidth;
+    const float maxX = PlayArea::Right - halfWidth;
+    const float minY = PlayArea::Top + halfHeight;
+    const float maxY = PlayArea::Bottom - halfHeight;
+
+    // Trava o movimento horizontal nas paredes laterais do background.
+    if (X() < minX) {
+        MoveTo(minX, Y());
         moves->setVelX(0.0f);
     }
-    else if (X() > window->Width() - halfWidth) {
-        MoveTo(window->Width() - halfWidth, Y());
+    else if (X() > maxX) {
+        MoveTo(maxX, Y());
         moves->setVelX(0.0f);
     }
 
-    // Vertical
-    if (Y() < halfHeight) {
-        MoveTo(X(), halfHeight);
+    // Trava o movimento vertical nas paredes superior e inferior do background.
+    if (Y() < minY) {
+        MoveTo(X(), minY);
         moves->setVelY(0.0f);
     }
-    else if (Y() > window->Height() - halfHeight) {
-        MoveTo(X(), window->Height() - halfHeight);
+    else if (Y() > maxY) {
+        MoveTo(X(), maxY);
         moves->setVelY(0.0f);
     }
 }

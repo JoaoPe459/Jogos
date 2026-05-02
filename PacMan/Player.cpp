@@ -18,13 +18,16 @@ void Player::UpdateOrbitalPositions() {
 
 Player::Player() : Entity() {
     type = PLAYER;
+    // RatoWalk1 tem 608x108: 8 colunas e 2 linhas, cada quadro com 76x54.
     walking = new TileSet("Resources/Player/RatoWalk1.png", 76, 54, 8, 16);
     anim = new Animation(walking, 0.060f, true);
 
+    // Primeira fileira anda para direita; segunda fileira anda para esquerda.
     uint SeqRight[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
     uint SeqLeft[8] = { 8, 9, 10, 11, 12, 13, 14, 15 };
     uint SeqStill[1] = { 0 };
 
+    // A spritesheet nao tem animacao vertical, entao W/S reaproveitam a fileira da direita.
     anim->Add(WALKUP, SeqRight, 8);
     anim->Add(WALKDOWN, SeqRight, 8);
     anim->Add(WALKLEFT, SeqLeft, 8);
@@ -32,6 +35,7 @@ Player::Player() : Entity() {
     anim->Add(STILL, SeqStill, 1);
 
     state = STILL;
+    // Bounding box alinhada ao novo tamanho de quadro do rato.
     BBox(new Rect(-38, -27, 38, 27));
     moves->setSpeed(500.0f);
 
@@ -59,28 +63,26 @@ void Player::OnCollision(Object* obj) {
 
             lvl->SetStage(nextStage);
 
-            const float SCREEN_WIDTH = 1300.0f;
-            const float SCREEN_HEIGHT = 800.0f;
-            const float MARGIN = 170.0f; // Folga para nascer depois da porta fechada sem ficar preso
-
-            float newX = SCREEN_WIDTH / 2;  // Default Centro
-            float newY = SCREEN_HEIGHT / 2; // Default Centro
+            // Ponto padrao seguro: centro do chao jogavel.
+            float newX = (PlayArea::Left + PlayArea::Right) / 2.0f;
+            float newY = (PlayArea::Top + PlayArea::Bottom) / 2.0f;
 
 
-            if (p->Y() < 100) {          // Portal no Topo
+            // Ao atravessar um portal, nasce do lado oposto ja dentro do piso.
+            if (p->Y() <= PlayArea::Top + 40.0f) {          // Portal no Topo
                 newX = p->X();          
-                newY = SCREEN_HEIGHT - MARGIN;
+                newY = PlayArea::Bottom - PlayArea::SpawnMargin;
             }
-            else if (p->Y() > 700) {     // Portal na Base
+            else if (p->Y() >= PlayArea::Bottom - 40.0f) {     // Portal na Base
                 newX = p->X();
-                newY = MARGIN;
+                newY = PlayArea::Top + PlayArea::SpawnMargin;
             }
-            else if (p->X() < 100) {     // Portal na Esquerda
-                newX = SCREEN_WIDTH - MARGIN;
+            else if (p->X() <= PlayArea::Left + 40.0f) {     // Portal na Esquerda
+                newX = PlayArea::Right - PlayArea::SpawnMargin;
                 newY = p->Y();          
             }
-            else if (p->X() > 1200) {    // Portal na Direita
-                newX = MARGIN;
+            else if (p->X() >= PlayArea::Right - 40.0f) {    // Portal na Direita
+                newX = PlayArea::Left + PlayArea::SpawnMargin;
                 newY = p->Y();
             }
 

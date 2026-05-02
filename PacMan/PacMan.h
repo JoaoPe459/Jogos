@@ -30,6 +30,17 @@ enum PacManObjects
 
 enum MovementType { HORIZONTAL, VERTICAL, DIAGONAL };
 
+// Limites aproximados do chao desenhado no background 1200x800 centralizado na janela 1300x800.
+// Player e inimigos usam este retangulo para nao pisar sobre as paredes do sprite.
+namespace PlayArea
+{
+    constexpr float Left = 182.0f;
+    constexpr float Right = 1118.0f;
+    constexpr float Top = 132.0f;
+    constexpr float Bottom = 666.0f;
+    constexpr float SpawnMargin = 90.0f;
+}
+
 // ------------------------------------------------------------------------------
 
 #endif

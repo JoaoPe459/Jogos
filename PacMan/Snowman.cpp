@@ -47,15 +47,16 @@ Enemy::Enemy() : Entity()
     dirY = (rand() % 2 == 0) ? 1 : -1;
     setMass(1.2f);
 
+    // Sorteia o Snowman apenas dentro do piso, evitando nascer em cima das paredes do background.
     float margin = 50.0f;
-    int rangeX = (int)(window->Width() - (margin * 2));
-    int rangeY = (int)(window->Height() - (margin * 2));
+    int rangeX = (int)((PlayArea::Right - PlayArea::Left) - (margin * 2));
+    int rangeY = (int)((PlayArea::Bottom - PlayArea::Top) - (margin * 2));
 
     if (rangeX <= 0) rangeX = 1;
     if (rangeY <= 0) rangeY = 1;
 
-    float randomX = (float)(rand() % rangeX) + margin;
-    float randomY = (float)(rand() % rangeY) + margin;
+    float randomX = (float)(rand() % rangeX) + PlayArea::Left + margin;
+    float randomY = (float)(rand() % rangeY) + PlayArea::Top + margin;
 
     this->MoveTo(randomX, randomY);
 
@@ -92,7 +93,7 @@ void Enemy::OnCollision(Object* obj) {
 
 void Enemy::Control() {
     if (!playerTarget) {
-        HandleScreenWrap();
+        HandleScreenLimits();
         return;
     }
 
@@ -153,7 +154,8 @@ void Enemy::Control() {
     moves->setVelX(moves->getVelX() + (targetVX - moves->getVelX()) * lerpFactor);
     moves->setVelY(moves->getVelY() + (targetVY - moves->getVelY()) * lerpFactor);
 
-    HandleScreenWrap();
+    // Garante que a perseguicao nao leve o Snowman para fora do chao.
+    HandleScreenLimits();
 }
 
 void Enemy::AttackPlayer() {
