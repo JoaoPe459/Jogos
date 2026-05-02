@@ -258,13 +258,13 @@ void LevelMake::Draw()
     {
         // 1. MENSAGEM DE STATUS (Centralizada no topo)
         if (ghostAlive > 0) {
-            DrawCentralMessage("DERROTE OS FANTASMAS", Color(1.0f, 0.5f, 0.0f, 1.0f), -1.0f, 40.0f);
+            DrawCentralMessage("DERROTE OS INIMIGOS", Color(1.0f, 0.5f, 0.0f, 1.0f), -1.0f, 40.0f);
         }
         else if (!comeuItem) {
             DrawCentralMessage("ITEM DISPONIVEL! CONSUMA PARA SAIR", Color(0.4f, 0.8f, 1.0f, 1.0f), -1.0f, 40.0f);
         }
         else {
-            DrawCentralMessage("PORTAIS ABERTOS!", Color(0.2f, 1.0f, 0.2f, 1.0f), -1.0f, 40.0f);
+            DrawCentralMessage("PORTAS ABERTAS!", Color(0.2f, 1.0f, 0.2f, 1.0f), -1.0f, 40.0f);
         }
 
         // 2. VIDA DO JOGADOR (em coracoes)
@@ -524,9 +524,9 @@ float LevelMake::PortalX(float x) const
 {
     // Portais laterais eram definidos fora do chao; reposiciona para a borda jogavel.
     if (x < 100.0f)
-        return PlayArea::Left;
+        return 150;
     if (x > window->Width() - 100.0f)
-        return PlayArea::Right;
+        return 1150;
 
     return x;
 }
@@ -535,9 +535,9 @@ float LevelMake::PortalY(float y) const
 {
     // Portais de cima/baixo seguem a borda interna do piso do background.
     if (y < 100.0f)
-        return PlayArea::Top;
+        return 100;
     if (y > window->Height() - 100.0f)
-        return PlayArea::Bottom;
+        return 690;
 
     return y;
 }

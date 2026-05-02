@@ -30,30 +30,30 @@ PORTAL 2 20 400   8  # Esquerda -> Topo Centro
 PORTAL 2 650 780  4  # Baixo -> Meio Direita
 
 # MEIO ESQUERDA (3)
-PORTAL 3 650 20   0  # Cima -> Topo Esquerda
+PORTAL 3 650 100   0  # Cima -> Topo Esquerda
 PORTAL 3 1280 400 1  # Direita -> HUB Central
 PORTAL 3 650 780  5  # Baixo -> Baixo Esquerda
 
 # HUB CENTRAL (1)
-PORTAL 1 650 20   8  # Cima -> Topo Centro
+PORTAL 1 650 100   8  # Cima -> Topo Centro
 PORTAL 1 650 780  6  # Baixo -> Baixo Centro
 PORTAL 1 20 400   3  # Esquerda -> Meio Esquerda
 PORTAL 1 1280 400 4  # Direita -> Meio Direita
 
 # MEIO DIREITA (4)
-PORTAL 4 650 20   2  # Cima -> Topo Direita
+PORTAL 4 650 100   2  # Cima -> Topo Direita
 PORTAL 4 20 400   1  # Esquerda -> HUB Central
 PORTAL 4 650 780  7  # Baixo -> Baixo Direita
 
 # BAIXO ESQUERDA (5)
-PORTAL 5 650 20   3  # Cima -> Meio Esquerda
+PORTAL 5 650 100   3  # Cima -> Meio Esquerda
 PORTAL 5 1280 400 6  # Direita -> Baixo Centro
 
 # BAIXO CENTRO (6)
-PORTAL 6 650 20   1  # Cima -> HUB Central
+PORTAL 6 650 100  # Cima -> HUB Central
 PORTAL 6 20 400   5  # Esquerda -> Baixo Esquerda
 PORTAL 6 1280 400 7  # Direita -> Baixo Direita
 
 # BAIXO DIREITA (7)
-PORTAL 7 650 20   4  # Cima -> Meio Direita
+PORTAL 7 650 100  4  # Cima -> Meio Direita
 PORTAL 7 20 400   6  # Esquerda -> Baixo Centro
