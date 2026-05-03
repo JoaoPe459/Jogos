@@ -27,7 +27,7 @@
 #include "Food.h"
 #include "Wall.h"
 #include "Enemy.h"
-
+#include "EndGame.h"
 // ------------------------------------------------------------------------------
 // Estruturas
 
@@ -57,7 +57,7 @@ struct StageConfig {
 // ------------------------------------------------------------------------------
 
 class Home;
-
+class EndGame;
 class LevelMake : public Game
 {
 protected:
@@ -142,6 +142,8 @@ public:
     int ghostAlive = 0;
     bool comeuItem = false;
     bool foodSpawned = false;
+    int totalEnemiesDefeated = 0;
+    int totalDamageTaken = 0;
 };
 
 #endif

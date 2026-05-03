@@ -14,7 +14,6 @@ private:
     float calories = 0.0f;
     float stamina = 100.0f;
     int   sizeLevel = 1;
-
     float attackTimer = 0.0f;
     float attackCooldown = 0.3f;
     std::vector<Attack*> orbitals;
@@ -28,6 +27,9 @@ public:
     void Draw() override;
     void Update();
     void OnCollision(Object* obj) override;
+
+    int totalDamageDealt = 0;
+    int totalLevelsVisited = 0;
 
 };
 

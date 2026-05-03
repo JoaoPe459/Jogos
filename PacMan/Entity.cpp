@@ -28,6 +28,7 @@ void Entity::Update() {
         this->Die();
 		LevelMake* lvl = static_cast<LevelMake*>(Engine::game);
         lvl->ghostAlive--;
+        lvl->totalEnemiesDefeated++;
     }
     // Gerenciamento de Invulnerabilidade
     if (invulnerable) {
@@ -43,7 +44,8 @@ void Entity::Update() {
 
 void Entity::TakeDamage(Object* source) {
     if (!alive || invulnerable) return;
-    hp -= source ? static_cast<Attack*>(source)->GetDamage() : 1;
+	int danoSofrido = source ? static_cast<Attack*>(source)->GetDamage() : 1;
+    hp -= danoSofrido;
     if (source) {
         ApplyKnockback(source, 200.0f);
     }

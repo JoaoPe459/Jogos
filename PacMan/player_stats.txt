@@ -1,0 +1,7 @@
+--- STATUS DO JOGADOR ---
+Total de dano sofrido: 120
+Total de dano deferido: 345
+Total de inimigos derrotados: 3
+Total de fases visitadas: 1
+Player morreu no estágio: 8
+Status final do player: MORTO

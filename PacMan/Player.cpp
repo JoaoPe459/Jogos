@@ -131,6 +131,7 @@ void Player::OnCollision(Object* obj) {
         if (lvl) { 
             lvl->comeuItem = true;
         }
+        totalLevelsVisited++;
 
     }
 }
@@ -179,6 +180,7 @@ void Player::Control() {
     bool shootRight = window->KeyDown(VK_RIGHT);
 
     if ((shootUp || shootDown || shootLeft || shootRight) && attackTimer <= 0) {
+		totalDamageDealt += damage;
         float atkVelX = 0.0f;
         float atkVelY = 0.0f;
         float projectileSpeed = baseSpeed * 2.5f; // Velocidade do tiro

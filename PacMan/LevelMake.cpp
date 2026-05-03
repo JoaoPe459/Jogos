@@ -238,8 +238,24 @@ void LevelMake::Update()
 
     if (window->KeyPress('B')) viewBBox = !viewBBox;
 
-    if (player->GetHp() <= 0) {
-        Engine::Next<Home>();
+    if (player->GetHp() <= 0 || (player->totalLevelsVisited == 9)) {
+        // 1. Definir o nome do arquivo
+        std::string filename = "player_stats.txt";
+
+        // 2. Abrir o arquivo (o modo std::ios::out sobrescreve por padrão)
+        std::ofstream file(filename);
+
+        if (file.is_open()) {
+            file << "--- STATUS DO JOGADOR ---" << std::endl;
+            file << "Total de dano sofrido: " << totalDamageTaken << std::endl;
+            file << "Total de dano deferido: " << player->totalDamageDealt << std::endl;
+            file << "Total de inimigos derrotados: " << totalEnemiesDefeated << std::endl;
+            file << "Total de fases visitadas: " << player->totalLevelsVisited << std::endl;
+			file << "Player morreu no estágio: " << (currentBG + 1) << std::endl;
+			file << "Status final do player: " << ("MORTO") << std::endl;
+            file.close();
+        }
+        Engine::Next<EndGame>();
     }
 }
 // ------------------------------------------------------------------------------

@@ -131,7 +131,11 @@ void Attack::OnCollision(Object* obj) {
         Entity* target = static_cast<Entity*>(obj);
         if (target) {
             target->TakeDamage(this);
-
+            if (obj->Type() == PLAYER)
+            {
+                LevelMake* lvl = static_cast<LevelMake*>(Engine::game);
+                lvl->totalDamageTaken += this->GetDamage();
+            }
             // REGRA: Se NÃO for orbital, morre ao tocar. Se for, continua vivo.
             if (attackType != AttackType::ORBITAL) {
                 this->Die();
