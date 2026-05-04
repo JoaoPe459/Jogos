@@ -150,9 +150,14 @@ void Player::Control() {
 
     if (window->KeyDown('A')) { targetVX = -baseSpeed; state = WALKLEFT; }
     if (window->KeyDown('D')) { targetVX = baseSpeed; state = WALKRIGHT; }
-    if (window->KeyDown('W')) { targetVY = -baseSpeed; state = WALKUP; }
-    if (window->KeyDown('S')) { targetVY = baseSpeed; state = WALKDOWN; }
-
+    if (window->KeyDown('W')) {
+        if (state == STILL) { targetVY = -baseSpeed; state = WALKRIGHT; }
+        else { targetVY = -baseSpeed; state = state; }
+    }
+    if (window->KeyDown('S')) {
+        if (state == STILL) { targetVY = baseSpeed; state = WALKRIGHT; }
+        else { targetVY = baseSpeed; state = state; }
+    }
     anim->Select(state);
     anim->NextFrame();
 

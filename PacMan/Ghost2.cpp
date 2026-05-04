@@ -11,30 +11,30 @@ Enemy::Enemy() : Entity()
 {
     type = ENEMY;
 
-    walking = new TileSet("Resources/Enemy/snowman/SnowManWalk.png", 128, 128, 6, 40);
-    idle = new TileSet("Resources/Enemy/snowman/SnowManIdle.png", 128, 128, 6, 40);
+    walking = new TileSet("Resources/Enemy/ghost/GhostWalk.png", 128, 128, 6, 40);
+   
 
     anim = new Animation(walking, 0.060f, true);
 
-    uint SeqUp[6] = { 18, 19, 20, 21, 22, 23,};
-    uint SeqDown[6] = { 0, 1, 2, 3, 4, 5};
-    uint SeqLeft[6] = { 6, 7, 8, 9, 10, 11};
-    uint SeqRight[6] = { 12, 13, 14, 15, 16, 17};
-    uint SeqStill[4] = {0,1,2,3};
+    uint SeqUp[6] = { 18, 19, 20, 21, 22, 23, };
+    uint SeqDown[6] = { 0, 1, 2, 3, 4, 5 };
+    uint SeqLeft[6] = { 6, 7, 8, 9, 10, 11 };
+    uint SeqRight[6] = { 12, 13, 14, 15, 16, 17 };
+    uint SeqStill[4] = { 0,1,2,3 };
 
     anim->Add(WALKUP, SeqUp, 6);
     anim->Add(WALKDOWN, SeqDown, 6);
     anim->Add(WALKLEFT, SeqLeft, 6);
     anim->Add(WALKRIGHT, SeqRight, 6);
     anim->Add(STILL, SeqStill, 6);
-    
+
     state = STILL;
     anim->Select(state);
 
     if (walking) {
 
-        float h = (float)walking->Height()/(walking->Columns()*1.5);
-        float w = (float)walking->Width()/((walking->Size()/walking->Columns()*1.5));
+        float h = (float)walking->Height() / (walking->Columns() * 1.5);
+        float w = (float)walking->Width() / ((walking->Size() / walking->Columns() * 1.5));
         // Exemplo: Rect(topo, esquerda, baixo, direita) relativo ao centro
         BBox(new Rect(-h / 2, -w / 2, h / 2, w / 2));
     }
@@ -86,7 +86,7 @@ void Enemy::OnCollision(Object* obj) {
     Entity::OnCollision(obj);
 
     // 2. Lógica específica do Ghost: mudar direção ao bater em algo sólido
-    if (obj->Type() == WALL || obj->Type() == GHOST || obj->Type() == PORTAL || obj->Type() == FOOD || obj->Type() ==  ENEMY) {
+    if (obj->Type() == WALL || obj->Type() == GHOST || obj->Type() == PORTAL || obj->Type() == FOOD || obj->Type() == ENEMY) {
         this->RandomizeMovement();
     }
 }
@@ -133,15 +133,15 @@ void Enemy::Control() {
         }
     }
 
-   
-        if (abs(targetVX) > abs(targetVY)) {
-            if (targetVX > 0) state = WALKRIGHT;
-            else state = WALKLEFT;
-        }
-        else {
-            if (targetVY > 0) state = WALKDOWN;
-            else state = WALKUP;
-        }
+
+    if (abs(targetVX) > abs(targetVY)) {
+        if (targetVX > 0) state = WALKRIGHT;
+        else state = WALKLEFT;
+    }
+    else {
+        if (targetVY > 0) state = WALKDOWN;
+        else state = WALKUP;
+    }
 
     anim->Select(state);
     anim->NextFrame();
