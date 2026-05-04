@@ -61,8 +61,6 @@ void Player::OnCollision(Object* obj) {
 
             int nextStage = p->targetBG;
 
-            lvl->SetStage(nextStage);
-
             // Ponto padrao seguro: centro do chao jogavel.
             float newX = (PlayArea::Left + PlayArea::Right) / 2.0f;
             float newY = (PlayArea::Top + PlayArea::Bottom) / 2.0f;
@@ -87,6 +85,7 @@ void Player::OnCollision(Object* obj) {
             }
 
             this->MoveTo(newX, newY);
+            lvl->SetStage(nextStage);
             lvl->SetStageChangeCooldown(0.2f);
         }
     }
@@ -126,14 +125,33 @@ void Player::OnCollision(Object* obj) {
         orbitals.push_back(orb);
         UpdateOrbitalPositions();
 
-        // Lógica original do seu projeto
         LevelMake* lvl = static_cast<LevelMake*>(Engine::game);
         if (lvl) { 
             lvl->comeuItem = true;
         }
+        totalLevelsVisited++;
 
     }
+
+    if (obj->Type() == ENEMY) {
+        Enemy* enemy = (Enemy*)obj;
+
+        SetHp(GetHp() - damage);    
+
+        // 2. Calcula a direção do Knockback (Afastamento)
+        float diffX = this->X() - enemy->X();
+        float diffY = this->Y() - enemy->Y();
+        float distance = sqrt(diffX * diffX + diffY * diffY);
+
+        if (distance > 0) {
+            float pushForce = 200.0f;
+
+            moves->setVelX((diffX / distance) * pushForce);
+            moves->setVelY((diffY / distance) * pushForce);
+        }
+    }
 }
+
 
 
 void Player::Control() {
@@ -184,6 +202,7 @@ void Player::Control() {
     bool shootRight = window->KeyDown(VK_RIGHT);
 
     if ((shootUp || shootDown || shootLeft || shootRight) && attackTimer <= 0) {
+		totalDamageDealt += damage;
         float atkVelX = 0.0f;
         float atkVelY = 0.0f;
         float projectileSpeed = baseSpeed * 2.5f; // Velocidade do tiro

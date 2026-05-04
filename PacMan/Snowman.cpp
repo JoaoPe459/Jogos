@@ -10,11 +10,35 @@ namespace fs = std::filesystem;
 Enemy::Enemy() : Entity()
 {
     type = ENEMY;
+    struct Enemy {
+        std::string walkPath;
+        std::string idlePath;
+        std::string attackPath;
+        int frameWidth;
+        int frameHeight;
+        int columns;
+        int totalFrames;
+    };
 
-    walking = new TileSet("Resources/Enemy/snowman/SnowManWalk.png", 128, 128, 6, 40);
-    idle = new TileSet("Resources/Enemy/snowman/SnowManIdle.png", 128, 128, 6, 40);
+    std::vector<Enemy> enemyVec = {
+        // Inimigo 0: Snowman
+        {"Resources/Enemy/snowman/SnowManWalk.png", "Resources/Enemy/snowman/SnowManIdle.png", "Resources/Effects/Attackplayer.png", 128, 128, 6, 40},
+        {"Resources/Enemy/ghost/GhostWalk.png", "Resources/Enemy/ghost/GhostIdle.png", "Resources/Effects/Attackplayer.png",128, 128, 6, 40},
+        {"Resources/Enemy/doctor/DoctorWalk.png", "Resources/Enemy/doctor/DoctorIdle.png", "Resources/Effects/Attackplayer.png",128, 128, 6, 40},
 
-    anim = new Animation(walking, 0.060f, true);
+    };
+
+    int randomIndex = rand() % enemyVec.size();
+    Enemy chosenEnemy = enemyVec[randomIndex];
+
+    this->attackSpritePath = chosenEnemy.attackPath;
+
+    walking = new TileSet(chosenEnemy.walkPath.c_str(), chosenEnemy.frameWidth, chosenEnemy.frameHeight, chosenEnemy.columns, chosenEnemy.totalFrames);
+    idle = new TileSet(chosenEnemy.idlePath.c_str(), chosenEnemy.frameWidth, chosenEnemy.frameHeight, chosenEnemy.columns, chosenEnemy.totalFrames);
+
+
+    animWalk = new Animation(walking, 0.060f, true);
+    animIdle = new Animation(idle, 0.060f, true);
 
     uint SeqUp[6] = { 18, 19, 20, 21, 22, 23,};
     uint SeqDown[6] = { 0, 1, 2, 3, 4, 5};
@@ -22,12 +46,14 @@ Enemy::Enemy() : Entity()
     uint SeqRight[6] = { 12, 13, 14, 15, 16, 17};
     uint SeqStill[4] = {0,1,2,3};
 
-    anim->Add(WALKUP, SeqUp, 6);
-    anim->Add(WALKDOWN, SeqDown, 6);
-    anim->Add(WALKLEFT, SeqLeft, 6);
-    anim->Add(WALKRIGHT, SeqRight, 6);
-    anim->Add(STILL, SeqStill, 6);
+    animWalk->Add(WALKUP, SeqUp, 6);
+    animWalk->Add(WALKDOWN, SeqDown, 6);
+    animWalk->Add(WALKLEFT, SeqLeft, 6);
+    animWalk->Add(WALKRIGHT, SeqRight, 6);
+
+    animIdle->Add(STILL, SeqStill, 4);
     
+    anim = animIdle;
     state = STILL;
     anim->Select(state);
 
@@ -47,27 +73,16 @@ Enemy::Enemy() : Entity()
     dirY = (rand() % 2 == 0) ? 1 : -1;
     setMass(1.2f);
 
-    // Sorteia o Snowman apenas dentro do piso, evitando nascer em cima das paredes do background.
-    float margin = 50.0f;
-    int rangeX = (int)((PlayArea::Right - PlayArea::Left) - (margin * 2));
-    int rangeY = (int)((PlayArea::Bottom - PlayArea::Top) - (margin * 2));
-
-    if (rangeX <= 0) rangeX = 1;
-    if (rangeY <= 0) rangeY = 1;
-
-    float randomX = (float)(rand() % rangeX) + PlayArea::Left + margin;
-    float randomY = (float)(rand() % rangeY) + PlayArea::Top + margin;
-
-    this->MoveTo(randomX, randomY);
-
     damage = 30;
     hp = 100;
     maxHp = 100;
 }
 
-Enemy::~Enemy() {
-    delete anim;
+Enemy::~Enemy() {   
+    delete animWalk;
+    delete animIdle;
     delete walking;
+    delete idle;
 }
 
 void Enemy::Draw()
@@ -88,6 +103,20 @@ void Enemy::OnCollision(Object* obj) {
     // 2. Lógica específica do Ghost: mudar direção ao bater em algo sólido
     if (obj->Type() == WALL || obj->Type() == GHOST || obj->Type() == PORTAL || obj->Type() == FOOD || obj->Type() ==  ENEMY) {
         this->RandomizeMovement();
+    }
+
+    if (obj->Type() == ENEMY) {
+        float diffX = this->X() - obj->X();
+        float diffY = this->Y() - obj->Y();
+        float distance = sqrt(diffX * diffX + diffY * diffY);
+
+        // Garante que não há divisão por zero se nascerem no exato mesmo pixel
+        if (distance > 0) {
+            this->MoveTo(this->X() + (diffX / distance) * 1.5f, this->Y() + (diffY / distance) * 1.5f);
+
+            moves->setVelX((diffX / distance) * 150.0f);
+            moves->setVelY((diffY / distance) * 150.0f);
+        }
     }
 }
 
@@ -113,13 +142,13 @@ void Enemy::Control() {
     // Se estiver em cooldown, ele foge se o player chegar perto
     if (attackTimer < attackCooldown) {
         if (distance < 200.0f) { // Se o player chegar perto durante o cooldown
-            targetVX = -dirToPlayerX * speed;
-            targetVY = -dirToPlayerY * speed;
+            targetVX = -dirToPlayerX * (speed*0.7f);
+            targetVY = dirToPlayerY * (speed*0.7f);
         }
         else {
             // Movimento errático ou lento enquanto recarrega
-            targetVX = moves->getVelX();
-            targetVY = moves->getVelY();
+            targetVX = moves->getVelX() * 0.9f;
+            targetVY = moves->getVelY() * 0.9f;
         }
     }
     else {
@@ -133,7 +162,12 @@ void Enemy::Control() {
         }
     }
 
-   
+    if(abs(targetVX) < 40.0f && abs(targetVY) < 40.0f) {
+        state = STILL;
+        anim = animIdle;  // Troca para a spritesheet de Idle
+    }
+    else {
+        anim = animWalk;
         if (abs(targetVX) > abs(targetVY)) {
             if (targetVX > 0) state = WALKRIGHT;
             else state = WALKLEFT;
@@ -142,7 +176,7 @@ void Enemy::Control() {
             if (targetVY > 0) state = WALKDOWN;
             else state = WALKUP;
         }
-
+    }
     anim->Select(state);
     anim->NextFrame();
 
@@ -175,7 +209,7 @@ void Enemy::AttackPlayer() {
     uint SeqLeft[8] = { 17, 18, 19, 20, 21, 22, 23, 24 };
     uint SeqRight[8] = { 25 , 26, 27, 28, 29, 30, 31, 32 };
     uint SeqStill[1] = { 32 };
-    Attack* bullet = new Attack("Resources/Effects/Attackplayer.png",
+    Attack* bullet = new Attack(this->attackSpritePath,
         64,
         64,
         8,

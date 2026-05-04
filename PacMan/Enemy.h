@@ -9,11 +9,14 @@
 class Enemy : public Entity
 {
 private:
+    std::string attackSpritePath;
     TileSet* walking;                // folha de sprites do personagem
     TileSet* idle;                // folha de sprites do personagem
-    Animation* anim;                   // animação do personagem
-    Animation* teste;
+    Animation* animWalk;                   // animação do personagem
+    Animation* animIdle;
+    Animation* anim;
     int spriteCount = 0;
+
 
     MovementType moveType;
     int dirX = 1;

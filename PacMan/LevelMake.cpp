@@ -17,6 +17,7 @@
 #include <fstream>
 #include <sstream>
 #include <cstdlib>
+#include <cmath>
 
 
 using std::ifstream;
@@ -27,7 +28,7 @@ using std::string;
 void LevelMake::LoadLevel(std::string path)
 {
     std::ifstream file(path);
-    std::string   line, key;
+    std::string   line, key;    
 
     if (!file.is_open()) return;
 
@@ -215,6 +216,7 @@ void LevelMake::Update()
     scene->Update();
     scene->CollisionDetection();
     UpdateStageTransition(gameTime);
+    totalPlayTime += gameTime;
 
     // Verifica se a sala ainda não foi concluída
     if (stages != nullptr && !stages[currentBG].visited) {
@@ -238,8 +240,30 @@ void LevelMake::Update()
 
     if (window->KeyPress('B')) viewBBox = !viewBBox;
 
-    if (player->GetHp() <= 0) {
-        Engine::Next<Home>();
+    if (player->GetHp() <= 0 || (player->totalLevelsVisited == 9)) {
+        // 1. Definir o nome do arquivo
+        std::string filename = "player_stats.txt";
+
+        // 2. Abrir o arquivo (o modo std::ios::out sobrescreve por padrão)
+        std::ofstream file(filename);
+        std::string finalState;
+        if (player->GetHp() > 0) {
+            finalState = "VIVO";
+        }
+        else finalState = "MORTO";
+
+        if (file.is_open()) {
+            file << "--- STATUS DO JOGADOR ---" << std::endl;
+            file << "Total de dano sofrido: " << totalDamageTaken << std::endl;
+            file << "Total de dano deferido: " << player->totalDamageDealt << std::endl;
+            file << "Total de inimigos derrotados: " << totalEnemiesDefeated << std::endl;
+            file << "Total de fases visitadas: " << player->totalLevelsVisited << std::endl;
+			file << "Player morreu no estágio: " << (currentBG + 1) << std::endl;
+			file << "Status final do player: " << finalState << std::endl;
+            file << "Tempo de jogo: " << totalPlayTime << std::endl;
+            file.close();
+        }
+        Engine::Next<EndGame>();
     }
 }
 // ------------------------------------------------------------------------------
@@ -263,7 +287,7 @@ void LevelMake::Draw()
         else if (!comeuItem) {
             DrawCentralMessage("ITEM DISPONIVEL! CONSUMA PARA SAIR", Color(0.4f, 0.8f, 1.0f, 1.0f), -1.0f, 40.0f);
         }
-        else {
+        else if (comeuItem) {
             DrawCentralMessage("PORTAS ABERTAS!", Color(0.2f, 1.0f, 0.2f, 1.0f), -1.0f, 40.0f);
         }
 
@@ -302,19 +326,32 @@ Enemy* LevelMake::addSnowman(int stageIndex) {
     Enemy* snowman = new Enemy();
     snowman->SetTarget(player);
 
+    float margin = 50.0f;
+    int rangeX = (int)((PlayArea::Right - PlayArea::Left) - (margin * 2));
+    int rangeY = (int)((PlayArea::Bottom - PlayArea::Top) - (margin * 2));
+
+    if (rangeX <= 0) rangeX = 1;
+    if (rangeY <= 0) rangeY = 1;
+
+    float randomX, randomY;
+    float distanceToPlayer = 0.0f;
+
+    // O código vai ficar sorteando a posição até ter 400 pixel de distancia
+    do {
+        randomX = (float)(rand() % rangeX) + PlayArea::Left + margin;
+        randomY = (float)(rand() % rangeY) + PlayArea::Top + margin;
+
+        float diffX = randomX - player->X();
+        float diffY = randomY - player->Y();
+        distanceToPlayer = sqrt(diffX * diffX + diffY * diffY);
+
+    } while (distanceToPlayer < 400.0f); 
+    snowman->MoveTo(randomX, randomY);
+
     if (stageIndex == currentBG) {
         scene->Add(snowman, MOVING);
     }
     return snowman;
-}
-
-Ghost* LevelMake::addGhost(int stageIndex) {
-    Ghost* ghost = new Ghost();
-    ghost->SetTarget(player);
-    if (stageIndex == currentBG) {
-        scene->Add(ghost, MOVING);
-    }
-    return ghost;
 }
 
 
@@ -350,7 +387,7 @@ void LevelMake::SetStage(int index)
     currentBG = index;
 
     // 4. Posiciona o player no novo Spawn
-    if (player != nullptr)
+    if (player != nullptr && player->totalLevelsVisited==0)
         player->MoveTo(stages[currentBG].spawnX, stages[currentBG].spawnY);
 
     // 5. Lógica de Primeira Visita vs Sala Limpa

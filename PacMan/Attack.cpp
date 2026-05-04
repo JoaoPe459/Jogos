@@ -75,16 +75,16 @@ void Attack::Control() {
 
 void Attack::Update() {
     timer += gameTime;
-    if (moves->getVelY() < 0) {
+    if (moves->getVelY() < 0 && abs(moves->getVelX()) <= abs(moves->getVelY())) {
         currentAnimation->Select(WALKUP);
     }
-    else if (moves->getVelY() > 0) {
+    else if (moves->getVelY() > 0 && moves->getVelX() <= moves->getVelY()) {
         currentAnimation->Select(WALKDOWN);
     }
-    else if (moves->getVelX() < 0) {
+    else if (moves->getVelX() < 0 && abs(moves->getVelY()) <= abs(moves->getVelX())) {
         currentAnimation->Select(WALKLEFT);
     }
-    else if (moves->getVelX() > 0) {
+    else if (moves->getVelX() > 0 && abs(moves->getVelY()) <= abs(moves->getVelX())) {
         currentAnimation->Select(WALKRIGHT);
     }
     else {
@@ -131,7 +131,11 @@ void Attack::OnCollision(Object* obj) {
         Entity* target = static_cast<Entity*>(obj);
         if (target) {
             target->TakeDamage(this);
-
+            if (obj->Type() == PLAYER)
+            {
+                LevelMake* lvl = static_cast<LevelMake*>(Engine::game);
+                lvl->totalDamageTaken += this->GetDamage();
+            }
             // REGRA: Se NÃO for orbital, morre ao tocar. Se for, continua vivo.
             if (attackType != AttackType::ORBITAL) {
                 this->Die();
