@@ -64,7 +64,7 @@ void EndGame::Draw()
     if (consolas != nullptr)
     {
         // Lógica do Rato baseada no status lido do arquivo
-        if (l_status == "VIVO") {
+        if (l_status == "MORTO") {
             ratoChad->Draw(350, window->CenterY(), Layer::FRONT, 0.5);
             terminal->Draw(100, 700, "PARABENS VOCE VENCEU!!!", Color(1,1,0,1));
             

@@ -254,8 +254,8 @@ void LevelMake::Update()
 
         if (file.is_open()) {
             file << "--- STATUS DO JOGADOR ---" << std::endl;
-            file << "Total de dano sofrido: " << totalDamageTaken << std::endl;
-            file << "Total de dano deferido: " << player->totalDamageDealt << std::endl;
+            file << "Total de dano sofrido: " << totalDamageTaken / 10 << std::endl;
+            file << "Total de dano deferido: " << player->totalDamageDealt / 10 << std::endl;
             file << "Total de inimigos derrotados: " << totalEnemiesDefeated << std::endl;
             file << "Total de fases visitadas: " << player->totalLevelsVisited << std::endl;
 			file << "Player morreu no estágio: " << (currentBG + 1) << std::endl;

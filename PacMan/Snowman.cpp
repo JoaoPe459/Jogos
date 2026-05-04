@@ -21,7 +21,6 @@ Enemy::Enemy() : Entity()
     };
 
     std::vector<Enemy> enemyVec = {
-        // Inimigo 0: Snowman
         {"Resources/Enemy/snowman/SnowManWalk.png", "Resources/Enemy/snowman/SnowManIdle.png", "Resources/Effects/SnowAttack.png", 128, 128, 6, 40},
         {"Resources/Enemy/ghost/GhostWalk.png", "Resources/Enemy/ghost/GhostIdle.png", "Resources/Effects/GhostAttack.png",128, 128, 6, 40},
         {"Resources/Enemy/doctor/DoctorWalk.png", "Resources/Enemy/doctor/DoctorIdle.png", "Resources/Effects/Attackplayer.png",128, 128, 6, 40},
