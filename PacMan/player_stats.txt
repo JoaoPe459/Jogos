@@ -1,8 +1,8 @@
 --- STATUS DO JOGADOR ---
-Total de dano sofrido: 60
-Total de dano deferido: 0
-Total de inimigos derrotados: 0
-Total de fases visitadas: 0
-Player morreu no estágio: 5
+Total de dano sofrido: 90
+Total de dano deferido: 1305
+Total de inimigos derrotados: 7
+Total de fases visitadas: 2
+Player morreu no estágio: 7
 Status final do player: MORTO
-Tempo de jogo: 2.76852
+Tempo de jogo: 40.9765
