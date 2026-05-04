@@ -4,7 +4,7 @@ void EndGame::Init()
 {
     backg = new Sprite("Resources/Background/EndGame.jpg");
     backg2 = new Sprite("Resources/Background/BlackPainel.png");
-    ratoChad = new Sprite("Resources/Player/RatoChad3.png");
+    ratoChad = new Sprite("Resources/Player/RatoChad1.png");
     ratoBeta = new Sprite("Resources/Player/RatoTriste.png");
     consolas = new Font("Resources/consolas12.png");
     terminal = new Font("Resources/terminal.png");
@@ -66,12 +66,12 @@ void EndGame::Draw()
         // Lógica do Rato baseada no status lido do arquivo
         if (l_status == "VIVO") {
             ratoChad->Draw(350, window->CenterY(), Layer::FRONT, 0.5);
-            terminal->Draw(100, 750, "PARABENS VOCE VENCEU!!!", Color(1,1,0,1));
+            terminal->Draw(100, 700, "PARABENS VOCE VENCEU!!!", Color(1,1,0,1));
             
         }
         else {
             ratoBeta->Draw(350, window->CenterY(), Layer::FRONT, 0.5);
-            terminal->Draw(100, 750, "NAO FOI DESSA VEZ!!!", Color(1, 1, 0, 1));
+            terminal->Draw(100, 700, "NAO FOI DESSA VEZ!!!", Color(1, 1, 0, 1));
         }
 
         // Exibe os dados lidos
