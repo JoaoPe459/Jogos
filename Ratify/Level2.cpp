@@ -61,6 +61,7 @@ void Level2::Update()
         testWall->MoveTo(testWall->X(), testWall->Y() + moveSpeed * gameTime);
 
     // ── Fim dos controles de teste ──────────────────────────────
+    testWall->RemoveBlocksInRadius(player->X(), player->Y(), 80.0f);
 
     LevelMake::Update();
 }

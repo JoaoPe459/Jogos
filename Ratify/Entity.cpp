@@ -79,28 +79,23 @@ void Entity::ApplyPhysics() {
 }
 
 void Entity::OnCollision(Object* obj) {
-    // 1. Segurança básica: verifica se este objeto ou o alvo são nulos ou já morreram
     if (!obj || !alive) return;
 
-    // 2. Filtros de colisão simples
     if (obj->Type() == FOOD) return;
 
     if (obj->Type() == WALL) {
+        // Se for um Block morto, ignora completamente
+        Block* block = dynamic_cast<Block*>(obj);
+        if (block && block->isDead) return;
+
         HandleWallCollision(obj);
         return;
     }
 
-    // 3. Cast seguro para Entity
-    // Como Player e Ghost herdam de Entity, este cast é válido para esses tipos
     Entity* other = static_cast<Entity*>(obj);
 
-    // 4. VERIFICAÇÃO CRÍTICA DO ALIVE
-    // Se o objeto 'other' morreu em uma colisão processada milissegundos antes
-    // no mesmo frame, o check 'other->IsAlive()' impede o acesso a ponteiros inválidos.
     if (other && other->IsAlive()) {
-
         if (obj->Type() == PLAYER || obj->Type() == GHOST) {
-            // Agora é seguro acessar membros da Entity/Outros componentes
             float otherVX = other->moves->getVelX();
             float otherVY = other->moves->getVelY();
             float speedSum = sqrt(otherVX * otherVX + otherVY * otherVY);
@@ -108,7 +103,6 @@ void Entity::OnCollision(Object* obj) {
             ApplyKnockback(obj, 20);
 
             if (obj->Type() == GHOST) {
-                // Cast seguro pois verificamos o Type() acima
                 static_cast<Ghost*>(obj)->RandomizeMovement();
             }
         }

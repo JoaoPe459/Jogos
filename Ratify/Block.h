@@ -11,24 +11,24 @@ class Wall;
 class Block : public Object
 {
 public:
-    float    offsetX = 0.0f;
-    float    offsetY = 0.0f;
-    float    width = 0.0f;
-    float    height = 0.0f;
-    bool     solid = true;
+    bool        isDead = false;
+    float       offsetX = 0.0f;
+    float       offsetY = 0.0f;
+    float       width = 0.0f;
+    float       height = 0.0f;
+    bool        solid = true;
     std::string tag;
     Sprite* sprite = nullptr;
-    Wall* owner = nullptr;   // referência para o pai
+    Wall* owner = nullptr;
 
     Block(Wall* owner, float offX, float offY, float w, float h,
         const char* spriteFile = nullptr, const std::string& tag = "");
     ~Block();
 
-    // Recalcula posição/BBox no mundo a partir do owner
     void SyncToOwner();
 
-    void Update()  override;
-    void Draw()    override;
+    void Update()              override;
+    void Draw()                override;
     void OnCollision(Object* obj);
 };
 

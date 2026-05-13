@@ -11,7 +11,7 @@ Block::Block(Wall* owner, float offX, float offY,
     : owner(owner), offsetX(offX), offsetY(offY),
     width(w), height(h), tag(tag)
 {
-    type = WALL;   // colide como parede para o resto do engine
+    type = WALL;
 
     if (spriteFile && strlen(spriteFile) > 0)
         sprite = new Sprite(spriteFile);
@@ -27,29 +27,32 @@ Block::~Block()
 
 void Block::SyncToOwner()
 {
-    if (!owner) return;
+    if (!owner || isDead) return;
 
     float ang = owner->GetAngle();
     float rad = ang * DEG2RAD;
-    float wx = owner->X() + offsetX * cosf(rad) - offsetY * sinf(rad);
-    float wy = owner->Y() + offsetX * sinf(rad) + offsetY * cosf(rad);
+    float wx  = owner->X() + offsetX * cosf(rad) - offsetY * sinf(rad);
+    float wy  = owner->Y() + offsetX * sinf(rad) + offsetY * cosf(rad);
 
     MoveTo(wx, wy);
 }
 
 void Block::Update()
 {
+    if (isDead) return;
     SyncToOwner();
 }
 
 void Block::Draw()
 {
-    if (!sprite) return;
+    if (isDead || !sprite) return;
     sprite->Draw(X(), Y(), Layer::MIDDLE);
 }
 
 void Block::OnCollision(Object* obj)
 {
+    if (isDead) return;
+
     if (obj->Type() == FLOOR && owner && owner->IsFalling())
         owner->StopFalling();
 }
