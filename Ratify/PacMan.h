@@ -20,6 +20,7 @@ enum PacManObjects
     ENEMY,
     ENTITY,
     FOOD,
+    FLOOR,
     GHOST,
     PIVOT,
     PLAYER,

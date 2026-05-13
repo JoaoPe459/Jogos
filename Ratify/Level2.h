@@ -13,9 +13,11 @@
 #define _PACMAN_LEVEL2_H_
 
 #include "LevelMake.h"
-
+#include "Wall.h"
 class Level2 : public LevelMake
 {
+private:
+    Wall* testWall = nullptr;
 public:
     void Init();                    // inicializa jogo
     void Update() override;         // atualiza lógica do jogo

@@ -245,6 +245,7 @@
   <ItemGroup>
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="Attack.cpp" />
+    <ClCompile Include="Block.cpp" />
     <ClCompile Include="EndGame.cpp" />
     <ClCompile Include="Snowman.cpp" />
     <ClCompile Include="Engine.cpp" />
@@ -279,6 +280,7 @@
   <ItemGroup>
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Attack.h" />
+    <ClInclude Include="Block.h" />
     <ClInclude Include="EndGame.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="Engine.h" />

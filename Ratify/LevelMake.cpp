@@ -415,51 +415,7 @@ void LevelMake::ChangeBackground(int index)
 
 // ------------------------------------------------------------------------------
 
-void LevelMake::GenerateMaze(Scene* scene, Window* window, int tileSize)
-{
-    int cols = window->Width() / tileSize;
-    int rows = window->Height() / tileSize;
 
-    for (int r = 0; r < rows; r++)
-    {
-        for (int c = 0; c < cols; c++)
-        {
-            bool createWall = false;
-
-            if (r % 2 == 0 && c % 2 == 0)
-            {
-                createWall = true;
-
-                int dir = rand() % 4;
-                int wallR = r, wallC = c;
-                if (dir == 0) wallR--;
-                else if (dir == 1) wallR++;
-                else if (dir == 2) wallC--;
-                else               wallC++;
-
-                bool isNearEdge = (wallR <= 0 || wallR >= rows - 1 || wallC <= 0 || wallC >= cols - 1);
-                bool isCenter = (abs(wallC - cols / 2) <= 2 && abs(wallR - rows / 2) <= 2);
-
-                if (!isNearEdge && !isCenter)
-                {
-                    float pConnX = wallC * tileSize + (tileSize / 2.0f);
-                    float pConnY = wallR * tileSize + (tileSize / 2.0f);
-                    scene->Add(new Wall(pConnX, pConnY, (float)tileSize, (float)tileSize, "Resources/Tijolo.png"), STATIC);
-                }
-            }
-
-            if (r == 0 || r == rows - 1 || c == 0 || c == cols - 1) createWall = false;
-            if (abs(c - cols / 2) <= 1 && abs(r - rows / 2) <= 1)   createWall = false;
-
-            if (createWall)
-            {
-                float posX = c * tileSize + (tileSize / 2.0f);
-                float posY = r * tileSize + (tileSize / 2.0f);
-                scene->Add(new Wall(posX, posY, (float)tileSize, (float)tileSize, "Resources/Tijolo.png"), STATIC);
-            }
-        }
-    }
-}
 
 // ------------------------------------------------------------------------------
 

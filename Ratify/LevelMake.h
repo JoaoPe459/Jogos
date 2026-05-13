@@ -114,7 +114,7 @@ public:
     void foodInit() { foodInit(currentBG); }
 
     void Remove(Object* obj, int type);
-    void GenerateMaze(Scene* scene, Window* window, int tileSize);
+    //void GenerateMaze(Scene* scene, Window* window, int tileSize);
 
     // -------- SISTEMA DE STAGE --------
     void ChangeBackground(int index);

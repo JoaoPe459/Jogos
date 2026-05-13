@@ -15,7 +15,7 @@
 #include "Pivot.h"
 #include <string>
 #include <fstream>
-
+#include "Wall.h"
 using std::ifstream;
 using std::string;
 
@@ -26,9 +26,8 @@ void Level1::Init() {
     LoadLevel("Resources/Levels/Level1.txt");
     consolas = new Font("Resources/consolas12.png");
     consolas->Spacing("Resources/consolas12.dat");
-
     // Inicializa o restante da lógica (fantasmas, comida, etc)
-    LevelMake::Init(0.0f, 3 , 3, "");
+    LevelMake::Init(0.0f, 0 , 0, "");
     SetStage(4);
 }
 
