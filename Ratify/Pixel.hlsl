@@ -39,5 +39,5 @@ struct pixelIn
 
 float4 main(pixelIn pIn) : SV_TARGET
 {
-    return resource.Sample(pixelArt, pIn.Tex) * pIn.Color;
+    return resource.Sample(anisotropic, pIn.Tex) * pIn.Color;
 }

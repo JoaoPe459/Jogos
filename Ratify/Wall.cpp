@@ -84,7 +84,7 @@ void Wall::Rotate(float degrees)
 {
     angle += degrees;
     for (Block* b : blocks)
-        b->SyncToOwner();
+       b->SyncToOwner();
 }
 
 void Wall::SetAngle(float degrees)
