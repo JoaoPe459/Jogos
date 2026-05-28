@@ -8,7 +8,7 @@
 
 class Player : public Entity {
 private:
-    TileSet   * walking;               // folha de sprites do personagem
+    TileSet   * animation;               // folha de sprites do personagem
     TileSet   * idle;               // folha de sprites do personagem
     Animation * anim;                   // animação do personagem
     // Atributos exclusivos do Player (não existem em Entity)

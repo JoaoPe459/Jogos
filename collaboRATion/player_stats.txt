@@ -5,4 +5,4 @@ Total de inimigos derrotados: 1
 Total de fases visitadas: -572662307
 Player morreu no estágio: 1
 Status final do player: MORTO
-Tempo de jogo: 20.0004
+Tempo de jogo: 20.0001

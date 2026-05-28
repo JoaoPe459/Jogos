@@ -3,6 +3,8 @@
 #include "Wall.h"
 #include <cmath>
 
+//Vamos usar
+
 static constexpr float DEG2RAD = 3.14159265f / 180.0f;
 
 Block::Block(Wall* owner, float offX, float offY,

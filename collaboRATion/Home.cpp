@@ -37,8 +37,8 @@ void Home::Update()
         window->Close();
     
     // passa ao primeiro nível com ENTER
-    if (window->KeyPress(VK_RETURN))
-        Engine::Next<Level2>();
+    //if (window->KeyPress(VK_RETURN))
+      Engine::Next<Level2>();
 }
 
 // ------------------------------------------------------------------------------

@@ -8,7 +8,7 @@
 
 class LevelMake;
 
-enum EntityState { STILL, WALKUP, WALKDOWN, WALKLEFT, WALKRIGHT };
+enum EntityState {WALKDOWN,WALKUP,STILL, IDLELEFT,IDLERIGHT, JUMPLEFT, JUMPRIGHT, WALKLEFT, WALKRIGHT,DEATHLEFT,DEATHRIGHT };
 
 class Entity : public Object {
 protected:

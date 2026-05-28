@@ -12,6 +12,7 @@ void Level2::Init()
 {
     LevelMake::Init(600, 0, 0, "Resources/Level2.jpg");
 
+
     // ── 1. ESPINHOS DO CHÃO ──────────────────────────────────────────────────
     // Criados dinamicamente no Update; a Wall-âncora fica no centro inferior.
     spikeWall = new Wall();
@@ -22,25 +23,25 @@ void Level2::Init()
     // Começa acima da área visível e cai após `fallDelay` segundos.
     ceilingWall = new Wall();
     ceilingWall->MoveTo(400.0f, -40.0f);   // fora da tela, acima
-    ceilingWall->AddBlock(-66, 0, 44, 44, "Resources/Tijolo.png", "ceil_l");
-    ceilingWall->AddBlock(0, 0, 44, 44, "Resources/Tijolo.png", "ceil_m");
-    ceilingWall->AddBlock(66, 0, 44, 44, "Resources/Tijolo.png", "ceil_r");
+    ceilingWall->AddBlock(-66, 0, 32, 32, "Resources/Tijolo.png", "ceil_l");
+    ceilingWall->AddBlock(0, 0, 32, 32, "Resources/Tijolo.png", "ceil_m");
+    ceilingWall->AddBlock(66, 0, 32, 32, "Resources/Tijolo.png", "ceil_r");
     scene->Add(ceilingWall, STATIC);
 
     // ── 3. PLATAFORMA PING-PONG ──────────────────────────────────────────────
     movingWall = new Wall();
     movingWall->MoveTo(platformBaseX, platformBaseY);
-    movingWall->AddBlock(-44, 0, 44, 22, "Resources/Tijolo.png", "plat_l");
-    movingWall->AddBlock(0, 0, 44, 22, "Resources/Tijolo.png", "plat_m");
-    movingWall->AddBlock(44, 0, 44, 22, "Resources/Tijolo.png", "plat_r");
+    movingWall->AddBlock(-44, 0, 34, 32, "Resources/Tijolo.png", "plat_l");
+    movingWall->AddBlock(0, 0, 34, 32, "Resources/Tijolo.png", "plat_m");
+    movingWall->AddBlock(44, 0, 34, 32, "Resources/Tijolo.png", "plat_r");
     scene->Add(movingWall, STATIC);
 
     // ── 4. PAREDE ROTACIONANTE ────────────────────────────────────────────────
     // Dois blocos opostos formam um "moinho" giratório no centro do cenário.
     spinWall = new Wall();
     spinWall->MoveTo(640.0f, 350.0f);
-    spinWall->AddBlock(-80, 0, 140, 22, "Resources/Tijolo.png", "spin_l");
-    spinWall->AddBlock(80, 0, 140, 22, "Resources/Tijolo.png", "spin_r");
+    spinWall->AddBlock(-80, 0, 32, 32, "Resources/Tijolo.png", "spin_l");
+    spinWall->AddBlock(80, 0, 32, 32, "Resources/Tijolo.png", "spin_r");
     scene->Add(spinWall, STATIC);
 
     // ── 5. ZONA DE DANO ───────────────────────────────────────────────────────
@@ -51,6 +52,7 @@ void Level2::Init()
     hazardZone->AddBlock(0, 0, 88, 22, "Resources/Tijolo.png", "haz_m");
     hazardZone->AddBlock(88, 0, 88, 22, "Resources/Tijolo.png", "haz_r");
     scene->Add(hazardZone, STATIC);
+    
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

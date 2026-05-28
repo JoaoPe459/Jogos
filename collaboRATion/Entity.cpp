@@ -5,7 +5,7 @@
 #include "Attack.h"
 #include "Ghost.h"
 
-//não vamos usar
+//Vamos usar
 
 Entity::Entity() {
     moves = new Moves(500, 500, 0 , false);

@@ -27,14 +27,14 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
 
     // configura a janela do jogo
     engine->window->Mode(WINDOWED);
-    engine->window->Size(1300, 800);
+    engine->window->Size(1300, 700);
     engine->window->Color(25, 25, 25);
-    engine->window->Title("RatGame");
+    engine->window->Title("CollaboRATion");
     engine->window->Icon(IDI_ICON);
     engine->window->Cursor(IDC_CURSOR);
 
     // configura dispositivo gráfico
-    //engine->graphics->VSync(true);
+    engine->graphics->VSync(true);
     
     // inicia o jogo
     engine->Start(new Home());

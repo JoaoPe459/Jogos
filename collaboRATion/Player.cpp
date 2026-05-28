@@ -18,25 +18,33 @@ void Player::UpdateOrbitalPositions() {
 
 Player::Player() : Entity() {
     type = PLAYER;
-    // RatoWalk1 tem 608x108: 8 colunas e 2 linhas, cada quadro com 76x54.
-    walking = new TileSet("Resources/Player/RatoWalk1.png", 76, 54, 8, 16);
-    anim = new Animation(walking, 0.060f, true);
+    animation = new TileSet("Resources/Player/Rato2.png", 64, 64, 15, 30);
+    anim = new Animation(animation, 0.040f, true);
+    
 
     // Primeira fileira anda para direita; segunda fileira anda para esquerda.
-    uint SeqRight[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
-    uint SeqLeft[8] = { 8, 9, 10, 11, 12, 13, 14, 15 };
-    uint SeqStill[1] = { 0 };
+    uint SeqRightIdle[1] = {29};
+    uint SeqLeftIdle[1] = {0};
+    uint SeqRightWalk[4] = { 28,27,26,25};
+    uint SeqLeftWalk[4] = { 1,2,3,4};
+    uint SeqRightJump[1] = { 0 };
+    uint SeqLeftJump[1] = { 0 };
+    uint SeqLeftDeath[9] = { 25,24,23,22,21,20,19,18,17 };
+    uint SeqRightDeath[9] = { 5,6,7,8,9,10,11,12,13 };
 
     // A spritesheet nao tem animacao vertical, entao W/S reaproveitam a fileira da direita.
-    anim->Add(WALKUP, SeqRight, 8);
-    anim->Add(WALKDOWN, SeqRight, 8);
-    anim->Add(WALKLEFT, SeqLeft, 8);
-    anim->Add(WALKRIGHT, SeqRight, 8);
-    anim->Add(STILL, SeqStill, 1);
+    anim->Add(JUMPLEFT, SeqLeftJump, 1);
+    anim->Add(JUMPLEFT, SeqRightJump, 1);
+    anim->Add(WALKLEFT, SeqLeftWalk, 4);
+    anim->Add(WALKRIGHT, SeqRightWalk, 4);
+    anim->Add(IDLELEFT, SeqLeftIdle, 1);
+    anim->Add(IDLERIGHT, SeqRightIdle, 1);
+    anim->Add(DEATHLEFT, SeqRightIdle, 9);
+    anim->Add(DEATHRIGHT, SeqRightIdle, 9);
 
-    state = STILL;
+    state = IDLERIGHT;
     // Bounding box alinhada ao novo tamanho de quadro do rato.
-    BBox(new Rect(-38, -27, 38, 27));
+    BBox(new Rect(-20, -25, 23, 25));
     moves->setSpeed(500.0f);
 
     type = PLAYER;      
@@ -162,18 +170,20 @@ void Player::Control() {
     float targetVY = 0;
 
     // --- LOGICA DE MOVIMENTAÇÃO (WASD) ---[cite: 4]
-    if (window->KeyUp('W') && window->KeyUp('S') && window->KeyUp('A') && window->KeyUp('D')) {
-        state = STILL;
+    if (window->KeyUp('W') && window->KeyUp('S') && window->KeyUp('A')) {
+        
+        state = IDLERIGHT;
+        
     }
 
     if (window->KeyDown('A')) { targetVX = -baseSpeed; state = WALKLEFT; }
     if (window->KeyDown('D')) { targetVX = baseSpeed; state = WALKRIGHT; }
     if (window->KeyDown('W')) {
-        if (state == STILL) { targetVY = -baseSpeed; state = WALKRIGHT; }
+        if (state == IDLELEFT || state == IDLERIGHT) { targetVY = -baseSpeed; state = WALKRIGHT; }
         else { targetVY = -baseSpeed; state = state; }
     }
     if (window->KeyDown('S')) {
-        if (state == STILL) { targetVY = baseSpeed; state = WALKRIGHT; }
+        if (state == IDLELEFT || state == IDLERIGHT) { targetVY = baseSpeed; state = WALKRIGHT; }
         else { targetVY = baseSpeed; state = state; }
     }
     anim->Select(state);
@@ -254,5 +264,5 @@ void Player::Update() {
 
 Player::~Player() {
     delete anim;
-    delete walking;
+    delete animation;
 }

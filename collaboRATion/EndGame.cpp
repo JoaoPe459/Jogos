@@ -1,5 +1,8 @@
 #include "EndGame.h"
 #include <fstream>
+
+//Vamos usar
+
 void EndGame::Init()
 {
     backg = new Sprite("Resources/Background/EndGame.jpg");
