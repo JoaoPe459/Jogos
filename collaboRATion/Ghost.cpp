@@ -1,0 +1,205 @@
+#include "PacMan.h"
+#include "Ghost.h"
+#include "Attack.h"
+#include <filesystem>
+#include <vector>
+
+namespace fs = std::filesystem;
+
+//não vamos usar
+
+Ghost::Ghost() : Entity()
+{
+    type = ENEMY;
+
+    // --- 1. CARREGAMENTO AUTOMÁTICO DA PASTA ---
+    std::string path = "Resources/Enemy";
+    std::vector<std::string> filePaths;
+
+    if (fs::exists(path) && fs::is_directory(path)) {
+        for (const auto& entry : fs::directory_iterator(path)) {
+            std::string ext = entry.path().extension().string();
+            if (ext == ".png" || ext == ".jpg") {
+                filePaths.push_back(entry.path().string());
+            }
+        }
+    }
+
+    spriteCount = static_cast<int>(filePaths.size());
+
+    // Inicializa o array dinâmico se houver arquivos
+    if (spriteCount > 0) {
+        sprites = new Sprite * [spriteCount];
+        for (int i = 0; i < spriteCount; i++) {
+            sprites[i] = new Sprite(filePaths[i].c_str());
+        }
+    }
+
+    // --- 2. DEFINIÇÃO DO SPRITE ATUAL ---
+    RandomizeSprite();
+
+    // --- 3. DEFINIÇÃO DA BBOX (Baseada no sprite carregado) ---
+    if (currentSprite) {
+        // Criamos a BBox centralizada no sprite sorteado
+        float h = (float)currentSprite->Height();
+        float w = (float)currentSprite->Width();
+        // Exemplo: Rect(topo, esquerda, baixo, direita) relativo ao centro
+        BBox(new Rect(-h / 2, -w / 2, h / 2, w / 2));
+    }
+
+    // --- 4. AJUSTES DE MOVIMENTAÇÃO E SPAWN ---
+    moves->setSpeed(static_cast<float>(500.0f - (rand() % 200)));
+    moveType = static_cast<MovementType>(rand() % 3);
+
+    dirX = (rand() % 2 == 0) ? 1 : -1;
+    dirY = (rand() % 2 == 0) ? 1 : -1;
+    setMass(1.2f);
+
+    float margin = 50.0f;
+    int rangeX = (int)(window->Width() - (margin * 2));
+    int rangeY = (int)(window->Height() - (margin * 2));
+
+    if (rangeX <= 0) rangeX = 1;
+    if (rangeY <= 0) rangeY = 1;
+
+    float randomX = (float)(rand() % rangeX) + margin;
+    float randomY = (float)(rand() % rangeY) + margin;
+
+    this->MoveTo(randomX, randomY);
+
+	damage = 7;
+    hp = 30;
+	maxHp = 30;
+}
+
+Ghost::~Ghost() {
+    if (sprites != nullptr) {
+        for (int i = 0; i < spriteCount; i++) {
+            delete sprites[i];
+        }
+        delete[] sprites;
+    }
+}
+
+void Ghost::Draw()
+{
+    if (currentSprite) {
+        currentSprite->Draw(X(), Y());
+    }
+}
+
+void Ghost::Update() {
+    Entity::Update();
+    Control();
+}
+
+void Ghost::OnCollision(Object* obj) {
+    Entity::OnCollision(obj);
+
+    // 2. Lógica específica do Ghost: mudar direção ao bater em algo sólido
+    if (obj->Type() == WALL || obj->Type() == GHOST || obj->Type() == PORTAL || obj->Type() == FOOD) {
+        this->RandomizeMovement();
+    }
+}
+
+void Ghost::Control() {
+    if (!playerTarget) {
+        HandleScreenWrap();
+        return;
+    }
+
+    attackTimer += gameTime;
+
+    float diffX = playerTarget->X() - X();
+    float diffY = playerTarget->Y() - Y();
+    float distance = sqrt(diffX * diffX + diffY * diffY);
+
+    float dirToPlayerX = (distance > 0) ? diffX / distance : 0;
+    float dirToPlayerY = (distance > 0) ? diffY / distance : 0;
+
+    float targetVX = 0;
+    float targetVY = 0;
+    float speed = moves->getSpeed();
+
+    // Se estiver em cooldown, ele foge se o player chegar perto
+    if (attackTimer < attackCooldown) {
+        if (distance < 200.0f) { // Se o player chegar perto durante o cooldown
+            targetVX = -dirToPlayerX * speed;
+            targetVY = -dirToPlayerY * speed;
+        }
+        else {
+            // Movimento errático ou lento enquanto recarrega
+            targetVX = moves->getVelX();
+            targetVY = moves->getVelY();
+        }
+    }
+    else {
+        // Modo Perseguição
+        targetVX = dirToPlayerX * speed;
+        targetVY = dirToPlayerY * speed;
+
+        if (distance < 150.0f) {
+            AttackPlayer();
+            attackTimer = 0.0f;
+        }
+    }
+
+    // Aumente o accelerationRate se parecer "lento" para virar
+    float accelerationRate = 10.0f;
+    float lerpFactor = accelerationRate * gameTime;
+    if (lerpFactor > 1.0f) lerpFactor = 1.0f;
+
+    moves->setVelX(moves->getVelX() + (targetVX - moves->getVelX()) * lerpFactor);
+    moves->setVelY(moves->getVelY() + (targetVY - moves->getVelY()) * lerpFactor);
+
+    HandleScreenWrap();
+}
+
+void Ghost::RandomizeSprite() {
+    if (spriteCount > 0 && sprites != nullptr) {
+        currentSprite = sprites[rand() % spriteCount];
+    }
+}
+
+void Ghost::AttackPlayer() {
+    if (!playerTarget) return;
+
+    // Calcula direção do projétil
+    float diffX = playerTarget->X() - X();
+    float diffY = playerTarget->Y() - Y();
+    float distance = sqrt(diffX * diffX + diffY * diffY);
+
+    // Velocidade maior aumenta o alcance real do tiro antes de ele expirar.
+    float projVel = 800.0f; 
+    float velX = (diffX / distance) * projVel;
+    float velY = (diffY / distance) * projVel;
+    // Cria o ataque: owner, lifetime, damage, type, impulseX, impulseY, knockback
+    uint SeqUp[8] = { 1, 2, 3, 4, 5, 6, 7, 8 };
+    uint SeqDown[8] = { 9, 10, 11, 12, 13, 14, 15, 16 };
+    uint SeqLeft[8] = { 17, 18, 19, 20, 21, 22, 23, 24 };
+    uint SeqRight[8] = { 25 , 26, 27, 28, 29, 30, 31, 32};
+    uint SeqStill[1] = { 32 };
+    Attack* bullet = new Attack("Resources/Effects/Attackplayer.png",
+    64,
+    64,
+    8,
+    8,
+    SeqUp,
+    SeqDown,
+    SeqLeft,
+    SeqRight,
+    SeqStill,
+    this,
+    // Lifetime maior evita que o projetil suma antes de chegar ao player parado.
+    1.5f,
+    10,
+    500.0f,
+    // PROJECTILE faz o ataque se comportar como tiro em movimento, nao como explosao curta.
+    Attack::AttackType::PROJECTILE,
+    15,
+    velX,
+    velY
+    );
+
+}
+
