@@ -26,7 +26,8 @@ enum PacManObjects
     PLAYER,
     PORTAL,
     SPECIAL,
-    WALL
+    WALL,
+    KILLZONE
 };
 
 enum MovementType { HORIZONTAL, VERTICAL, DIAGONAL };

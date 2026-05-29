@@ -16,6 +16,10 @@ private:
     float fallVelY = 0.0f;
     float gravity  = 800.0f;
 
+    // ── Escala ────────────────────────────────────────────────────
+    float scaleX   = 1.0f;
+    float scaleY   = 1.0f;
+
 public:
     Wall();
     ~Wall();
@@ -25,28 +29,67 @@ public:
                     const char* spriteFile = nullptr,
                     const std::string& tag = "");
 
-    // Remove por ponteiro direto
+    Block* AddRect1(float offsetX, float offsetY,
+        float width, float height,
+        const char* spriteFile = nullptr,
+        const std::string& tag = "");
+
+    Block* AddRect2(float offsetX, float offsetY,
+        float width, float height,
+        const char* spriteFile = nullptr,
+        const std::string& tag = "");
+
+    Block* AddRect3(float offsetX, float offsetY,
+        float width, float height,
+        const char* spriteFile = nullptr,
+        const std::string& tag = "");
+
+    Block* AddRect1v(float offsetX, float offsetY,
+        float width, float height,
+        const char* spriteFile = nullptr,
+        const std::string& tag = "");
+
+    Block* AddRect2v(float offsetX, float offsetY,
+        float width, float height,
+        const char* spriteFile = nullptr,
+        const std::string& tag = "");
+
+    Block* AddRect3v(float offsetX, float offsetY,
+        float width, float height,
+        const char* spriteFile = nullptr,
+        const std::string& tag = "");
+
+    // ── Remoção ───────────────────────────────────────────────────
     void RemoveBlock(Block* block);
-    // Remove pelo tag (primeiro que encontrar)
     void RemoveBlock(const std::string& tag);
-    // Remove por índice
     void RemoveBlock(int index);
-    // Remove todos dentro de um raio
     void RemoveBlocksInRadius(float cx, float cy, float radius);
 
+    // ── Rotação ───────────────────────────────────────────────────
     void  Rotate(float degrees);
     void  SetAngle(float degrees);
     float GetAngle() const { return angle; }
 
+    // ── Escala ────────────────────────────────────────────────────
+    // Escala proporcional (X e Y iguais)
+    void  SetScale(float s);
+    // Escala independente por eixo
+    void  SetScale(float sx, float sy);
+    float GetScaleX() const { return scaleX; }
+    float GetScaleY() const { return scaleY; }
+
+    // ── Queda ─────────────────────────────────────────────────────
     void StartFalling(float initialVelY = 0.0f);
     void StopFalling();
     bool IsFalling() const { return falling; }
 
+    // ── Busca / Acesso ────────────────────────────────────────────
     Block* GetBlockByTag(const std::string& tag);
     const std::vector<Block*>& GetBlocks() const { return blocks; }
 
-    void Update()              override;
-    void Draw()                override;
+    // ── Ciclo ─────────────────────────────────────────────────────
+    void Update()                 override;
+    void Draw()                   override;
     void OnCollision(Object* obj) override;
 };
 

@@ -249,6 +249,7 @@
     <ClCompile Include="Block.cpp" />
     <ClCompile Include="Controller.cpp" />
     <ClCompile Include="EndGame.cpp" />
+    <ClCompile Include="KillZone.cpp" />
     <ClCompile Include="Snowman.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Entity.cpp" />
@@ -299,6 +300,7 @@
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="Home.h" />
     <ClInclude Include="Image.h" />
+    <ClInclude Include="KillZone.h" />
     <ClInclude Include="Level1.h" />
     <ClInclude Include="Level2.h" />
     <ClInclude Include="LevelMake.h" />
