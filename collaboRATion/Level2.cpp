@@ -12,7 +12,7 @@ void Level2::Init()
     LevelMake::Init(600.0f, 0, 0, "Resources/Level2.jpg");
 
     // Carrega toda a geometria, killzones e mecânicas do arquivo de texto
-    LoadLevel2("Resources/Level2.txt");
+    LoadLevel2("Resources/Level_Editor_Output.txt");
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

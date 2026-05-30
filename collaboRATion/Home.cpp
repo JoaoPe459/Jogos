@@ -13,6 +13,8 @@
 #include "Home.h"
 #include "Level1.h"
 #include "Level2.h"
+#include "LevelEditor.h"
+#include "LevelSelect.h"
 
 // ------------------------------------------------------------------------------
 
@@ -38,7 +40,7 @@ void Home::Update()
     
     // passa ao primeiro nível com ENTER
     //if (window->KeyPress(VK_RETURN))
-      Engine::Next<Level2>();
+    Engine::Next<LevelEditor>();
 }
 
 // ------------------------------------------------------------------------------

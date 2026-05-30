@@ -8,6 +8,7 @@
 #include "Attack.h"
 #include "Enemy.h"
 #include <string>
+#include "Interactables.h"
 
 void Player::UpdateOrbitalPositions() {
     int total = orbitals.size();
@@ -16,10 +17,11 @@ void Player::UpdateOrbitalPositions() {
     }
 }
 
+
 Player::Player() : Entity() {
     type = PLAYER;
     animation = new TileSet("Resources/Player/Rato2.png", 64, 64, 15, 30);
-    anim = new Animation(animation, 0.040f, true);
+    anim = new Animation(animation, 0.040f, true);  
     
 
     // Primeira fileira anda para direita; segunda fileira anda para esquerda.
@@ -27,14 +29,14 @@ Player::Player() : Entity() {
     uint SeqLeftIdle[1] = {0};
     uint SeqRightWalk[4] = { 28,27,26,25};
     uint SeqLeftWalk[4] = { 1,2,3,4};
-    uint SeqRightJump[1] = { 0 };
-    uint SeqLeftJump[1] = { 0 };
+    uint SeqRightJump[1] = { 15 };
+    uint SeqLeftJump[1] = { 14 };
     uint SeqLeftDeath[9] = { 25,24,23,22,21,20,19,18,17 };
     uint SeqRightDeath[9] = { 5,6,7,8,9,10,11,12,13 };
 
     // A spritesheet nao tem animacao vertical, entao W/S reaproveitam a fileira da direita.
     anim->Add(JUMPLEFT, SeqLeftJump, 1);
-    anim->Add(JUMPLEFT, SeqRightJump, 1);
+    anim->Add(JUMPRIGHT, SeqRightJump, 1);
     anim->Add(WALKLEFT, SeqLeftWalk, 4);
     anim->Add(WALKRIGHT, SeqRightWalk, 4);
     anim->Add(IDLELEFT, SeqLeftIdle, 1);
@@ -44,7 +46,7 @@ Player::Player() : Entity() {
 
     state = IDLERIGHT;
     // Bounding box alinhada ao novo tamanho de quadro do rato.
-    BBox(new Rect(-20, -25, 23, 25));
+    BBox(new Rect(-17, -25, 17, 25));
     moves->setSpeed(500.0f);
 
     type = PLAYER;      
@@ -59,8 +61,59 @@ Player::Player() : Entity() {
 }
 
 void Player::OnCollision(Object* obj) {
+
+    if (obj->Type() == WALL) {
+        Block* block = (Block*)obj;
+
+        float playerBottom = this->Y() + 25.0f;
+        float prevBottom = prevY + 25.0f;
+        float blockTop = obj->Y() - (block->height * 0.5f);
+
+        if (prevBottom <= blockTop &&
+            playerBottom >= blockTop &&
+            moves->getVelY() >= 0.0f) {
+            this->MoveTo(this->X(), blockTop - 26.0f);
+            moves->setVelY(0.0f);
+            moves->setOnGround(true);
+            return;
+        }
+    }
+
+    // Se não for o chão (ou se for o teto/parede lateral), roda a colisão normal
     Entity::OnCollision(obj);
-    
+
+    if (obj->Type() == TYPE_SPIKE) {
+        SetHp(0); // Rato morre na hora (Lógica Level Devil será customizada depois)
+    }
+
+    // BOTÃO
+    else if (obj->Type() == TYPE_BUTTON) {
+        ButtonObj* btn = (ButtonObj*)obj;
+
+        // Só aciona se não estiver pressionado e se o rato estiver caindo em cima dele
+        if (!btn->IsPressed() && moves->getVelY() >= 0) {
+            btn->Press(); // O sprite do botão afunda!
+
+            // Aqui futuramente chamaremos: LevelMake::AtivarEventoLevelDevil(btn->id);
+        }
+
+        // Força o Rato a pisar no botão como se fosse um degrau sólido
+        if (this->Y() < obj->Y() && moves->getVelY() >= 0) {
+            this->MoveTo(this->X(), obj->Y() - 32.0f);
+            moves->setVelY(0.0f);
+            moves->setOnGround(true);
+            return;
+        }
+    }
+
+    // PORTA
+    else if (obj->Type() == TYPE_DOOR) {
+        // Ao tocar na porta, pega o controle da fase e manda avançar
+        this->MoveTo(this->X(), 50.0f);
+        moves->setVelY(0.0f);
+    }
+
+
     if (obj->Type() == PORTAL) {
         Portal* p = (Portal*)obj;
         LevelMake* lvl = static_cast<LevelMake*>(Engine::game);
@@ -167,42 +220,48 @@ void Player::Control() {
     float accelerationRate = 4.0f;
 
     float targetVX = 0;
-    float targetVY = 0;
 
-    // --- LOGICA DE MOVIMENTAÇÃO (WASD) ---[cite: 4]
-    if (window->KeyUp('W') && window->KeyUp('S') && window->KeyUp('A')) {
-        
-        state = IDLERIGHT;
-        
+    // --- 1. LÓGICA HORIZONTAL (Andar) ---
+    if (window->KeyDown('A')) {
+        targetVX = -baseSpeed;
+        state = moves->getOnGround() ? WALKLEFT : JUMPLEFT;
+    }
+    else if (window->KeyDown('D')) {
+        targetVX = baseSpeed;
+        state = moves->getOnGround() ? WALKRIGHT : JUMPRIGHT;
+    }
+    else {
+        // Se soltar os botões, mantém a direção (esquerda ou direita)
+        if (state == WALKLEFT || state == IDLELEFT || state == JUMPLEFT) {
+            state = moves->getOnGround() ? IDLELEFT : JUMPLEFT;
+        }
+        else {
+            state = moves->getOnGround() ? IDLERIGHT : JUMPRIGHT;
+        }
     }
 
-    if (window->KeyDown('A')) { targetVX = -baseSpeed; state = WALKLEFT; }
-    if (window->KeyDown('D')) { targetVX = baseSpeed; state = WALKRIGHT; }
-    if (window->KeyDown('W')) {
-        if (state == IDLELEFT || state == IDLERIGHT) { targetVY = -baseSpeed; state = WALKRIGHT; }
-        else { targetVY = -baseSpeed; state = state; }
+    // --- 2. LÓGICA VERTICAL (Pulo) ---
+    if (window->KeyDown('W') && moves->getOnGround()) {
+        moves->Up();
+        moves->setOnGround(false);
+
+        if (state == WALKLEFT || state == IDLELEFT) state = JUMPLEFT;
+        else state = JUMPRIGHT;
     }
-    if (window->KeyDown('S')) {
-        if (state == IDLELEFT || state == IDLERIGHT) { targetVY = baseSpeed; state = WALKRIGHT; }
-        else { targetVY = baseSpeed; state = state; }
-    }
+
     anim->Select(state);
     anim->NextFrame();
 
-    if (targetVX != 0 && targetVY != 0) {
-        float factor = 0.7071f; // (1 / sqrt(2))
-        targetVX *= factor;
-        targetVY *= factor;
-    }
+    anim->Select(state);
+    anim->NextFrame();
 
+    // --- 3. APLICAÇÃO DA INÉRCIA HORIZONTAL ---
     float currentVX = moves->getVelX();
-    float currentVY = moves->getVelY();
     float lerpFactor = accelerationRate * gameTime;
     if (lerpFactor > 1.0f) lerpFactor = 1.0f;
 
+    // Suaviza apenas a velocidade X
     moves->setVelX(currentVX + (targetVX - currentVX) * lerpFactor);
-    moves->setVelY(currentVY + (targetVY - currentVY) * lerpFactor);
-
     if (attackTimer > 0) { attackTimer -= gameTime; }
 
     // Detecta direção pelas setas
@@ -257,6 +316,7 @@ void Player::Draw()
 }
 
 void Player::Update() {
+    prevY = Y();
     Entity::Update();
     Control();
 }

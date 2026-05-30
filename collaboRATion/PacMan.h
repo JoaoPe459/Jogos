@@ -36,10 +36,10 @@ enum MovementType { HORIZONTAL, VERTICAL, DIAGONAL };
 // Player e inimigos usam este retangulo para nao pisar sobre as paredes do sprite.
 namespace PlayArea
 {
-    constexpr float Left = 182.0f;
-    constexpr float Right = 1118.0f;
-    constexpr float Top = 132.0f;
-    constexpr float Bottom = 666.0f;
+    constexpr float Left = 32.0f;
+    constexpr float Right = 1280.0f;
+    constexpr float Top = 32.0f;
+    constexpr float Bottom = 736.0f;
     constexpr float SpawnMargin = 90.0f;
 }
 

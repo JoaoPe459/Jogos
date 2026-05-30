@@ -17,6 +17,7 @@ private:
     int   sizeLevel = 1;
     float attackTimer = 0.0f;
     float attackCooldown = 0.3f;
+    float prevY = 0.0f;
     std::vector<Attack*> orbitals;
     void UpdateOrbitalPositions(); // Auxiliar para reorganizar
 

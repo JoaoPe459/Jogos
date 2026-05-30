@@ -103,6 +103,11 @@ class EndGame;
 class LevelMake : public Game
 {
 protected:
+
+    int startDelay = 0;
+    Sprite* transitionBlock = nullptr;
+    bool isOpening = true;
+    float openingTimer = 0.0f;
     Sprite* backg       = nullptr;
     Scene*  scene       = nullptr;
     Sprite* foodSprite  = nullptr;

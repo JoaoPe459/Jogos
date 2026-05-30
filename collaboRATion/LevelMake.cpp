@@ -10,6 +10,8 @@
 #include "Home.h"
 #include "PacMan.h"
 #include "Portal.h"
+#include "LevelSelect.h"
+#include "Interactables.h"
 
 #include <fstream>
 #include <sstream>
@@ -124,7 +126,7 @@ void LevelMake::LoadLevel2(const std::string& path)
         if (key == "GRAVITY")
         {
             float g;
-            ss >> g;
+            ss >> g;    
             Physics::Setup(g);
         }
 
@@ -136,10 +138,66 @@ void LevelMake::LoadLevel2(const std::string& path)
             ss >> id >> wx >> wy;
 
             Wall* w = new Wall();
-            w->MoveTo(wx, wy);
+            w->MoveTo(wx, wy);  
             scene->Add(w, STATIC);
             parsedWalls[id] = w;
         }
+
+        else if (key == "BOLA") {
+            std::string id; float wx, wy;
+            ss >> id >> wx >> wy;
+            Wall* w = new Wall(); w->MoveTo(wx, wy);
+            w->AddBlock(0, 0, 32, 32, "Resources/Bola.png", id);
+            scene->Add(w, STATIC);
+            parsedWalls[id] = w;
+        }
+        else if (key == "ESPINHO") {
+            std::string id; float wx, wy;
+            ss >> id >> wx >> wy;
+            Spike* spike = new Spike(wx, wy, "Resources/Espinhos.png");
+            scene->Add(spike, STATIC);
+        }
+        else if (key == "BOTAO") {
+            std::string id; float wx, wy;
+            ss >> id >> wx >> wy;
+            ButtonObj* btn = new ButtonObj(wx, wy, id);
+            scene->Add(btn, STATIC);
+        }
+        else if (key == "PORTA") {
+            std::string id; float wx, wy;
+            ss >> id >> wx >> wy;
+            Door* door = new Door(wx, wy, "Resources/Porta.png");
+            scene->Add(door, STATIC);
+        }
+
+        // Spawn
+        
+        else if (key == "SPAWN")
+        {
+            float x, y;
+            ss >> x >> y;
+
+            if (player)
+                player->MoveTo(x, y);
+        }
+
+        else if (key == "DECO_BLOCK") {
+            float wx, wy;
+            ss >> wx >> wy;
+
+            DecoObj* d = new DecoObj(wx, wy, "Resources/Tijolo.png");
+            scene->Add(d, STATIC);
+        }
+        else if (key == "DECO_RECT2") {
+            float wx, wy;
+            ss >> wx >> wy;
+
+            for (int i = 0; i < 6; i++) {
+                DecoObj* d = new DecoObj(wx + (i * 32.0f), wy, "Resources/Tijolo.png");
+                scene->Add(d, STATIC);
+            }
+        }
+
 
         // ── Bloco vinculado a uma Wall ────────────────────────────
         else if (key == "BLOCK")
@@ -151,6 +209,25 @@ void LevelMake::LoadLevel2(const std::string& path)
             auto it = parsedWalls.find(wallId);
             if (it != parsedWalls.end())
                 it->second->AddBlock(offX, offY, bw, bh, sprite.c_str(), tag);
+        }
+        // ── Retângulos agrupados ───────────────────────────
+        else if (key == "RECT1" || key == "RECT2" || key == "RECT3" ||
+            key == "RECT1V" || key == "RECT2V" || key == "RECT3V")
+        {
+            std::string wallId, sprite, tag;
+            float offX, offY, bw, bh;
+            ss >> wallId >> offX >> offY >> bw >> bh >> sprite >> tag;
+
+            auto it = parsedWalls.find(wallId);
+            if (it != parsedWalls.end())
+            {
+                if (key == "RECT1")       it->second->AddRect1(offX, offY, bw, bh, sprite.c_str(), tag);
+                else if (key == "RECT2")  it->second->AddRect2(offX, offY, bw, bh, sprite.c_str(), tag);
+                else if (key == "RECT3")  it->second->AddRect3(offX, offY, bw, bh, sprite.c_str(), tag);
+                else if (key == "RECT1V") it->second->AddRect1v(offX, offY, bw, bh, sprite.c_str(), tag);
+                else if (key == "RECT2V") it->second->AddRect2v(offX, offY, bw, bh, sprite.c_str(), tag);
+                else if (key == "RECT3V") it->second->AddRect3v(offX, offY, bw, bh, sprite.c_str(), tag);
+            }
         }
 
         // ── Escala de Wall ────────────────────────────────────────
@@ -441,24 +518,37 @@ void LevelMake::DrawHeartHealth()
 // Init
 // ─────────────────────────────────────────────────────────────────────────────
 
-void LevelMake::Init(float gravity, int maxFood, int maxGhost,
-                     string levelBackground)
+void LevelMake::Init(float gravity, int maxFood, int maxGhost, string levelBackground)
 {
-    if (scene)       { delete scene;       scene       = nullptr; }
-    if (player)      { delete player;      player      = nullptr; }
-    if (backg)       { delete backg;       backg       = nullptr; }
-    if (heartSprite) { delete heartSprite; heartSprite = nullptr; }
+    transitionBlock = new Sprite("Resources/Tijolo.png");
+    isOpening = true;
+    openingTimer = 0.0f;
+    startDelay = 5;
+    // 1. Zera todos os ponteiros de fase para NÃO ler lixo de memória!
+    stages = nullptr;
+    activePortals = nullptr;
+    bgCount = 0;
+    currentBG = 0;
 
+    // 2. Inicializa as regras e a física
     Physics::Setup(gravity);
     MAX_GHOSTS = maxGhost;
     ghostAlive = MAX_GHOSTS;
 
     scene = new Scene();
 
+    // 3. Inicializa as artes do HUD
+    backg = nullptr;
     if (!levelBackground.empty())
         backg = new Sprite(levelBackground);
 
     heartSprite = new Sprite("Resources/Heart.png");
+
+    // Garante que a fonte dos textos exista (evita crash no DrawCentralMessage)
+    consolas = new Font("Resources/consolas12.png");
+    consolas->Spacing("Resources/consolas12.dat");
+
+    // 4. Cria o jogador
     player = new Player();
     scene->Add(player, MOVING);
 }
@@ -520,6 +610,19 @@ void LevelMake::Finalize()
 // ─────────────────────────────────────────────────────────────────────────────
 void LevelMake::Update()
 {
+    if (isOpening) {
+        if (startDelay > 0) {
+            startDelay--;
+        }
+        else {
+            float tempoSeguro = (gameTime > 0.1f) ? 0.016f : gameTime;
+            openingTimer += tempoSeguro;
+
+            if (openingTimer >= 0.5f) {
+                isOpening = false; 
+            }
+        }
+    }
     scene->Update();
     scene->CollisionDetection();
     UpdateStageTransition(gameTime);
@@ -592,6 +695,33 @@ void LevelMake::Draw()
 
         std::string stageStr = "ESTAGIO: " + std::to_string(currentBG + 1);
         DrawCentralMessage(stageStr, Color(0.8f, 0.8f, 1.0f, 1.0f), -1.0f, 112.0f);
+    }
+    if (isOpening && transitionBlock) {
+        float progress = openingTimer / 0.5f;
+        if (progress > 1.0f) progress = 1.0f;
+
+        Color preto(0.0f, 0.0f, 0.0f, 1.0f);
+        float size = 32.0f;
+
+        int colunas = (window->Width() / size) + 1;
+        int linhas = (window->Height() / size) + 1;
+
+        for (int c = 0; c < colunas; c++) {
+            for (int r = 0; r < linhas; r++) {
+
+                int numeroSorteado = ((c * 89) ^ (r * 43)) % 100;
+
+                // MÁGICA INVERSA: O número sorteado é invertido para dar o efeito de "rebobinar"
+                float momentoParaSumir = 1.0f - (numeroSorteado / 100.0f);
+
+                // Só desenha o bloco se o tempo atual AINDA NÃO passou do momento dele sumir
+                if (progress < momentoParaSumir) {
+                    float x = (c * size) + (size / 2.0f);
+                    float y = (r * size) + (size / 2.0f);
+                    transitionBlock->Draw(x, y, Layer::FRONT, 2.0f, 0.0f, preto);
+                }
+            }
+        }
     }
 
     if (viewBBox) scene->DrawBBox();

@@ -27,7 +27,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance,
 
     // configura a janela do jogo
     engine->window->Mode(WINDOWED);
-    engine->window->Size(1300, 700);
+    engine->window->Size(1312, 768);
     engine->window->Color(25, 25, 25);
     engine->window->Title("CollaboRATion");
     engine->window->Icon(IDI_ICON);

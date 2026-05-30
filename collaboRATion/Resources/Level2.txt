@@ -1,78 +1,76 @@
 # ─────────────────────────────────────────────────────────────────────────────
-# Level2.txt  —  Fase estilo Level Devil
-#
-# Tokens disponíveis:
-#   GRAVITY   <g>
-#   WALL      <id>  <x>  <y>
-#   BLOCK     <wallId>  <offX> <offY>  <w> <h>  <sprite>  <tag>
-#   SCALE     <wallId>  <sx>  [sy]       (sy omitido = proporcional)
-#   ROTATE    <wallId>  <angle>
-#   KILLZONE  <id>  <x>  <y>  <w>  <h>  <lethal:0|1>  [tag]
-#   SPIKE     <wallId>  <x>  <y>  <interval>  <duration>  <randRange>
-#   PLATFORM  <wallId>  <baseX>  <baseY>  <speed>  <range>
-#   SPINNER   <wallId>  <speed>
-#   FALLING   <wallId>  <delay>
-#   HAZARD    <kzId>    <radius>  <damage>  <interval>
-#   COUNTDOWN <seconds>
+# Level_Devil_1.txt — O Falso Corredor
+# Tela: 1300x700
+# Tema: Um corredor reto e seguro... ou quase isso.
 # ─────────────────────────────────────────────────────────────────────────────
+SPAWN 656 384
+GRAVITY 1250.0
 
-# Gravidade um pouco acima do padrão para dar sensação mais pesada
-GRAVITY   1200.0
+# ═════════════════════════════════════════════════════════════════════════════
+# TETO (Visual limpo e contínuo)
+# ═════════════════════════════════════════════════════════════════════════════
+WALL teto 650 100
 
-# ── Countdown de morte (20 segundos) ─────────────────────────────────────────
-COUNTDOWN 20.0
+# Usamos RECT2 (6 blocos = 192px cada) para preencher de ponta a ponta
+RECT2 teto -576 0 32 32 Resources/Tijolo.png roof1
+RECT2 teto -384 0 32 32 Resources/Tijolo.png roof2
+RECT2 teto -192 0 32 32 Resources/Tijolo.png roof3
+RECT2 teto    0 0 32 32 Resources/Tijolo.png roof4
+RECT2 teto  192 0 32 32 Resources/Tijolo.png roof5
+RECT2 teto  384 0 32 32 Resources/Tijolo.png roof6
 
-# ── Parede que cai do teto ────────────────────────────────────────────────────
-WALL    ceil    400  -40
-BLOCK   ceil   -66    0   32  32   Resources/Tijolo.png   ceil_l
-BLOCK   ceil     0    0   32  32   Resources/Tijolo.png   ceil_m
-BLOCK   ceil    66    0   32  32   Resources/Tijolo.png   ceil_r
-FALLING ceil    4.0
+RECT2 teto -576 -32 32 32 Resources/Tijolo.png roof1
+RECT2 teto -384 -32 32 32 Resources/Tijolo.png roof2
+RECT2 teto -192 -32 32 32 Resources/Tijolo.png roof3
+RECT2 teto    0 -32 32 32 Resources/Tijolo.png roof4
+RECT2 teto  192 -32 32 32 Resources/Tijolo.png roof5
+RECT2 teto  384 -32 32 32 Resources/Tijolo.png roof6
 
-# KillZone letal embaixo da parede que cai — só ativa quando ela pousar
-# (a Wall visual cai; a killzone fica estática onde ela vai parar)
-KILLZONE  kz_ceil   400  650   200  40   1   deathfall
+RECT2 teto -576 -64 32 32 Resources/Tijolo.png roof1
+RECT2 teto -384 -64 32 32 Resources/Tijolo.png roof2
+RECT2 teto -192 -64 32 32 Resources/Tijolo.png roof3
+RECT2 teto    0 -64 32 32 Resources/Tijolo.png roof4
+RECT2 teto  192 -64 32 32 Resources/Tijolo.png roof5
+RECT2 teto  384 -64 32 32 Resources/Tijolo.png roof6
 
-# ── Espinhos dinâmicos do chão ────────────────────────────────────────────────
-# Wall âncora; os blocos são adicionados e removidos em runtime pelo SPIKE
-WALL    spike1   400  580
-SPIKE   spike1   400  580   2.5   1.2   700.0
 
-# ── Plataforma ping-pong ──────────────────────────────────────────────────────
-WALL      plat   400  450
-BLOCK     plat   -32    0   32  32   Resources/Tijolo.png   plat_l
-BLOCK     plat     0    0   32  32   Resources/Tijolo.png   plat_m
-BLOCK     plat    32    0   32  32   Resources/Tijolo.png   plat_r
-# Escala só em X — a plataforma fica mais larga sem mudar a altura
-SCALE     plat   2.0   1.0
-PLATFORM  plat   400   450   1.8   220.0
+RECT2 teto -576 -96 32 32 Resources/Tijolo.png roof1
+RECT2 teto -384 -96 32 32 Resources/Tijolo.png roof2
+RECT2 teto -192 -96 32 32 Resources/Tijolo.png roof3
+RECT2 teto    0 -96 32 32 Resources/Tijolo.png roof4
+RECT2 teto  192 -96 32 32 Resources/Tijolo.png roof5
+RECT2 teto  384 - 32 32 Resources/Tijolo.png roof6
 
-# ── Moinho giratório (dois blocos opostos) ────────────────────────────────────
-WALL     spin   640  350
-BLOCK    spin  -80    0   32  32   Resources/Tijolo.png   spin_l
-BLOCK    spin   80    0   32  32   Resources/Tijolo.png   spin_r
-SPINNER  spin   90.0
 
-# KillZone no centro do moinho — mata quem encostar nos braços
-KILLZONE  kz_spin   640  350   180  32   1   spinner_death
 
-# ── Zona de dano contínuo (não letal — drena HP) ─────────────────────────────
-# Bloco visual (decorativo, sem killzone letal)
-WALL     haz   300  660
-BLOCK    haz   -88    0   32  32   Resources/Tijolo.png   haz_l
-BLOCK    haz     0    0   32  32   Resources/Tijolo.png   haz_m
-BLOCK    haz    88    0   32  32   Resources/Tijolo.png   haz_r
 
-# KillZone não-letal que drena HP; HAZARD configura damage e interval
-KILLZONE  kz_haz   300  660   260  40   0   hazard_floor
-HAZARD    kz_haz   130.0   8   0.8
 
-# ── Parede larga de obstáculo fixo (escala proporcional 1.5x) ────────────────
-WALL    barrier   800  400
-BLOCK   barrier   -48    0   32  64   Resources/Tijolo.png   bar_l
-BLOCK   barrier     0    0   32  64   Resources/Tijolo.png   bar_m
-BLOCK   barrier    48    0   32  64   Resources/Tijolo.png   bar_r
-SCALE   barrier   1.5
+# ═════════════════════════════════════════════════════════════════════════════
+# CHÃO INICIAL E FINAL (Áreas Seguras)
+# ═════════════════════════════════════════════════════════════════════════════
+WALL chao_seguro 650 680
 
-# KillZone decorativa desativada (lethal=0, sem HAZARD = inofensiva por padrão)
-KILLZONE  kz_barrier   800  400   160  100   0   barrier_zone
+# Spawn do jogador (Esquerda)
+RECT2 chao_seguro -576 0 32 32 Resources/Tijolo.png safe_L1
+RECT2 chao_seguro -384 0 32 32 Resources/Tijolo.png safe_L2
+
+# Final da fase perto da porta (Direita)
+RECT2 chao_seguro  192 0 32 32 Resources/Tijolo.png safe_R1
+RECT2 chao_seguro  384 0 32 32 Resources/Tijolo.png safe_R2
+
+# ═════════════════════════════════════════════════════════════════════════════
+# A ARMADILHA: CHÃO FALSO NO MEIO
+# ═════════════════════════════════════════════════════════════════════════════
+WALL chao_falso 650 680
+
+# O meio do cenário parece normal, mas é uma parede separada
+RECT2 chao_falso -192 0 32 32 Resources/Tijolo.png trap1
+RECT2 chao_falso    0 0 32 32 Resources/Tijolo.png trap2
+
+# A armadilha: cai após 1 segundo de jogo (pegando o jogador no pulo)
+FALLING chao_falso 1.0
+
+# ═════════════════════════════════════════════════════════════════════════════
+# KILLZONE DO BURACO
+# ═════════════════════════════════════════════════════════════════════════════
+KILLZONE kz_void 650 750 800 80 1 void
