@@ -120,8 +120,8 @@ void LevelSelect::Draw() {
         float size = 32.0f; 
 
       
-        int colunas = (window->Width() / size) + 1;
-        int linhas = (window->Height() / size) + 1;
+        int colunas = int ((window->Width() / size) + 1);
+        int linhas = int ((window->Height() / size) + 1);
 
         for (int c = 0; c < colunas; c++) {
             for (int r = 0; r < linhas; r++) {

@@ -55,8 +55,6 @@ public:
     int GetMaxHp() const;
     bool IsAlive() const;
 
-    // --- Métodos de Ação de Combate ---
-    virtual void TakeDamage(Object* source = nullptr);
     void Heal(int amount);
     void SetInvulnerable(float time);
 

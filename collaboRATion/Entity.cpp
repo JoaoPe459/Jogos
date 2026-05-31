@@ -2,8 +2,6 @@
 #include "Physics.h"
 #include "PacMan.h"
 #include "LevelMake.h" 
-#include "Attack.h"
-#include "Ghost.h"
 
 //Vamos usar
 
@@ -44,18 +42,6 @@ void Entity::Update() {
     HandleScreenLimits();
 }
 
-void Entity::TakeDamage(Object* source) {
-    if (!alive || invulnerable) return;
-	int danoSofrido = source ? static_cast<Attack*>(source)->GetDamage() : 1;
-    hp -= danoSofrido;
-    if (source) {
-        ApplyKnockback(source, 200.0f);
-    }
-    else {
-        // Ativa frames de invencibilidade ao sofrer dano (ex: 0.1 segundos)
-        SetInvulnerable(0.1f);
-    }
-}
 
 void Entity::Heal(int amount) {
     if (!alive) return;
@@ -103,10 +89,6 @@ void Entity::OnCollision(Object* obj) {
             float speedSum = sqrt(otherVX * otherVX + otherVY * otherVY);
 
             ApplyKnockback(obj, 20);
-
-            if (obj->Type() == GHOST) {
-                static_cast<Ghost*>(obj)->RandomizeMovement();
-            }
         }
     }
 }

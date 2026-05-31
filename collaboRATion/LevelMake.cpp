@@ -861,23 +861,6 @@ void LevelMake::Update()
     UpdateParsedMechanics();
     totalPlayTime += gameTime;
 
-    if (stages != nullptr && !stages[currentBG].visited)
-    {
-        if (ghostAlive == 0 && !foodSpawned)
-        {
-            addFood(currentBG);
-            foodSpawned = true;
-        }
-
-        if (comeuItem)
-        {
-            stages[currentBG].visited = true;
-            CreatePortalsForCurrentStage();
-            foodSpawned = false;
-            comeuItem = false;
-        }
-    }
-
     if (window->KeyPress('B')) viewBBox = !viewBBox;
 
     if (player->isDead && window->KeyPress('R')) {
@@ -892,7 +875,7 @@ void LevelMake::Draw()
 {
     if (backg != nullptr && backg->Width() > 0)
     {
-        float scale = window->Width() / backg->Width();
+        float scale = float (window->Width() / backg->Width());
         backg->Draw(window->CenterX(), window->CenterY(), Layer::BACK, scale);
     }
 
@@ -915,8 +898,8 @@ void LevelMake::Draw()
         Color preto(0.0f, 0.0f, 0.0f, 1.0f);
         float size = 32.0f;
 
-        int colunas = (window->Width() / size) + 1;
-        int linhas = (window->Height() / size) + 1;
+        int colunas = int ((window->Width() / size) + 1);
+        int linhas = int ((window->Height() / size) + 1);
 
         for (int c = 0; c < colunas; c++) {
             for (int r = 0; r < linhas; r++) {
@@ -945,55 +928,6 @@ void LevelMake::Draw()
 
 
 // ─────────────────────────────────────────────────────────────────────────────
-// ghostInit / foodInit
-// ─────────────────────────────────────────────────────────────────────────────
-
-void LevelMake::ghostInit(int stageIndex)
-{
-    for (int i = 0; i < MAX_GHOSTS; i++)
-        addSnowman(stageIndex);
-}
-
-
-
-
-Enemy* LevelMake::addSnowman(int stageIndex) {
-    Enemy* snowman = new Enemy();
-    snowman->SetTarget(player);
-
-    float margin = 50.0f;
-    int rangeX = (int)((PlayArea::Right  - PlayArea::Left)   - (margin * 2));
-    int rangeY = (int)((PlayArea::Bottom - PlayArea::Top)    - (margin * 2));
-    if (rangeX <= 0) rangeX = 1;
-    if (rangeY <= 0) rangeY = 1;
-
-    float randomX, randomY, dist;
-    do {
-        randomX = (float)(rand() % rangeX) + PlayArea::Left + margin;
-        randomY = (float)(rand() % rangeY) + PlayArea::Top  + margin;
-        float dx = randomX - player->X();
-        float dy = randomY - player->Y();
-        dist = sqrtf(dx * dx + dy * dy);
-    } while (dist < 400.0f);
-
-    snowman->MoveTo(randomX, randomY);
-
-    if (stageIndex == currentBG) {
-        scene->Add(snowman, MOVING);
-    }
-    return snowman;
-}
-
-
-
-Food* LevelMake::addFood(int stageIndex) {
-    Food* food = new Food();
-    if (stageIndex == currentBG)
-        scene->Add(food, STATIC);
-    return food;
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
 // SetStage / ChangeBackground
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -1009,7 +943,6 @@ void LevelMake::SetStage(int index)
 
     if (!stages[currentBG].visited)
     {
-        ghostInit(currentBG);
         ghostAlive = MAX_GHOSTS;
         CreateClosedDoorsForCurrentStage();
     }

@@ -1,32 +1,19 @@
 #include "Player.h"
-#include "Ghost.h"
 #include <cmath>
 #include "PacMan.h"
 #include "Engine.h"
 #include "LevelMake.h"
 #include "Portal.h"
-#include "Attack.h"
 #include "Enemy.h"
 #include <string>
 #include "Interactables.h"
 #include "Level2.h"
 #include "LevelSelect.h"
 
-void Player::UpdateOrbitalPositions() {
-    int total = orbitals.size();
-    for (int i = 0; i < total; i++) {
-        orbitals[i]->SetOrbitParams(i, total);
-    }
-}
-
-
 Player::Player() : Entity() {
     type = PLAYER;
     animation = new TileSet("Resources/Player/Rato.png", 64, 64, 15, 30);
     anim = new Animation(animation, 0.130f, true);  
-    
-
-    // Primeira fileira anda para direita; segunda fileira anda para esquerda.
     uint SeqRightIdle[1] = {29};
     uint SeqLeftIdle[1] = {0};
     uint SeqRightWalk[4] = { 28,27,26,25};
@@ -67,13 +54,13 @@ Player::Player() : Entity() {
 void Player::OnCollision(Object* obj) {
 
     if (isDead) {
-        return; 
+        return;
     }
     else if (obj->Type() == TYPE_DOOR) {
 
         LevelMake::avancarFase = true;
 
-        this->MoveTo(-9999.0f, -9999.0f);
+        //this->MoveTo(-9999.0f, -9999.0f);
         moves->setVelX(0.0f);
         moves->setVelY(0.0f);
 
@@ -93,7 +80,7 @@ void Player::OnCollision(Object* obj) {
         float prevBottom = prevY + 25.0f;
         float prevTop = prevY - 25.0f;
 
-        float gravAtual = Physics::GetGravity();
+        float gravAtual = LevelMake::GetGravity();
 
         if (prevBottom <= bTop + 16.0f && moves->getVelY() >= 0.0f) {
             if (pRight > bLeft + 4.0f && pLeft < bRight - 4.0f) {
@@ -137,7 +124,7 @@ void Player::OnCollision(Object* obj) {
         return;
     }
 
-   
+
     Entity::OnCollision(obj);
 
     if (obj->Type() == TYPE_SPIKE || obj->Type() == KILLZONE) {
@@ -168,7 +155,7 @@ void Player::OnCollision(Object* obj) {
 
             // Ao atravessar um portal, nasce do lado oposto ja dentro do piso.
             if (p->Y() <= PlayArea::Top + 40.0f) {          // Portal no Topo
-                newX = p->X();          
+                newX = p->X();
                 newY = PlayArea::Bottom - PlayArea::SpawnMargin;
             }
             else if (p->Y() >= PlayArea::Bottom - 40.0f) {     // Portal na Base
@@ -177,7 +164,7 @@ void Player::OnCollision(Object* obj) {
             }
             else if (p->X() <= PlayArea::Left + 40.0f) {     // Portal na Esquerda
                 newX = PlayArea::Right - PlayArea::SpawnMargin;
-                newY = p->Y();          
+                newY = p->Y();
             }
             else if (p->X() >= PlayArea::Right - 40.0f) {    // Portal na Direita
                 newX = PlayArea::Left + PlayArea::SpawnMargin;
@@ -187,67 +174,6 @@ void Player::OnCollision(Object* obj) {
             this->MoveTo(newX, newY);
             lvl->SetStage(nextStage);
             lvl->SetStageChangeCooldown(0.2f);
-        }
-    }
-
-    // 2. Lógica específica do Player (Comida)
-    // No OnCollision do Player
-    if (obj->Type() == FOOD) {
-        SetHp(GetHp() + 10);
-
-        // Cria o orbital (duration 0.0f pois ele é permanente no Update)
-        uint SeqUp[8] = { 1, 2, 3, 4, 5, 6, 7, 8 };
-        uint SeqDown[8] = { 9, 10, 11, 12, 13, 14, 15, 16 };
-        uint SeqLeft[8] = { 17, 18, 19, 20, 21, 22, 23, 24 };
-        uint SeqRight[8] = { 25 , 26, 27, 28, 29, 30, 31, 32 };
-        uint SeqStill[1] = { 32 };
-        Attack* orb = new Attack("Resources/Effects/Attackplayer.png",
-            64,
-            64,
-            8,
-            8,
-            SeqUp,
-            SeqDown,
-            SeqLeft,
-            SeqRight,
-            SeqStill,
-            this,
-            0.0f,
-            10,
-            500.0f,
-            Attack::AttackType::EXPLOSION,
-            20,
-            100,
-            100
-        );
-
-        // Adiciona na lista do Player e atualiza todos
-        orbitals.push_back(orb);
-        UpdateOrbitalPositions();
-
-        LevelMake* lvl = static_cast<LevelMake*>(Engine::game);
-        if (lvl) { 
-            lvl->comeuItem = true;
-        }
-        totalLevelsVisited++;
-
-    }
-
-    if (obj->Type() == ENEMY) {
-        Enemy* enemy = (Enemy*)obj;
-
-        SetHp(GetHp() - damage);    
-
-        // 2. Calcula a direção do Knockback (Afastamento)
-        float diffX = this->X() - enemy->X();
-        float diffY = this->Y() - enemy->Y();
-        float distance = sqrt(diffX * diffX + diffY * diffY);
-
-        if (distance > 0) {
-            float pushForce = 200.0f;
-
-            moves->setVelX((diffX / distance) * pushForce);
-            moves->setVelY((diffY / distance) * pushForce);
         }
     }
 }
@@ -266,8 +192,6 @@ void Player::Die() {
     moves->setVelY(-600.0f);  
     moves->setOnGround(false);
 
-    
-
     if (state == WALKLEFT || state == IDLELEFT || state == JUMPLEFT)
         state = DEATHLEFT;
     else
@@ -277,16 +201,13 @@ void Player::Die() {
 void Player::Control() {
     if (isDead) {
         moves->setVelX(0.0f);
-
         static float frameTimer = 0.0f;
         frameTimer += gameTime;
         anim->Select(state);
-
         if (frameTimer >= 0.01f) {
             anim->NextFrame();
             frameTimer = 0.0f;
         }
-
         return;
     }
 
@@ -308,7 +229,7 @@ void Player::Control() {
     // ========================================================
     // 2. LÓGICA HORIZONTAL (Andar)
     // ========================================================
-    bool gravInvertida = (Physics::GetGravity() < 0.0f);
+    bool gravInvertida = (LevelMake::GetGravity() < 0.0f);
 
     if (btnEsq) {
         if (!LevelMake::modMoveWorld) targetVX = -baseSpeed;
@@ -344,15 +265,15 @@ void Player::Control() {
     // ========================================================
     // 3. LÓGICA VERTICAL (Pulo)
     // ========================================================
-    if (window->KeyPress('W') && moves->getOnGround()) {
+    if (( window->KeyPress('W') || window->KeyPress(VK_SPACE)) && moves->getOnGround()) {
         
         LevelMake::audioEngine->Volume(LevelMake::SoundIDs::JUMP_ID,0.15f);
         LevelMake::audioEngine->Play(LevelMake::SoundIDs::JUMP_ID);
 
         if (LevelMake::modGravityJump) {
-            float gravAtual = Physics::GetGravity();
+            float gravAtual = LevelMake::GetGravity();
 
-            Physics::Setup(-gravAtual);
+            LevelMake::SetGravity(-gravAtual);
 
             if (gravAtual > 0) {
                 moves->setVelY(-50.0f);
@@ -364,7 +285,7 @@ void Player::Control() {
         // --- PULO NORMAL / GIGANTE ---
         else {
             moves->Up();
-            moves->setVelY(moves->getVelY() *0.75 * LevelMake::modJumpForce);
+            moves->setVelY(moves->getVelY() * 0.75f * LevelMake::modJumpForce);
         }
 
         moves->setOnGround(false);
@@ -385,51 +306,6 @@ void Player::Control() {
 
     moves->setVelX(currentVX + (targetVX - currentVX) * lerpFactor);
     if (attackTimer > 0) { attackTimer -= gameTime; }
-
-    // Detecta direção pelas setas
-    bool shootUp = window->KeyDown(VK_UP);
-    bool shootDown = window->KeyDown(VK_DOWN);
-    bool shootLeft = window->KeyDown(VK_LEFT);
-    bool shootRight = window->KeyDown(VK_RIGHT);
-
-    if ((shootUp || shootDown || shootLeft || shootRight) && attackTimer <= 0) {
-		totalDamageDealt += damage;
-        float atkVelX = 0.0f;
-        float atkVelY = 0.0f;
-        float projectileSpeed = baseSpeed * 2.5f; // Velocidade do tiro
-
-        if (shootUp)    atkVelY = -projectileSpeed;
-        if (shootDown)  atkVelY = projectileSpeed;
-        if (shootLeft)  atkVelX = -projectileSpeed;
-        if (shootRight) atkVelX = projectileSpeed;
-
-        // Normaliza diagonal do tiro
-        if (atkVelX != 0 && atkVelY != 0) {
-            atkVelX *= 0.7071f;
-            atkVelY *= 0.7071f;
-        }
-
-        uint SeqUp[8] = { 1, 2, 3, 4, 5, 6, 7, 8 };
-        uint SeqDown[8] = { 9, 10, 11, 12, 13, 14, 15, 16 };
-        uint SeqLeft[8] = { 17, 18, 19, 20, 21, 22, 23, 24 };
-        uint SeqRight[8] = { 25 , 26, 27, 28, 29, 30, 31, 32 };
-        uint SeqStill[1] = { 32 };
-
-        new Attack("Resources/Effects/Attackplayer.png",
-            64, 64, 8, 8,
-            SeqUp, SeqDown, SeqLeft, SeqRight, SeqStill,
-            this,
-            0.4f,        // Duração
-            15,          // Dano
-            500.0f,      // Knockback
-            Attack::AttackType::PROJECTILE, // Tipo projétil para mover
-            25,          // SizeBox
-            atkVelX,     // Velocidade X calculada pelas setas
-            atkVelY      // Velocidade Y calculada pelas setas
-        );
-
-        attackTimer = attackCooldown;
-    }
 }
 
 void Player::Draw()
@@ -437,7 +313,7 @@ void Player::Draw()
     float angulo = 0.0f;
 
     // Se a gravidade for negativa, roda a imagem 180 graus (PI radianos)
-    if (Physics::GetGravity() < 0.0f) {
+    if (LevelMake::GetGravity() < 0.0f) {
         angulo = 180;
     }
 

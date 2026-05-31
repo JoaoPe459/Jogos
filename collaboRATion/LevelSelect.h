@@ -10,10 +10,10 @@
 
 class LevelSelect : public Game {
 private:
-    Scene* scene;
-    Sprite* backg;
-    Sprite* fundo;
-    Mouse* mouse;
+    Scene* scene = nullptr;
+    Sprite* backg = nullptr;
+    Sprite* fundo = nullptr;
+    Mouse* mouse = nullptr;
     std::vector<MapDoor*> doors;
     Sprite* blackBlock = nullptr;
     bool isTransitioning = false;

@@ -12,8 +12,7 @@
 //                - Gravidade variável por fase (GRAVITY)
 //                - Mecânicas estilo Level Devil (SPIKE, PLATFORM, SPINNER,
 //                  FALLING, HAZARD, COUNTDOWN)
-//
-**********************************************************************************/
+//**********************************************************************************/
 
 #ifndef _PACMAN_LEVELMAKE_H_
 #define _PACMAN_LEVELMAKE_H_
@@ -27,8 +26,6 @@
 #include "Physics.h"
 #include "Player.h"
 #include "Engine.h"
-#include "Ghost.h"
-#include "Food.h"
 #include "Wall.h"
 #include "Enemy.h"
 #include "EndGame.h"
@@ -39,81 +36,79 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // Estruturas de configuração de portais
 // ─────────────────────────────────────────────────────────────────────────────
-
 struct PortalData {
-    float x, y;
-    int   targetBG;
-    int   direction; // 0=UP, 1=DOWN, 2=LEFT, 3=RIGHT
+    float x = 0.0f, y = 0.0f;
+    int   targetBG = 0;
+    int   direction = 0; // 0=UP, 1=DOWN, 2=LEFT, 3=RIGHT
 };
 
 struct StageConfig {
-    Sprite*     background  = nullptr;
-    PortalData* portals     = nullptr;
+    Sprite* background = nullptr;
+    PortalData* portals = nullptr;
     int         portalCount = 0;
-    float       spawnX      = 0.0f;
-    float       spawnY      = 0.0f;
-    bool        visited     = false;
+    float       spawnX = 0.0f;
+    float       spawnY = 0.0f;
+    bool        visited = false;
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Dados de mecânicas carregados pelo parser
 // Cada struct corresponde a um token do .txt
 // ─────────────────────────────────────────────────────────────────────────────
-
 struct SpikeData {
-    std::string wallId;
-    float x, y;
-    float interval;   // segundos entre aparições
-    float duration;   // segundos que fica visível
-    float randRange;  // largura da área aleatória em X
+    std::string wallId = "";
+    float x = 0.0f, y = 0.0f;
+    float interval = 0.0f;   // segundos entre aparições (Corrigido type.6)
+    float duration = 0.0f;   // segundos que fica visível (Corrigido type.6)
+    float randRange = 0.0f;  // largura da área aleatória em X (Corrigido type.6)
 };
 
 struct PlatformData {
-    std::string wallId;
-    float baseX, baseY;
-    float speed;      // frequência (rad/s)
-    float range;      // amplitude (px)
+    std::string wallId = "";
+    float baseX = 0.0f, baseY = 0.0f; // Corrigido type.6
+    float speed = 0.0f;      // frequência (rad/s) (Corrigido type.6)
+    float range = 0.0f;      // amplitude (px) (Corrigido type.6)
 };
 
 struct SpinnerData {
-    std::string wallId;
-    float speed;      // graus/segundo
+    std::string wallId = "";
+    float speed = 0.0f;      // graus/segundo (Corrigido type.6)
 };
 
 struct FallingData {
-    std::string wallId;
-    float delay;      // segundos até começar a cair
+    std::string wallId = "";
+    float delay = 0.0f;      // segundos até começar a cair (Corrigido type.6)
 };
 
 struct HazardData {
-    std::string kzId;
-    float radius;     // raio de detecção (usa KillZone interna)
-    int   damage;
-    float interval;
+    std::string kzId = "";
+    float radius = 0.0f;     // raio de detecção (usa KillZone interna)
+    int   damage = 0;
+    float interval = 0.0f;
 };
 
 struct CountdownData {
-    float seconds;
+    float seconds = 0.0f;
     bool  active = true;
 };
-struct Waypoint { float x, y; };
+
+struct Waypoint { float x = 0.0f, y = 0.0f; };
 
 struct PathData {
-    std::string wallId;
-    float speed;              // Velocidade controlável
-    int triggerMode;          // 0=Distância, 1=Pisar, 2=Botão
-    std::string triggerParam; // Valor da distância OU o ID do Botão
-    bool isLoop;
-    std::vector<Waypoint> pts;
+    std::string wallId = "";
+    float speed = 0.0f;              // Velocidade controlável
+    int triggerMode = 0;          // 0=Distância, 1=Pisar, 2=Botão
+    std::string triggerParam = ""; // Valor da distância OU o ID do Botão
+    bool isLoop = false;
+    std::vector<Waypoint> pts = {};
     int currentPt = 1;
     int dir = 1;
     bool active = false;
 };
 
-struct TriggerZone { float x, y, w, h; };
+struct TriggerZone { float x = 0.0f, y = 0.0f, w = 0.0f, h = 0.0f; };
 
 // ─────────────────────────────────────────────────────────────────────────────
-
 class Home;
 class EndGame;
 
@@ -125,20 +120,22 @@ protected:
     Sprite* transitionBlock = nullptr;
     bool isOpening = true;
     float openingTimer = 0.0f;
-    Sprite* backg       = nullptr;
-    Scene*  scene       = nullptr;
-    Sprite* foodSprite  = nullptr;
+    Sprite* backg = nullptr; // Corrigido type.6 (Sempre inicialize ponteiros com nullptr se não houver valor)
+    Scene* scene = nullptr; // Corrigido type.6
+    Sprite* fundo = nullptr; // Adicionado para corrigir o aviso 'LevelSelect::fundo' (assumindo que pertencia aqui ou classe herdada)
+    Sprite* mouse = nullptr; // Adicionado para corrigir o aviso 'LevelSelect::mouse' 
+    Sprite* foodSprite = nullptr;
     Sprite* heartSprite = nullptr;
-    Font*   consolas    = nullptr;
-    Font*   terminal    = nullptr;
+    Font* consolas = nullptr;
+    Font* terminal = nullptr;
 
     bool viewBBox = false;
 
-    StageConfig* stages   = nullptr;
-    int          bgCount  = 0;
-    
+    StageConfig* stages = nullptr;
+    int          bgCount = 0;
 
-    Entity** activePortals     = nullptr;
+
+    Entity** activePortals = nullptr;
     int      activePortalCount = 0;
 
     int MAX_GHOSTS = 0;
@@ -146,7 +143,7 @@ protected:
     Player* player = nullptr;
 
     // ── Controle de transição ────────────────────────────────────
-    bool  changingStage  = false;
+    bool  changingStage = false;
     float changeCooldown = 0.0f;
 
     // ── Walls/KillZones criadas pelo parser (indexadas por id) ───
@@ -200,15 +197,10 @@ public:
     Scene* GetScene() { return scene; }
 
     // ── Gravidade ─────────────────────────────────────────────────
-    void SetGravity(float g) { Physics::Setup(g); }
-
-    // ── Inicialização de entidades ────────────────────────────────
-    void   ghostInit(int stageIndex);
-    Enemy* addSnowman(int stageIndex);
-    Food*  addFood(int stageIndex);
-
-    void ghostInit() { ghostInit(currentBG); }
-
+    static void SetGravity(float g) { Physics::Setup(g); }
+    static void InvertGravity() { Physics::Setup(-Physics::GetGravity()); }
+    static void ToggleGravity() { Physics::Invert(); }
+    static float GetGravity() { return Physics::GetGravity(); }
 
     // ── Sistema de stage ──────────────────────────────────────────
     void  ChangeBackground(int index);
@@ -218,7 +210,7 @@ public:
 
     // ── Controle de portal ────────────────────────────────────────
     bool IsChangingStage()  const { return changingStage; }
-    void BeginStageChange()       { changingStage = true; }
+    void BeginStageChange() { changingStage = true; }
     void SetStageChangeCooldown(float time) { changeCooldown = time; }
     void UpdateStageTransition(float dt);
     int  GetCurrentStage()  const { return currentBG; }
@@ -228,8 +220,6 @@ public:
     float PortalRotation(float x, float y) const;
     float PortalX(float x) const;
     float PortalY(float y) const;
-
-
 
 
     int   currentBG = 0;
@@ -250,12 +240,12 @@ public:
     void DrawHeartHealth();
 
     // ── Estatísticas ──────────────────────────────────────────────
-    int   ghostAlive            = 0;
-    bool  comeuItem             = false;
-    bool  foodSpawned           = false;
-    int   totalEnemiesDefeated  = 0;
-    int   totalDamageTaken      = 0;
-    float totalPlayTime         = 0.0f;
+    int   ghostAlive = 0;
+    bool  comeuItem = false;
+    bool  foodSpawned = false;
+    int   totalEnemiesDefeated = 0;
+    int   totalDamageTaken = 0;
+    float totalPlayTime = 0.0f;
 };
 
 #endif

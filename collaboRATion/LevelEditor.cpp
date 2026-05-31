@@ -432,7 +432,7 @@ void LevelEditor::Update() {
                         newPath.wallId = obj.id;
                         newPath.nodes.push_back({ mx, my });
                         customPaths.push_back(newPath);
-                        currentEditingPath = customPaths.size() - 1;
+                        currentEditingPath = int (customPaths.size() - 1);
                         break;
                     }
                 }
@@ -567,8 +567,8 @@ void LevelEditor::Update() {
 
             Color corGatilho(0.2f, 0.5f, 1.0f, 0.6f);
 
-            int cols = objects[selected].w / 32;
-            int rows = objects[selected].h / 32;
+            int cols = int (objects[selected].w / 32);
+            int rows = int (objects[selected].h / 32);
 
             for (int c = 0; c < cols; c++) {
                 for (int r = 0; r < rows; r++) {
