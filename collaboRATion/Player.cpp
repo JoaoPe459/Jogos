@@ -10,6 +10,7 @@
 #include <string>
 #include "Interactables.h"
 #include "Level2.h"
+#include "LevelSelect.h"
 
 void Player::UpdateOrbitalPositions() {
     int total = orbitals.size();
@@ -21,7 +22,7 @@ void Player::UpdateOrbitalPositions() {
 
 Player::Player() : Entity() {
     type = PLAYER;
-    animation = new TileSet("Resources/Player/Rato2.png", 64, 64, 15, 30);
+    animation = new TileSet("Resources/Player/Rato.png", 64, 64, 15, 30);
     anim = new Animation(animation, 0.130f, true);  
     
 
@@ -68,7 +69,16 @@ void Player::OnCollision(Object* obj) {
     if (isDead) {
         return; 
     }
+    else if (obj->Type() == TYPE_DOOR) {
 
+        LevelMake::avancarFase = true;
+
+        this->MoveTo(-9999.0f, -9999.0f);
+        moves->setVelX(0.0f);
+        moves->setVelY(0.0f);
+
+        return;
+    }
     if (obj->Type() == WALL) {
         Block* block = (Block*)obj;
 
@@ -83,19 +93,27 @@ void Player::OnCollision(Object* obj) {
         float prevBottom = prevY + 25.0f;
         float prevTop = prevY - 25.0f;
 
+        float gravAtual = Physics::GetGravity();
+
         if (prevBottom <= bTop + 16.0f && moves->getVelY() >= 0.0f) {
             if (pRight > bLeft + 4.0f && pLeft < bRight - 4.0f) {
                 this->MoveTo(this->X(), bTop - 25.0f);
                 moves->setVelY(0.0f);
-                moves->setOnGround(true);
+
+                // Só é "chão" se a gravidade estiver puxando para BAIXO
+                if (gravAtual > 0.0f) moves->setOnGround(true);
                 return;
             }
         }
 
+        // 2. Colisão batendo por BAIXO do bloco (O Teto)
         if (prevTop >= bBottom - 8.0f && moves->getVelY() < 0.0f) {
             if (pRight > bLeft + 4.0f && pLeft < bRight - 4.0f) {
                 this->MoveTo(this->X(), bBottom + 25.1f);
                 moves->setVelY(0.0f);
+
+                // MÁGICA: Se a gravidade estiver invertida, o TETO é o novo CHÃO!
+                if (gravAtual < 0.0f) moves->setOnGround(true);
                 return;
             }
         }
@@ -134,14 +152,6 @@ void Player::OnCollision(Object* obj) {
             btn->Press();
         }
     }
-
-    // PORTA
-    else if (obj->Type() == TYPE_DOOR) {
-        // Ao tocar na porta, pega o controle da fase e manda avançar
-        this->MoveTo(this->X(), 50.0f);
-        moves->setVelY(0.0f);
-    }
-
 
     if (obj->Type() == PORTAL) {
         Portal* p = (Portal*)obj;
@@ -243,10 +253,14 @@ void Player::OnCollision(Object* obj) {
 }
 
 void Player::Die() {
+    LevelMake::audioEngine->Volume(LevelMake::SoundIDs::DEATH_ID,0.05f);
+    LevelMake::audioEngine->Play(LevelMake::SoundIDs::DEATH_ID);
     if (isDead) return;
     isDead = true;
     deathTimer = 1.5f; 
     SetHp(100);
+    LevelMake::deathCount++;
+    
 
     moves->setVelX(0.0f);
     moves->setVelY(-600.0f);  
@@ -262,7 +276,7 @@ void Player::Die() {
 
 void Player::Control() {
     if (isDead) {
-        moves->setVelX(0.0f); 
+        moves->setVelX(0.0f);
 
         static float frameTimer = 0.0f;
         frameTimer += gameTime;
@@ -275,19 +289,47 @@ void Player::Control() {
 
         return;
     }
+
     float baseSpeed = moves->getSpeed() - (sizeLevel * 10.0f);
     float accelerationRate = 4.0f;
-
     float targetVX = 0;
 
-    // --- 1. LÓGICA HORIZONTAL (Andar) ---
-    if (window->KeyDown('A')) {
-        targetVX = -baseSpeed;
-        state = moves->getOnGround() ? WALKLEFT : JUMPLEFT;
+    // ========================================================
+    // 1. LER TECLADO
+    // ========================================================
+    bool btnEsq = window->KeyDown('A');
+    bool btnDir = window->KeyDown('D');
+
+    // --- MODIFICADOR 1: INVERTER CONTROLES ---
+    if (LevelMake::modInvertControls) {
+        std::swap(btnEsq, btnDir); // A esquerda vira direita e vice-versa
     }
-    else if (window->KeyDown('D')) {
-        targetVX = baseSpeed;
-        state = moves->getOnGround() ? WALKRIGHT : JUMPRIGHT;
+
+    // ========================================================
+    // 2. LÓGICA HORIZONTAL (Andar)
+    // ========================================================
+    bool gravInvertida = (Physics::GetGravity() < 0.0f);
+
+    if (btnEsq) {
+        if (!LevelMake::modMoveWorld) targetVX = -baseSpeed;
+
+        // Se a gravidade está invertida, usamos a animação da DIREITA para ele olhar para a ESQUERDA
+        if (gravInvertida) {
+            state = moves->getOnGround() ? WALKRIGHT : JUMPRIGHT;
+        }
+        else {
+            state = moves->getOnGround() ? WALKLEFT : JUMPLEFT;
+        }
+    }
+    else if (btnDir) {
+        if (!LevelMake::modMoveWorld) targetVX = baseSpeed;
+
+        if (gravInvertida) {
+            state = moves->getOnGround() ? WALKLEFT : JUMPLEFT;
+        }
+        else {
+            state = moves->getOnGround() ? WALKRIGHT : JUMPRIGHT;
+        }
     }
     else {
         // Se soltar os botões, mantém a direção (esquerda ou direita)
@@ -299,9 +341,32 @@ void Player::Control() {
         }
     }
 
-    // --- 2. LÓGICA VERTICAL (Pulo) ---
+    // ========================================================
+    // 3. LÓGICA VERTICAL (Pulo)
+    // ========================================================
     if (window->KeyPress('W') && moves->getOnGround()) {
-        moves->Up();
+        
+        LevelMake::audioEngine->Volume(LevelMake::SoundIDs::JUMP_ID,0.15f);
+        LevelMake::audioEngine->Play(LevelMake::SoundIDs::JUMP_ID);
+
+        if (LevelMake::modGravityJump) {
+            float gravAtual = Physics::GetGravity();
+
+            Physics::Setup(-gravAtual);
+
+            if (gravAtual > 0) {
+                moves->setVelY(-50.0f);
+            }
+            else {
+                moves->setVelY(50.0f); 
+            }
+        }
+        // --- PULO NORMAL / GIGANTE ---
+        else {
+            moves->Up();
+            moves->setVelY(moves->getVelY() *0.75 * LevelMake::modJumpForce);
+        }
+
         moves->setOnGround(false);
 
         if (state == WALKLEFT || state == IDLELEFT) state = JUMPLEFT;
@@ -311,13 +376,13 @@ void Player::Control() {
     anim->Select(state);
     anim->NextFrame();
 
-
-    // --- 3. APLICAÇÃO DA INÉRCIA HORIZONTAL ---
+    // ========================================================
+    // 4. APLICAÇÃO DA INÉRCIA HORIZONTAL
+    // ========================================================
     float currentVX = moves->getVelX();
     float lerpFactor = accelerationRate * gameTime;
     if (lerpFactor > 1.0f) lerpFactor = 1.0f;
 
-    // Suaviza apenas a velocidade X
     moves->setVelX(currentVX + (targetVX - currentVX) * lerpFactor);
     if (attackTimer > 0) { attackTimer -= gameTime; }
 
@@ -369,7 +434,15 @@ void Player::Control() {
 
 void Player::Draw()
 {
-    anim->Draw(x, y, z);
+    float angulo = 0.0f;
+
+    // Se a gravidade for negativa, roda a imagem 180 graus (PI radianos)
+    if (Physics::GetGravity() < 0.0f) {
+        angulo = 180;
+    }
+
+    // Passamos o X, Y, Z, a Escala (1.0f) e o nosso novo Ângulo!
+    anim->Draw(x, y, z, 1.0f, angulo);
 }
 
 void Player::Update() {

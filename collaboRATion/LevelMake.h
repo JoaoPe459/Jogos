@@ -34,6 +34,7 @@
 #include "EndGame.h"
 #include "KillZone.h"
 #include "Interactables.h"
+#include "Audio.h"
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Estruturas de configuração de portais
@@ -129,6 +130,7 @@ protected:
     Sprite* foodSprite  = nullptr;
     Sprite* heartSprite = nullptr;
     Font*   consolas    = nullptr;
+    Font*   terminal    = nullptr;
 
     bool viewBBox = false;
 
@@ -172,6 +174,8 @@ protected:
 
     std::map<std::string, ButtonObj*> parsedButtons;
     std::map<std::string, TriggerZone> parsedTriggers;
+    std::map<std::string, std::string> modToggles;
+    std::map<std::string, bool> modToggleState;
 
     // ── Leitura de nível ──────────────────────────────────────────
     void LoadLevel(std::string path);
@@ -224,8 +228,22 @@ public:
     float PortalRotation(float x, float y) const;
     float PortalX(float x) const;
     float PortalY(float y) const;
+
+
+
+
     int   currentBG = 0;
     float deathFade = 0.0f;
+    static bool modInvertControls;
+    static float modJumpForce;
+    static bool modGravityJump;
+    static bool modMoveWorld;
+    static int deathCount;
+    static std::vector<std::string> mapasDoNivel;
+    static int faseAtual;
+    static bool avancarFase;
+    static Audio* audioEngine; // Acesso global ao sistema de áudio
+    enum SoundIDs { JUMP_ID, DEATH_ID, BUTTON_ID, TOC_ID, GAME_SOUND_ID, WALK_ID, GRAVITY_ID };
 
     // ── HUD ───────────────────────────────────────────────────────
     void DrawCentralMessage(const std::string& text, Color color, float x, float y);

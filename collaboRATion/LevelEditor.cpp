@@ -104,7 +104,7 @@ void LevelEditor::CreateVisual(EditorObj& o) {
         }
     }
     else if (o.type == EType::KILLZONE) {
-        DummyVisual* v = new DummyVisual(o.x, o.y, 128, 32, "");
+        DummyVisual* v = new DummyVisual(o.x, o.y, 32, 32, "");
         scene->Add(v, STATIC);
         o.visuals.push_back(v);
     }
@@ -219,6 +219,10 @@ void LevelEditor::Save(const std::string& path) const {
     f << "BACKGROUND Resources/Fundo.png\n";
     f << "GRAVITY 1250.0\n\n";
 
+    f << "MOD_INVERT_CONTROLS " << (edModInvert ? 1 : 0) << "\n";
+    f << "MOD_MOVE_WORLD " << (edModMoveWorld ? 1 : 0) << "\n";
+    f << "MOD_GRAVITY_JUMP " << (edModGravity ? 1 : 0) << "\n\n";
+
     for (const auto& o : objects) {
         if (o.type == EType::WALL) {
             f << "WALL " << o.id << " " << o.x << " " << o.y << "\n";
@@ -229,7 +233,7 @@ void LevelEditor::Save(const std::string& path) const {
             f << "RECT2 " << o.id << " 0 0 32 32 Resources/Tijolo.png " << o.id << "_tag\n\n";
         }
         else if (o.type == EType::KILLZONE) {
-            f << "KILLZONE " << o.id << " " << o.x << " " << o.y << " 128 32 1 mortal\n\n";
+            f << "KILLZONE " << o.id << " " << o.x << " " << o.y << " 32 32 1 mortal\n\n";
         }
         else if (o.type == EType::SPAWN) {
             f << "SPAWN " << o.x << " " << o.y << "\n\n";
@@ -283,14 +287,25 @@ void LevelEditor::Save(const std::string& path) const {
             f << "\n\n";
         }
     }
+    for (const auto& o : objects) {
+        if (!o.modToggle.empty() && (o.type == EType::BOTAO || o.type == EType::TRIGGER_TOOL)) {
+            f << "MOD_TOGGLE " << o.id << " " << o.modToggle << "\n\n";
+        }
+    }
     f.close();
     std::ofstream fEd("Resources/Editor_Backup.proj");
     if (fEd.is_open()) {
 
+        fEd << "GLOBAL_MODS " << edModInvert << " " << edModMoveWorld << " " << edModGravity << "\n";
+
         for (const auto& o : objects) {
             fEd << "OBJ " << (int)o.type << " " << o.id << " " << o.x << " " << o.y << " " << o.w << " " << o.h << "\n";
         }
-
+        for (const auto& o : objects) {
+            if (!o.modToggle.empty()) {
+                fEd << "MOD_ED " << o.id << " " << o.modToggle << "\n";
+            }
+        }
         for (const auto& p : customPaths) {
             // GRAVA: ID -> Velocidade -> Modo -> Parametro -> Loop -> Quantidade de Pontos
             fEd << "PATH_ED " << p.wallId << " " << p.speed << " " << p.triggerMode << " "
@@ -314,6 +329,11 @@ void LevelEditor::LoadProject(std::string path) {
 
     std::string key;
     while (file >> key) {
+
+        if (key == "GLOBAL_MODS") {
+            file >> edModInvert >> edModMoveWorld >> edModGravity;
+        }
+
         if (key == "OBJ") {
             EditorObj o;
             int typeInt;
@@ -355,12 +375,43 @@ void LevelEditor::LoadProject(std::string path) {
             }
             customPaths.push_back(p);
         }
+        else if (key == "MOD_ED") {
+            std::string alvoId, tipoMod;
+            file >> alvoId >> tipoMod;
+
+            // Procura o objeto na lista do editor e devolve-lhe a memória!
+            for (auto& obj : objects) {
+                if (obj.id == alvoId) {
+                    obj.modToggle = tipoMod;
+                    break;
+                }
+            }
+        }
     }
     file.close();
 }
 void LevelEditor::Update() {
     if (window->KeyPress(VK_ESCAPE)) { Engine::Next<Home>(); return; }
     if (window->KeyPress('B')) { viewBBox = !viewBBox; }
+
+    bool editandoBotao = false;
+
+    if (selected >= 0 && selected < objects.size()) {
+        EType selType = objects[selected].type;
+        if (selType == EType::BOTAO || selType == EType::TRIGGER_TOOL) {
+            editandoBotao = true; // Bloqueia a alteração da fase inteira
+
+            // Atribui os poderes ao Botão/Gatilho
+            if (window->KeyPress('I')) objects[selected].modToggle = "INVERT_CONTROLS";
+            if (window->KeyPress('G')) objects[selected].modToggle = "GRAVITY_JUMP";
+            if (window->KeyPress('C')) objects[selected].modToggle = "";
+        }
+    }
+
+    if (!editandoBotao) {
+        if (window->KeyPress('I')) edModInvert = !edModInvert;
+        if (window->KeyPress('G')) edModGravity = !edModGravity;
+    }
 
     float rawMouseX = window->MouseX();
     float rawMouseY = window->MouseY();
@@ -374,8 +425,6 @@ void LevelEditor::Update() {
         if (window->KeyPress(VK_LBUTTON)) {
 
             if (currentEditingPath == -1) {
-                // Tenta achar em qual objeto clicamos para iniciar a rota
-                // AGORA LÊ DE TRÁS PARA A FRENTE TAMBÉM!
                 for (int i = (int)objects.size() - 1; i >= 0; i--) {
                     const auto& obj = objects[i];
                     if (std::abs(obj.x - mx) < 32 && std::abs(obj.y - my) < 32) {
@@ -389,7 +438,6 @@ void LevelEditor::Update() {
                 }
             }
             else {
-                // Checa se clicou perto do 1º ponto para fechar o Loop Infinito
                 float distToStart = std::abs(customPaths[currentEditingPath].nodes[0].x - mx) +
                     std::abs(customPaths[currentEditingPath].nodes[0].y - my);
 
@@ -404,7 +452,6 @@ void LevelEditor::Update() {
         }
     }
     else {
-        // Se soltar o CTRL, a rota termina no formato Ping-Pong
         currentEditingPath = -1;
     }
 
@@ -419,12 +466,10 @@ void LevelEditor::Update() {
     // --- Lógica de APAGAR (Delete) ---
     if (window->KeyPress(VK_DELETE) && selected >= 0) {
 
-        // 1. Apaga os visuais (Garante que se for um corredor de 6, os 6 somem)
         for (auto* v : objects[selected].visuals) {
             scene->Delete(v, STATIC);
         }
 
-        // 2. Apaga qualquer Caminho (PATH) que estava ligado a este objeto
         std::string idApagado = objects[selected].id;
         for (auto it = customPaths.begin(); it != customPaths.end(); ) {
             if (it->wallId == idApagado) {
@@ -435,30 +480,36 @@ void LevelEditor::Update() {
             }
         }
 
-        // 3. Remove o objeto da lista
         objects.erase(objects.begin() + selected);
         selected = -1;
         dragging = false;
     }
 
     // --- Lógica de ARRASTAR (Botão Direito) ---
-    // --- Lógica de ARRASTAR (Botão Direito) ---
     if (window->KeyDown(VK_RBUTTON)) {
         if (!dragging) {
             selected = NearestObj(mx, my);
-            if (selected >= 0) dragging = true;
+            if (selected >= 0 && selected < objects.size()) dragging = true;
         }
         else {
-            // Só atualiza se o rato realmente mudou de bloco (evita o espinho pular e piscar)
-            if (objects[selected].x != mx || objects[selected].y != my) {
-                objects[selected].x = mx;
-                objects[selected].y = my;
+            if (selected >= 0 && selected < objects.size()) {
+                if (objects[selected].x != mx || objects[selected].y != my) {
+                    objects[selected].x = mx;
+                    objects[selected].y = my;
 
-                // Apaga o visual velho e RECRIAR um novo para aplicar os alinhamentos corretos (+9px)
-                for (auto* v : objects[selected].visuals) scene->Delete(v, STATIC);
-                objects[selected].visuals.clear();
+                    for (auto* v : objects[selected].visuals) scene->Delete(v, STATIC);
+                    objects[selected].visuals.clear();
 
-                CreateVisual(objects[selected]);
+                    CreateVisual(objects[selected]);
+                }
+
+                EType selType = objects[selected].type;
+                if (selType == EType::BOTAO || selType == EType::TRIGGER_TOOL) {
+                    if (window->KeyPress('I')) objects[selected].modToggle = "INVERT_CONTROLS";
+                    if (window->KeyPress('G')) objects[selected].modToggle = "GRAVITY_JUMP";
+                    if (window->KeyPress('M')) objects[selected].modToggle = "MOVE_WORLD";
+                    if (window->KeyPress('C')) objects[selected].modToggle = "";
+                }
             }
         }
     }
@@ -471,7 +522,7 @@ void LevelEditor::Update() {
         PlaceObject((mx), (my));
     }
 
-    if (selected >= 0) {
+    if (selected >= 0 && selected < objects.size()) {
         std::string selId = objects[selected].id;
         for (auto& p : customPaths) {
             if (p.wallId == selId) {
@@ -502,10 +553,9 @@ void LevelEditor::Update() {
             }
         }
     }
-    if (selected >= 0 && objects[selected].type == EType::TRIGGER_TOOL) {
+    if (selected >= 0 && objects[selected].type == EType::TRIGGER_TOOL && selected < objects.size()) {
         bool resize = false;
 
-        // Aumenta e diminui a Altura e Largura de 32 em 32 pixels
         if (window->KeyPress(VK_UP)) { objects[selected].h += 32.0f; resize = true; }
         if (window->KeyPress(VK_DOWN)) { if (objects[selected].h > 32.0f) { objects[selected].h -= 32.0f; resize = true; } }
         if (window->KeyPress(VK_RIGHT)) { objects[selected].w += 32.0f; resize = true; }
@@ -537,17 +587,16 @@ void LevelEditor::Draw() {
     scene->Draw();
     if (viewBBox) scene->DrawBBox();
     if (decoSprite) {
-        // Posição calibrada do rato
+        
         float rawMouseX = window->MouseX() + 0.0f;
         float rawMouseY = window->MouseY() + 0.0f;
 
-        // Cor vermelha forte para destacar
+       
         Color corPonteiro(1.0f, 0.0f, 0.0f, 1.0f);
 
-        // Matemática: Se a imagem tem 32 pixels, 3 dividido por 32 dá a escala exata para 3 pixels!
+        
         float escala3px = 3.0f / 32.0f;
 
-        // Desenha o pontinho minúsculo na exata ponta do rato
         decoSprite->Draw(rawMouseX, rawMouseY, Layer::FRONT, escala3px, 0.0f, corPonteiro);
     }
 
@@ -563,12 +612,12 @@ void LevelEditor::Draw() {
         font->Draw(20, 70, "LMB: Colocar  |  RMB: Arrastar  |  DEL: Apagar", branco, Layer::FRONT);
         font->Draw(20, 100, "S: Salvar Nivel  |  B: Mostrar Caixas de Colisao", branco, Layer::FRONT);
     }
-    if (selected >= 0 && objects[selected].type == EType::TRIGGER_TOOL) {
+    if (selected >= 0 && objects[selected].type == EType::TRIGGER_TOOL && selected < objects.size()) {
         font->Draw(20, 130, "AREA DE GATILHO [" + objects[selected].id + "]", Color(0.0f, 1.0f, 1.0f, 1.0f));
         font->Draw(20, 160, "Largura (Esq/Dir): " + std::to_string((int)objects[selected].w), Color(0.0f, 1.0f, 1.0f, 1.0f));
         font->Draw(20, 190, "Altura (Cima/Baixo): " + std::to_string((int)objects[selected].h), Color(0.0f, 1.0f, 1.0f, 1.0f));
     }
-    if (selected >= 0 && font != nullptr) {
+    if (selected >= 0 && font != nullptr && selected < objects.size()) {
         std::string selId = objects[selected].id;
         for (auto& p : customPaths) {
             if (p.wallId == selId) {
@@ -587,9 +636,16 @@ void LevelEditor::Draw() {
                 }
             }
         }
+    } if (selected >= 0 && (objects[selected].type == EType::BOTAO || objects[selected].type == EType::TRIGGER_TOOL) && selected < objects.size()) {
+
+        font->Draw(20, 400, "MODIFICADOR DO BOTAO/GATILHO:", Color(1.0f, 0.5f, 0.0f, 1.0f));
+
+        std::string qualMod = objects[selected].modToggle == "" ? "NENHUM" : objects[selected].modToggle;
+        font->Draw(20, 450, "Poder Atual: " + qualMod, Color(0.0f, 1.0f, 1.0f, 1.0f));
+        font->Draw(20, 500, "I: Inverter | G: Gravidade | C: Limpar", Color(1.0f, 1.0f, 1.0f, 1.0f));
     }
 
-    if (selected >= 0 && objects[selected].type == EType::TRIGGER_TOOL) {
+    if (selected >= 0 && objects[selected].type == EType::TRIGGER_TOOL && selected < objects.size()) {
         font->Draw(20, 80, "AREA DE GATILHO [" + objects[selected].id + "]", Color(0.0f, 1.0f, 1.0f, 1.0f));
         font->Draw(20, 100, "Largura (Esq/Dir): " + std::to_string((int)objects[selected].w), Color(0.0f, 1.0f, 1.0f, 1.0f));
         font->Draw(20, 120, "Altura (Cima/Baixo): " + std::to_string((int)objects[selected].h), Color(0.0f, 1.0f, 1.0f, 1.0f));
@@ -602,6 +658,9 @@ void LevelEditor::Draw() {
             }
         }
     }
+    font->Draw(20, 280, "--- MODIFICADORES DA FASE ---", Color(1.0f, 0.5f, 0.0f, 1.0f));
+    font->Draw(20, 300, std::string("Inverter Controles (I): ") + (edModInvert ? "ON" : "OFF"), Color(1.0f, 1.0f, 1.0f, 1.0f));
+    font->Draw(20, 340, std::string("Gravidade Bizarra (G): ") + (edModGravity ? "ON" : "OFF"), Color(1.0f, 1.0f, 1.0f, 1.0f));
 }
 
 void LevelEditor::Finalize() {
@@ -609,7 +668,9 @@ void LevelEditor::Finalize() {
     objects.clear();
     delete scene;
     if (font) delete font;
-
-    // Limpa o carimbo
+    customPaths.clear();
+    selected = -1;
+    currentEditingPath = -1;
+    dragging = false;
     if (decoSprite) delete decoSprite;
 }

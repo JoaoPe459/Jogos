@@ -23,6 +23,7 @@ struct EditorObj {
     float w = 32.0f;
     float h = 32.0f;
     std::vector<Object*> visuals;
+    std::string modToggle = "";
 };
 struct EdWaypoint { float x, y; };
 struct EditorPath {
@@ -45,6 +46,9 @@ private:
     EType curType = EType::WALL;
     int idCount = 0;
     bool viewBBox = true;
+    bool edModInvert = false;
+    bool edModMoveWorld = false;
+    bool edModGravity = false;
 
     float Snap(float v) const { return roundf(v / 32.0f) * 32.0f; }
     std::string NextId();
@@ -58,6 +62,7 @@ private:
 
     std::vector<EditorPath> customPaths;
     int currentEditingPath = -1;
+
 
 public:
     void LoadProject(std::string path);

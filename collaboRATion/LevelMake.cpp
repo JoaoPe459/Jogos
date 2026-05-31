@@ -21,6 +21,16 @@
 
 using std::ifstream;
 using std::string;
+bool LevelMake::modInvertControls = false;
+float LevelMake::modJumpForce = 1.0f;
+bool LevelMake::modGravityJump = false;
+bool LevelMake::modMoveWorld = false;
+int LevelMake::deathCount = 0;
+std::vector<std::string> LevelMake::mapasDoNivel = {};
+int LevelMake::faseAtual = 0;
+bool LevelMake::avancarFase = false;
+Audio* LevelMake::audioEngine = nullptr;
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // LoadLevel — parser original (portais e stages)
@@ -207,6 +217,13 @@ void LevelMake::LoadLevel2(const std::string& path)
             parsedButtons[id] = btn;
             parsedObjects[id] = btn; // <--- FALTAVA ISTO!
         }
+        else if (key == "MOD_TOGGLE") {
+            std::string btnId, modType;
+            ss >> btnId >> modType;
+
+            modToggles[btnId] = modType;
+            modToggleState[btnId] = false; // Começa sem estar pisado
+        }
 
         else if (key == "PATH")
         {
@@ -232,12 +249,19 @@ void LevelMake::LoadLevel2(const std::string& path)
             // Corrige o eixo X e Y para representarem o centro exato da grande área
             tz.x = tz.x + (tz.w / 2.0f) - 16.0f;
             tz.y = tz.y + (tz.h / 2.0f) - 16.0f;
-
             parsedTriggers[id] = tz;
         }
-
-
-
+        else if (key == "MOD_INVERT_CONTROLS") {
+            int val; ss >> val;
+            modInvertControls = (val != 0); // Ex: MOD_INVERT_CONTROLS 1
+        }
+        else if (key == "MOD_JUMP_FORCE") {
+            ss >> modJumpForce;             // Ex: MOD_JUMP_FORCE 2.5
+        }
+        else if (key == "MOD_GRAVITY_JUMP") {
+            int val; ss >> val;
+            modGravityJump = (val != 0);    // Ex: MOD_GRAVITY_JUMP 1
+        }
         // ── Bloco vinculado a uma Wall ────────────────────────────
         else if (key == "BLOCK")
         {
@@ -305,12 +329,12 @@ void LevelMake::LoadLevel2(const std::string& path)
             float kx, ky, kw, kh;
             int   lethalInt;
             ss >> id >> kx >> ky >> kw >> kh >> lethalInt;
-            ss >> tag; // opcional
+            ss >> tag;
 
             KillZone* kz = new KillZone(kx, ky, kw, kh, lethalInt != 0, tag);
             scene->Add(kz, STATIC);
             parsedKillZones[id] = kz;
-            parsedObjects[id] = kz; // <--- FALTAVA ISTO!
+            parsedObjects[id] = kz; 
             }
 
         // ── Espinhos dinâmicos ────────────────────────────────────
@@ -573,6 +597,45 @@ void LevelMake::UpdateParsedMechanics()
             }
         }
     }
+    for (auto& par : modToggles) {
+        std::string id = par.first;
+        std::string modType = par.second;
+
+        bool isAtivo = false;
+
+        // 1. PRIMEIRO: Tenta ver se este ID é uma ÁREA DE GATILHO
+        auto itTrig = parsedTriggers.find(id);
+        if (itTrig != parsedTriggers.end()) {
+            float px = player->X();
+            float py = player->Y();
+
+            // Verifica se o Rato está dentro do retângulo do Gatilho invisível
+            if (std::abs(px - itTrig->second.x) < itTrig->second.w / 2.0f &&
+                std::abs(py - itTrig->second.y) < itTrig->second.h / 2.0f) {
+                isAtivo = true;
+            }
+        }
+        else {
+            // 2. SEGUNDO: Se não for Gatilho, tenta ver se o ID é de um BOTÃO
+            auto itBtn = parsedButtons.find(id);
+            if (itBtn != parsedButtons.end()) {
+                isAtivo = itBtn->second->IsPressed();
+            }
+        }
+
+        // 3. A MÁGICA: Só inverte a regra no exato frame em que entrou na área ou pisou no botão!
+        if (isAtivo && !modToggleState[id]) {
+            modToggleState[id] = true; // Marca que já ativou
+
+            // Alterna as regras do universo (True vira False, False vira True)
+            if (modType == "INVERT_CONTROLS") modInvertControls = !modInvertControls;
+            else if (modType == "GRAVITY_JUMP") modGravityJump = !modGravityJump;
+        }
+        // Quando o rato sai de cima do botão ou sai da área do gatilho, reseta para poder ser usado de novo
+        else if (!isAtivo && modToggleState[id]) {
+            modToggleState[id] = false;
+        }
+    }
  
 }
 
@@ -638,7 +701,24 @@ void LevelMake::Init(float gravity, int maxFood, int maxGhost, string levelBackg
     isOpening = true;
     openingTimer = 0.0f;
     startDelay = 5;
-    // 1. Zera todos os ponteiros de fase para NÃO ler lixo de memória!
+    avancarFase = false;
+
+    modInvertControls = false;
+    modJumpForce = 1.0f;
+    modGravityJump = false;
+    modMoveWorld = false;
+    if (audioEngine == nullptr) {
+        audioEngine = new Audio();
+        audioEngine->Add(JUMP_ID, "Resources/Sounds/jump.wav");
+        audioEngine->Add(DEATH_ID, "Resources/Sounds/death.wav");
+        audioEngine->Add(BUTTON_ID, "Resources/Sounds/botao.wav");
+        audioEngine->Add(TOC_ID, "Resources/Sounds/toc.wav");
+        audioEngine->Add(GRAVITY_ID, "Resources/Sounds/invertergravidade.wav");
+        audioEngine->Add(WALK_ID, "Resources/Sounds/passos.wav");
+        audioEngine->Add(GAME_SOUND_ID, "Resources/Sounds/gamesound.wav");
+
+        audioEngine->Play(GAME_SOUND_ID, true);
+    }
     stages = nullptr;
     activePortals = nullptr;
     bgCount = 0;
@@ -662,6 +742,8 @@ void LevelMake::Init(float gravity, int maxFood, int maxGhost, string levelBackg
     // Garante que a fonte dos textos exista (evita crash no DrawCentralMessage)
     consolas = new Font("Resources/consolas12.png");
     consolas->Spacing("Resources/consolas12.dat");
+    terminal = new Font("Resources/terminal.png");
+    terminal->Spacing(30);
 
     // 4. Cria o jogador
     player = new Player();
@@ -689,6 +771,8 @@ void LevelMake::Finalize()
     platformPhases.clear();
     fallingTimers.clear();
     fallingDone.clear();
+    modToggles.clear();
+    modToggleState.clear();
 
     if (stages != nullptr)
     {
@@ -778,6 +862,16 @@ void LevelMake::Draw()
         float scale = window->Width() / backg->Width();
         backg->Draw(window->CenterX(), window->CenterY(), Layer::BACK, scale);
     }
+
+    if (consolas != nullptr) {
+        std::string textoMortes = std::to_string(deathCount);
+
+        float posX = window->Width() - 30.0f;
+        float posY = 40.0f;
+
+        terminal->Draw(posX, posY, textoMortes, Color(0.0f, 0.0f, 0.0f, 1.0f), Layer::FRONT,1);
+    }
+
     // 2. Desenha os Objetos da Cena
     scene->Draw();
     

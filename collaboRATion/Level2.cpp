@@ -1,24 +1,27 @@
 #include "Engine.h"
 #include "Home.h"
 #include "Level2.h"
+#include "LevelSelect.h"
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Init
 // ─────────────────────────────────────────────────────────────────────────────
-
 void Level2::Init()
 {
-    // Inicializa a base (gravidade padrão; pode ser sobrescrita pelo GRAVITY do txt)
     LevelMake::Init(600.0f, 0, 0, "Resources/Level2.jpg");
 
-    // Carrega toda a geometria, killzones e mecânicas do arquivo de texto
-    LoadLevel2("Resources/Level_Editor_Output.txt");
+    if (!LevelMake::mapasDoNivel.empty() && LevelMake::faseAtual < LevelMake::mapasDoNivel.size()) {
+
+        LoadLevel2(LevelMake::mapasDoNivel[LevelMake::faseAtual]);
+    }
+    else {
+        LoadLevel2("Resources/Level_Editor_Output.txt");
+    }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Update
 // ─────────────────────────────────────────────────────────────────────────────
-
 void Level2::Update()
 {
     if (window->KeyPress(VK_ESCAPE))
@@ -27,7 +30,7 @@ void Level2::Update()
         return;
     }
 
-    // Debug: girar o spinner manualmente pelo id "spin" (se existir no txt)
+    // Debug: girar o spinner manualmente pelo id "spin"
     auto itSpin = parsedWalls.find("spin");
     if (itSpin != parsedWalls.end())
     {
@@ -38,7 +41,6 @@ void Level2::Update()
         if (window->KeyPress('3')) itSpin->second->SetAngle(90.0f);
     }
 
-    // Debug: forçar queda/parada da parede "ceil"
     auto itCeil = parsedWalls.find("ceil");
     if (itCeil != parsedWalls.end())
     {
@@ -46,14 +48,24 @@ void Level2::Update()
         if (window->KeyPress('G')) itCeil->second->StopFalling();
     }
 
-    // LevelMake::Update() roda scene, colisões, HUD e UpdateParsedMechanics()
     LevelMake::Update();
+
+    if (LevelMake::avancarFase) {
+        LevelMake::avancarFase = false; 
+        LevelMake::faseAtual++;
+
+        if (LevelMake::faseAtual >= LevelMake::mapasDoNivel.size()) {
+            Engine::Next<LevelSelect>();
+        }
+        else {
+            Engine::Next<Level2>(); 
+        }
+    }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Finalize
 // ─────────────────────────────────────────────────────────────────────────────
-
 void Level2::Finalize()
 {
     LevelMake::Finalize();

@@ -50,13 +50,39 @@ void LevelSelect::Update() {
 
         if (transitionTimer >= 0.5f) {
             switch (targetLevel) {
-            case 1: Engine::Next<Level2>(); return;
-            case 2: Engine::Next<LevelEditor>(); return;
-            case 3: Engine::Next<Level2>(); return;
-            case 4: return;
+            case 1:
+                LevelMake::mapasDoNivel = {
+                    "Resources/Mundo1_Fase1.txt",
+                    "Resources/Mundo1_Fase2.txt",
+                    "Resources/Mundo1_Fase3.txt",
+                    "Resources/Mundo1_Fase4.txt"
+                };
+                LevelMake::faseAtual = 0;
+
+                Engine::Next<Level2>();
+                return;
+
+            case 2:
+                Engine::Next<LevelEditor>();
+                return;
+
+            case 3:
+                LevelMake::mapasDoNivel = {
+                    "Resources/Mundo2_Fase1.txt",
+                    "Resources/Mundo2_Fase2.txt",
+                    "Resources/Mundo2_Fase3.txt",
+                    "Resources/Mundo2_Fase4.txt"
+                };
+                LevelMake::faseAtual = 0;
+
+                Engine::Next<Level2>();
+                return;
+
+            case 4:
+                return;
             }
         }
-        return; 
+        return;
     }
 
     mouse->Update();
