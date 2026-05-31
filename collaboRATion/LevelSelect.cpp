@@ -18,9 +18,9 @@ static bool MundoDesbloqueado(int numMundo)
     switch (numMundo)
     {
     case 1: return true;                              // Sempre liberado
-    case 2: return LevelMake::nivelDesbloqueado >= 1; // Exige concluir Mundo 1
-    case 3: return LevelMake::nivelDesbloqueado >= 2; // Exige concluir Mundo 2
-    case 4: return LevelMake::nivelDesbloqueado >= 3; // Exige concluir Mundo 3
+    case 2: return LevelMake::nivelDesbloqueado == 1; // Exige concluir Mundo 1
+    case 3: return LevelMake::nivelDesbloqueado == 2; // Exige concluir Mundo 2
+    case 4: return LevelMake::nivelDesbloqueado == 3; // Exige concluir Mundo 3
     default: return false;
     }
 }
@@ -88,22 +88,23 @@ void LevelSelect::Update()
             case 1:
                 LevelMake::mapasDoNivel = {
                     "Resources/Mundo1_Fase1.txt",
-                    "Resources/Mundo1_Fase1.txt",
-                    "Resources/Mundo1_Fase1.txt",
-                    "Resources/Mundo1_Fase1.txt",
+                    "Resources/Mundo1_Fase2.txt",
+                    "Resources/Mundo1_Fase3.txt",
+                    "Resources/Mundo1_Fase4.txt",
                 };
+                LevelMake::nivelDesbloqueado = 1;
                 LevelMake::faseAtual = 0;
                 Engine::Next<Level2>();
                 return;
 
             case 2:
-                //Engine::Next<LevelEditor>();
                 LevelMake::mapasDoNivel = {
                     "Resources/Mundo2_Fase1.txt",
                     "Resources/Mundo2_Fase2.txt",
                     "Resources/Mundo2_Fase3.txt",
                     "Resources/Mundo2_Fase4.txt",
                 };
+                LevelMake::nivelDesbloqueado = 2;
                 LevelMake::faseAtual = 0;
                 Engine::Next<Level2>();
                 return;
@@ -116,16 +117,20 @@ void LevelSelect::Update()
                     "Resources/Mundo3_Fase4.txt",
                 };
                 LevelMake::faseAtual = 0;
+                LevelMake::nivelDesbloqueado = 3;
                 Engine::Next<Level2>();
                 return;
 
             case 4:
+                LevelMake::mapasDoNivel = {
+                    "Resources/Mundo4_Fase1.txt",
+                    "Resources/Mundo4_Fase2.txt",
+                    "Resources/Mundo4_Fase3.txt",
+                    "Resources/Mundo4_Fase4.txt",
+                };
                 LevelMake::faseAtual = 0;
+                LevelMake::nivelDesbloqueado = 4;
                 Engine::Next<Level2>();
-                // ── ZERA O SAVE E FINALIZA O JOGO ───────────────────────────
-                // Opção A: Ir para uma tela de fim de jogo (Descomente se tiver a classe)
-                // Engine::Next<EndGame>();
-                return; // Ainda não implementado
             }
         }
         return;

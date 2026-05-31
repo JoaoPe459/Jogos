@@ -67,9 +67,11 @@ void Level2::Update()
                 if (pos != std::string::npos && pos + 5 < primeiro.size())
                     mundoAtual = primeiro[pos + 5] - '0'; // '1','2','3'...
             }
-  
-            LevelMake::nivelDesbloqueado++;
             LevelMake::SalvarProgresso();
+            if (LevelMake::nivelDesbloqueado == 4) {
+				Engine::Next<EndGame>();
+                return;
+            }
             Engine::Next<LevelSelect>();
         }
         else
