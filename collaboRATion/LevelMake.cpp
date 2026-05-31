@@ -11,6 +11,7 @@
 #include "PacMan.h"
 #include "Portal.h"
 #include "LevelSelect.h"
+#include "Level2.h"
 #include "Interactables.h"
 
 #include <fstream>
@@ -123,26 +124,23 @@ void LevelMake::LoadLevel2(const std::string& path)
         ss >> key;
 
         // ── Gravidade ────────────────────────────────────────────
-        if (key == "GRAVITY")
-        {
+        if (key == "GRAVITY") {
             float g;
-            ss >> g;    
+            ss >> g;
             Physics::Setup(g);
         }
-
         // ── Wall base ────────────────────────────────────────────
-        else if (key == "WALL")
-        {
+        else if (key == "WALL") {
             std::string id;
             float wx, wy;
             ss >> id >> wx >> wy;
 
             Wall* w = new Wall();
-            w->MoveTo(wx, wy);  
+            w->MoveTo(wx, wy);
             scene->Add(w, STATIC);
             parsedWalls[id] = w;
+            parsedObjects[id] = w; // <--- FALTAVA ISTO!
         }
-
         else if (key == "BOLA") {
             std::string id; float wx, wy;
             ss >> id >> wx >> wy;
@@ -150,53 +148,94 @@ void LevelMake::LoadLevel2(const std::string& path)
             w->AddBlock(0, 0, 32, 32, "Resources/Bola.png", id);
             scene->Add(w, STATIC);
             parsedWalls[id] = w;
+            parsedObjects[id] = w; // <--- FALTAVA ISTO!
         }
         else if (key == "ESPINHO") {
             std::string id; float wx, wy;
             ss >> id >> wx >> wy;
-            Spike* spike = new Spike(wx, wy, "Resources/Espinhos.png");
-            scene->Add(spike, STATIC);
+            Spike* spikeCima = new Spike(wx, wy, "Resources/Espinhos.png", false);
+            scene->Add(spikeCima, STATIC);
+            parsedObjects[id] = spikeCima; // <--- FALTAVA ISTO!
         }
-        else if (key == "BOTAO") {
+        else if (key == "ESPINHO_INV") {
             std::string id; float wx, wy;
             ss >> id >> wx >> wy;
-            ButtonObj* btn = new ButtonObj(wx, wy, id);
-            scene->Add(btn, STATIC);
+            Spike* spikeBaixo = new Spike(wx, wy, "Resources/Espinhos2.png", true);
+            scene->Add(spikeBaixo, STATIC);
+            parsedObjects[id] = spikeBaixo; // <--- FALTAVA ISTO!
         }
         else if (key == "PORTA") {
             std::string id; float wx, wy;
             ss >> id >> wx >> wy;
             Door* door = new Door(wx, wy, "Resources/Porta.png");
             scene->Add(door, STATIC);
+            parsedObjects[id] = door; // <--- FALTAVA ISTO!
         }
-
-        // Spawn
-        
-        else if (key == "SPAWN")
-        {
+        else if (key == "BACKGROUND") {
+            std::string spritePath;
+            ss >> spritePath;
+            Sprite* novo = new Sprite(spritePath);
+            if (novo != nullptr) {
+                delete backg;
+                backg = novo;
+            }
+        }
+        else if (key == "SPAWN") {
             float x, y;
             ss >> x >> y;
-
-            if (player)
-                player->MoveTo(x, y);
+            if (player) player->MoveTo(x, y);
         }
-
         else if (key == "DECO_BLOCK") {
             float wx, wy;
             ss >> wx >> wy;
-
             DecoObj* d = new DecoObj(wx, wy, "Resources/Tijolo.png");
             scene->Add(d, STATIC);
         }
         else if (key == "DECO_RECT2") {
             float wx, wy;
             ss >> wx >> wy;
-
             for (int i = 0; i < 6; i++) {
                 DecoObj* d = new DecoObj(wx + (i * 32.0f), wy, "Resources/Tijolo.png");
                 scene->Add(d, STATIC);
             }
         }
+        else if (key == "BOTAO") {
+            std::string id; float wx, wy;
+            ss >> id >> wx >> wy;
+            ButtonObj* btn = new ButtonObj(wx, wy, id);
+            scene->Add(btn, STATIC);
+            parsedButtons[id] = btn;
+            parsedObjects[id] = btn; // <--- FALTAVA ISTO!
+        }
+
+        else if (key == "PATH")
+        {
+            PathData pd;
+            pd.dir = 1;
+            int loopInt, count;
+
+            ss >> pd.wallId >> pd.speed >> pd.triggerMode >> pd.triggerParam >> loopInt >> count;
+
+            pd.isLoop = (loopInt != 0);
+
+            for (int i = 0; i < count; i++) {
+                Waypoint wp;
+                ss >> wp.x >> wp.y;
+                pd.pts.push_back(wp);
+            }
+            parsedPaths.push_back(pd);
+        }
+        else if (key == "TRIGGER") {
+            TriggerZone tz; std::string id;
+            ss >> id >> tz.x >> tz.y >> tz.w >> tz.h;
+
+            // Corrige o eixo X e Y para representarem o centro exato da grande área
+            tz.x = tz.x + (tz.w / 2.0f) - 16.0f;
+            tz.y = tz.y + (tz.h / 2.0f) - 16.0f;
+
+            parsedTriggers[id] = tz;
+        }
+
 
 
         // ── Bloco vinculado a uma Wall ────────────────────────────
@@ -261,19 +300,18 @@ void LevelMake::LoadLevel2(const std::string& path)
         }
 
         // ── KillZone ──────────────────────────────────────────────
-        else if (key == "KILLZONE")
-        {
+        else if (key == "KILLZONE") {
             std::string id, tag;
             float kx, ky, kw, kh;
             int   lethalInt;
             ss >> id >> kx >> ky >> kw >> kh >> lethalInt;
             ss >> tag; // opcional
 
-            KillZone* kz = new KillZone(kx, ky, kw, kh,
-                                         lethalInt != 0, tag);
+            KillZone* kz = new KillZone(kx, ky, kw, kh, lethalInt != 0, tag);
             scene->Add(kz, STATIC);
             parsedKillZones[id] = kz;
-        }
+            parsedObjects[id] = kz; // <--- FALTAVA ISTO!
+            }
 
         // ── Espinhos dinâmicos ────────────────────────────────────
         else if (key == "SPIKE")
@@ -316,21 +354,6 @@ void LevelMake::LoadLevel2(const std::string& path)
         }
 
         // ── Hazard zone (drena HP por tick via KillZone) ──────────
-        else if (key == "HAZARD")
-        {
-            HazardData hd;
-            ss >> hd.kzId >> hd.radius >> hd.damage >> hd.interval;
-
-            // Configura a KillZone existente como hazard (não letal, com tick)
-            auto it = parsedKillZones.find(hd.kzId);
-            if (it != parsedKillZones.end())
-            {
-                it->second->lethal       = false;
-                it->second->damage       = hd.damage;
-                it->second->tickInterval = hd.interval;
-            }
-            parsedHazards.push_back(hd);
-        }
 
         // ── Countdown de morte ────────────────────────────────────
         else if (key == "COUNTDOWN")
@@ -460,6 +483,97 @@ void LevelMake::UpdateParsedMechanics()
             player->SetHp(0);
         }
     }
+    // ── 6. Sistema de Waypoints e Proximidade ─────────────────────
+    for (auto& pd : parsedPaths)
+    {
+        Object* objMovel = nullptr;
+
+        // 1. Procura o objeto na LISTA UNIVERSAL (Acha Paredes, Portas, Espinhos, Zonas de Morte...)
+        auto itObj = parsedObjects.find(pd.wallId);
+        if (itObj != parsedObjects.end()) {
+            objMovel = itObj->second;
+        }
+
+        // Se não achou o objeto de todo, salta para o próximo caminho
+        if (!objMovel) continue;
+
+        // --- VERIFICA OS GATILHOS PARA ACORDAR A PLATAFORMA/ESPINHO ---
+        if (!pd.active) {
+            if (pd.triggerMode == 0) {
+                // MODO 0: DISTÂNCIA
+                float distToTrigger = std::stof(pd.triggerParam);
+                if (distToTrigger <= 0.0f) {
+                    pd.active = true;
+                }
+                else {
+                    float dx = player->X() - objMovel->X();
+                    float dy = player->Y() - objMovel->Y();
+                    if (sqrtf(dx * dx + dy * dy) <= distToTrigger) pd.active = true;
+                }
+            }
+            else if (pd.triggerMode == 1) {
+                // MODO 1: AO PISAR
+                if (scene->Collision(player, objMovel) && player->Y() < objMovel->Y()) {
+                    pd.active = true;
+                }
+            }
+            else if (pd.triggerMode == 2) {
+                // MODO 2: GATILHO (ÁREA INVISÍVEL) OU BOTÃO
+                auto itTrig = parsedTriggers.find(pd.triggerParam);
+                if (itTrig != parsedTriggers.end()) {
+                    float px = player->X();
+                    float py = player->Y();
+                    // Verifica se o jogador entrou na Área de Gatilho
+                    if (std::abs(px - itTrig->second.x) < itTrig->second.w / 2.0f &&
+                        std::abs(py - itTrig->second.y) < itTrig->second.h / 2.0f) {
+                        pd.active = true;
+                    }
+                }
+                else {
+                    // Se não era Trigger, tenta ver se é Botão
+                    auto itBtn = parsedButtons.find(pd.triggerParam);
+                    if (itBtn != parsedButtons.end()) {
+                        if (itBtn->second->IsPressed()) pd.active = true;
+                    }
+                }
+            }
+        }
+
+        // --- MOVIMENTA O OBJETO UNIVERSAL ---
+        if (pd.active && pd.pts.size() > 1) {
+            Waypoint target = pd.pts[pd.currentPt];
+            float dx = target.x - objMovel->X();
+            float dy = target.y - objMovel->Y();
+            float dist = sqrtf(dx * dx + dy * dy);
+
+            if (dist < pd.speed * gameTime) {
+                // Crava o objeto exatamente no ponto
+                objMovel->MoveTo(target.x, target.y);
+
+                if (!pd.isLoop && pd.currentPt == (int)pd.pts.size() - 1) {
+                    // Chegou ao fim, desliga!
+                    pd.active = false;
+                }
+                else {
+                    pd.currentPt += 1;
+                    if (pd.currentPt >= (int)pd.pts.size()) {
+                        if (pd.isLoop) pd.currentPt = 0;
+                    }
+                }
+            }
+            else {
+                // Continua a andar em direção ao alvo
+                objMovel->MoveTo(objMovel->X() + (dx / dist) * pd.speed * gameTime, objMovel->Y() + (dy / dist) * pd.speed * gameTime);
+            }
+
+            // Sincroniza os blocos secundários APENAS se o objeto for uma Parede (Wall)
+            auto itWall = parsedWalls.find(pd.wallId);
+            if (itWall != parsedWalls.end()) {
+                for (Block* b : itWall->second->GetBlocks()) b->SyncToOwner();
+            }
+        }
+    }
+ 
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -538,9 +652,10 @@ void LevelMake::Init(float gravity, int maxFood, int maxGhost, string levelBackg
     scene = new Scene();
 
     // 3. Inicializa as artes do HUD
-    backg = nullptr;
     if (!levelBackground.empty())
         backg = new Sprite(levelBackground);
+    else
+        backg = new Sprite("Resources/Fundo.png");
 
     heartSprite = new Sprite("Resources/Heart.png");
 
@@ -648,54 +763,24 @@ void LevelMake::Update()
 
     if (window->KeyPress('B')) viewBBox = !viewBBox;
 
-    if (player->GetHp() <= 0 || (player->totalLevelsVisited == 9))
-    {
-        std::string filename = "player_stats.txt";
-        std::ofstream file(filename);
-        std::string finalState = (player->GetHp() > 0) ? "VIVO" : "MORTO";
+    if (player->isDead && window->KeyPress('R')) {
+        Engine::Next<Level2>();
 
-        if (file.is_open())
-        {
-            file << "--- STATUS DO JOGADOR ---" << std::endl;
-            file << "Total de dano sofrido: " << totalDamageTaken / 10 << std::endl;
-            file << "Total de dano deferido: " << player->totalDamageDealt / 10 << std::endl;
-            file << "Total de inimigos derrotados: " << totalEnemiesDefeated << std::endl;
-            file << "Tempo total de jogo: " << (int)totalPlayTime << "s" << std::endl;
-            file << "Estado final: " << finalState << std::endl;
-            file.close();
-        }
-        Engine::Next<Home>();
     }
+
 }
 
 
 void LevelMake::Draw()
 {
-    // 1. Desenha o Fundo
-    if (stages != nullptr && stages[currentBG].background != nullptr)
-        stages[currentBG].background->Draw(window->CenterX(), window->CenterY(), Layer::BACK);
-
+    if (backg != nullptr && backg->Width() > 0)
+    {
+        float scale = window->Width() / backg->Width();
+        backg->Draw(window->CenterX(), window->CenterY(), Layer::BACK, scale);
+    }
     // 2. Desenha os Objetos da Cena
     scene->Draw();
-
-    // 2. MENSAGEM DE HP (Logo abaixo da principal)
-    if (player != nullptr && consolas != nullptr)
-    {
-        if (ghostAlive > 0)
-            DrawCentralMessage("DERROTE OS INIMIGOS",
-                Color(1.0f, 0.5f, 0.0f, 1.0f), -1.0f, 40.0f);
-        else if (!comeuItem)
-            DrawCentralMessage("ITEM DISPONIVEL! CONSUMA PARA SAIR",
-                Color(0.4f, 0.8f, 1.0f, 1.0f), -1.0f, 40.0f);
-        else
-            DrawCentralMessage("PORTAS ABERTAS!",
-                Color(0.2f, 1.0f, 0.2f, 1.0f), -1.0f, 40.0f);
-
-        DrawHeartHealth();
-
-        std::string stageStr = "ESTAGIO: " + std::to_string(currentBG + 1);
-        DrawCentralMessage(stageStr, Color(0.8f, 0.8f, 1.0f, 1.0f), -1.0f, 112.0f);
-    }
+    
     if (isOpening && transitionBlock) {
         float progress = openingTimer / 0.5f;
         if (progress > 1.0f) progress = 1.0f;
@@ -722,6 +807,10 @@ void LevelMake::Draw()
                 }
             }
         }
+    }
+    if (player->isDead) {
+        DrawCentralMessage("VOCE MORREU!", Color(1.0f, 0.0f, 0.0f, 1.0f), -1.0f, window->CenterY() - 20.0f);
+        DrawCentralMessage("APERTE 'R' PARA REINICIAR", Color(1.0f, 1.0f, 1.0f, 1.0f), -1.0f, window->CenterY() + 10.0f);
     }
 
     if (viewBBox) scene->DrawBBox();

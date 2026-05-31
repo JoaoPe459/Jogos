@@ -9,6 +9,7 @@
 #include "Enemy.h"
 #include <string>
 #include "Interactables.h"
+#include "Level2.h"
 
 void Player::UpdateOrbitalPositions() {
     int total = orbitals.size();
@@ -21,7 +22,7 @@ void Player::UpdateOrbitalPositions() {
 Player::Player() : Entity() {
     type = PLAYER;
     animation = new TileSet("Resources/Player/Rato2.png", 64, 64, 15, 30);
-    anim = new Animation(animation, 0.040f, true);  
+    anim = new Animation(animation, 0.130f, true);  
     
 
     // Primeira fileira anda para direita; segunda fileira anda para esquerda.
@@ -33,6 +34,7 @@ Player::Player() : Entity() {
     uint SeqLeftJump[1] = { 14 };
     uint SeqLeftDeath[9] = { 25,24,23,22,21,20,19,18,17 };
     uint SeqRightDeath[9] = { 5,6,7,8,9,10,11,12,13 };
+    uint Death[1] = { 16 };
 
     // A spritesheet nao tem animacao vertical, entao W/S reaproveitam a fileira da direita.
     anim->Add(JUMPLEFT, SeqLeftJump, 1);
@@ -41,8 +43,9 @@ Player::Player() : Entity() {
     anim->Add(WALKRIGHT, SeqRightWalk, 4);
     anim->Add(IDLELEFT, SeqLeftIdle, 1);
     anim->Add(IDLERIGHT, SeqRightIdle, 1);
-    anim->Add(DEATHLEFT, SeqRightIdle, 9);
-    anim->Add(DEATHRIGHT, SeqRightIdle, 9);
+    anim->Add(DEATHLEFT, SeqLeftDeath, 9);
+    anim->Add(DEATHRIGHT, SeqRightDeath, 9);
+    anim->Add(DEATH, Death, 1);
 
     state = IDLERIGHT;
     // Bounding box alinhada ao novo tamanho de quadro do rato.
@@ -62,47 +65,73 @@ Player::Player() : Entity() {
 
 void Player::OnCollision(Object* obj) {
 
+    if (isDead) {
+        return; 
+    }
+
     if (obj->Type() == WALL) {
         Block* block = (Block*)obj;
 
-        float playerBottom = this->Y() + 25.0f;
-        float prevBottom = prevY + 25.0f;
-        float blockTop = obj->Y() - (block->height * 0.5f);
+        float pLeft = this->X() - 17.0f;
+        float pRight = this->X() + 17.0f;
 
-        if (prevBottom <= blockTop &&
-            playerBottom >= blockTop &&
-            moves->getVelY() >= 0.0f) {
-            this->MoveTo(this->X(), blockTop - 26.0f);
-            moves->setVelY(0.0f);
-            moves->setOnGround(true);
-            return;
+        float bLeft = obj->X() - (block->width * 0.5f);
+        float bRight = obj->X() + (block->width * 0.5f);
+        float bTop = obj->Y() - (block->height * 0.5f);
+        float bBottom = obj->Y() + (block->height * 0.5f);
+
+        float prevBottom = prevY + 25.0f;
+        float prevTop = prevY - 25.0f;
+
+        if (prevBottom <= bTop + 16.0f && moves->getVelY() >= 0.0f) {
+            if (pRight > bLeft + 4.0f && pLeft < bRight - 4.0f) {
+                this->MoveTo(this->X(), bTop - 25.0f);
+                moves->setVelY(0.0f);
+                moves->setOnGround(true);
+                return;
+            }
         }
+
+        if (prevTop >= bBottom - 8.0f && moves->getVelY() < 0.0f) {
+            if (pRight > bLeft + 4.0f && pLeft < bRight - 4.0f) {
+                this->MoveTo(this->X(), bBottom + 25.1f);
+                moves->setVelY(0.0f);
+                return;
+            }
+        }
+
+        float overlapTop = (this->Y() + 25.0f) - bTop;
+        float overlapBottom = bBottom - (this->Y() - 25.0f);
+
+        if (overlapTop > 4.0f && overlapBottom > 4.0f) {
+            float overlapLeft = pRight - bLeft;
+            float overlapRight = bRight - pLeft;
+
+            if (overlapLeft < overlapRight) {
+                this->MoveTo(bLeft - 17.1f, this->Y());
+            }
+            else {
+                this->MoveTo(bRight + 17.1f, this->Y());
+            }
+            moves->setVelX(0.0f);
+        }
+
+        return;
     }
 
-    // Se não for o chão (ou se for o teto/parede lateral), roda a colisão normal
+   
     Entity::OnCollision(obj);
 
-    if (obj->Type() == TYPE_SPIKE) {
-        SetHp(0); // Rato morre na hora (Lógica Level Devil será customizada depois)
+    if (obj->Type() == TYPE_SPIKE || obj->Type() == KILLZONE) {
+        if (!isDead) { Die(); }
+        return;
     }
 
-    // BOTÃO
     else if (obj->Type() == TYPE_BUTTON) {
         ButtonObj* btn = (ButtonObj*)obj;
 
-        // Só aciona se não estiver pressionado e se o rato estiver caindo em cima dele
-        if (!btn->IsPressed() && moves->getVelY() >= 0) {
-            btn->Press(); // O sprite do botão afunda!
-
-            // Aqui futuramente chamaremos: LevelMake::AtivarEventoLevelDevil(btn->id);
-        }
-
-        // Força o Rato a pisar no botão como se fosse um degrau sólido
-        if (this->Y() < obj->Y() && moves->getVelY() >= 0) {
-            this->MoveTo(this->X(), obj->Y() - 32.0f);
-            moves->setVelY(0.0f);
-            moves->setOnGround(true);
-            return;
+        if (!btn->IsPressed()) {
+            btn->Press();
         }
     }
 
@@ -213,9 +242,39 @@ void Player::OnCollision(Object* obj) {
     }
 }
 
+void Player::Die() {
+    if (isDead) return;
+    isDead = true;
+    deathTimer = 1.5f; 
+    SetHp(100);
 
+    moves->setVelX(0.0f);
+    moves->setVelY(-600.0f);  
+    moves->setOnGround(false);
+
+    
+
+    if (state == WALKLEFT || state == IDLELEFT || state == JUMPLEFT)
+        state = DEATHLEFT;
+    else
+        state = DEATHRIGHT;
+}
 
 void Player::Control() {
+    if (isDead) {
+        moves->setVelX(0.0f); 
+
+        static float frameTimer = 0.0f;
+        frameTimer += gameTime;
+        anim->Select(state);
+
+        if (frameTimer >= 0.01f) {
+            anim->NextFrame();
+            frameTimer = 0.0f;
+        }
+
+        return;
+    }
     float baseSpeed = moves->getSpeed() - (sizeLevel * 10.0f);
     float accelerationRate = 4.0f;
 
@@ -241,7 +300,7 @@ void Player::Control() {
     }
 
     // --- 2. LÓGICA VERTICAL (Pulo) ---
-    if (window->KeyDown('W') && moves->getOnGround()) {
+    if (window->KeyPress('W') && moves->getOnGround()) {
         moves->Up();
         moves->setOnGround(false);
 
@@ -252,8 +311,6 @@ void Player::Control() {
     anim->Select(state);
     anim->NextFrame();
 
-    anim->Select(state);
-    anim->NextFrame();
 
     // --- 3. APLICAÇÃO DA INÉRCIA HORIZONTAL ---
     float currentVX = moves->getVelX();
@@ -318,7 +375,28 @@ void Player::Draw()
 void Player::Update() {
     prevY = Y();
     Entity::Update();
+    
+
+    if (isDead) {
+        deathTimer -= gameTime;  // ← aqui, 1x por frame
+
+        moves->setVelX(0.0f);
+
+        static float frameTimer = 0.0f;
+        frameTimer += gameTime;
+        anim->Select(state);
+        if (frameTimer >= 0.009f) {
+            anim->NextFrame();
+            frameTimer = 0.0f;
+        }
+
+        if (deathTimer <= 1.0f)
+            state = DEATH;
+
+        return;
+    }
     Control();
+    moves->setOnGround(false);
 }
 
 

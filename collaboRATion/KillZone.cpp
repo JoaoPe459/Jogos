@@ -29,8 +29,7 @@ void KillZone::Update()
 
 void KillZone::Draw()
 {
-    // Zona invisível — sem sprite.
-    // Para debug ligue viewBBox no LevelMake (tecla B).
+    
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -41,20 +40,8 @@ void KillZone::OnCollision(Object* obj)
 
     Player* p = static_cast<Player*>(obj);
 
-    if (lethal)
+    if (lethal && !p->isDead)
     {
-        // Morte instantânea
-        p->SetHp(0);
-    }
-    else
-    {
-        // Dano por tick — o gameTime vem do Object base
-        tickTimer += gameTime;
-        if (tickTimer >= tickInterval)
-        {
-            tickTimer = 0.0f;
-            int newHp = p->GetHp() - damage;
-            p->SetHp(newHp < 0 ? 0 : newHp);
-        }
+        p->Die();
     }
 }

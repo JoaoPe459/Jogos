@@ -15,8 +15,9 @@
 class Spike : public Object {
 private:
     Sprite* spr;
+    bool invertido = false;
 public:
-    Spike(float px, float py, const std::string& tex);
+    Spike(float px, float py, const std::string& tex, bool invertido = false);;
     ~Spike();
     void Update() override;
     void Draw() override;

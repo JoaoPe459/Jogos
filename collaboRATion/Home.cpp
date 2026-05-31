@@ -40,7 +40,7 @@ void Home::Update()
     
     // passa ao primeiro nível com ENTER
     //if (window->KeyPress(VK_RETURN))
-    Engine::Next<LevelEditor>();
+    Engine::Next<LevelSelect>();
 }
 
 // ------------------------------------------------------------------------------

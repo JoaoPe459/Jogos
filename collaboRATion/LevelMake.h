@@ -33,6 +33,7 @@
 #include "Enemy.h"
 #include "EndGame.h"
 #include "KillZone.h"
+#include "Interactables.h"
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Estruturas de configuração de portais
@@ -94,6 +95,21 @@ struct CountdownData {
     float seconds;
     bool  active = true;
 };
+struct Waypoint { float x, y; };
+
+struct PathData {
+    std::string wallId;
+    float speed;              // Velocidade controlável
+    int triggerMode;          // 0=Distância, 1=Pisar, 2=Botão
+    std::string triggerParam; // Valor da distância OU o ID do Botão
+    bool isLoop;
+    std::vector<Waypoint> pts;
+    int currentPt = 1;
+    int dir = 1;
+    bool active = false;
+};
+
+struct TriggerZone { float x, y, w, h; };
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -118,7 +134,7 @@ protected:
 
     StageConfig* stages   = nullptr;
     int          bgCount  = 0;
-    int          currentBG = 0;
+    
 
     Entity** activePortals     = nullptr;
     int      activePortalCount = 0;
@@ -134,6 +150,7 @@ protected:
     // ── Walls/KillZones criadas pelo parser (indexadas por id) ───
     std::map<std::string, Wall*>      parsedWalls;
     std::map<std::string, KillZone*>  parsedKillZones;
+    std::map<std::string, Object*>    parsedObjects;
 
     // ── Dados de mecânicas do parser ─────────────────────────────
     std::vector<SpikeData>    parsedSpikes;
@@ -151,6 +168,10 @@ protected:
     std::vector<float> platformPhases;
     std::vector<float> fallingTimers;
     std::vector<bool>  fallingDone;
+    std::vector<PathData> parsedPaths;
+
+    std::map<std::string, ButtonObj*> parsedButtons;
+    std::map<std::string, TriggerZone> parsedTriggers;
 
     // ── Leitura de nível ──────────────────────────────────────────
     void LoadLevel(std::string path);
@@ -203,6 +224,8 @@ public:
     float PortalRotation(float x, float y) const;
     float PortalX(float x) const;
     float PortalY(float y) const;
+    int   currentBG = 0;
+    float deathFade = 0.0f;
 
     // ── HUD ───────────────────────────────────────────────────────
     void DrawCentralMessage(const std::string& text, Color color, float x, float y);

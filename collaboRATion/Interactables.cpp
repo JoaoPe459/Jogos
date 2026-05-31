@@ -1,16 +1,33 @@
 #include "Interactables.h"
 
 // ─── ESPINHO ─────────────────────────────────────────────
-Spike::Spike(float px, float py, const std::string& tex) {
+Spike::Spike(float px, float py, const std::string& tex, bool inv) {
     type = TYPE_SPIKE;
+    invertido = inv; // <--- GUARDA O VALOR AQUI!
+
     spr = new Sprite(tex.c_str());
     MoveTo(px, py);
-    // Hitbox mortal um pouco menor que a imagem para ser justo com o jogador
-    BBox(new Rect(-12, -12, 12, 12));
+
+    if (invertido) {
+        BBox(new Rect(-16.0f, -16.0f, 16.0f, -2.0f));
+    }
+    else {
+        BBox(new Rect(-16.0f, 2.0f, 16.0f, 16.0f));
+    }
 }
 Spike::~Spike() { delete spr; }
 void Spike::Update() {}
-void Spike::Draw() { spr->Draw(x, y, Layer::MIDDLE); }
+void Spike::Draw() {
+    if (spr) {
+        // Usa a variável 'invertido' em vez do TYPE_SPIKE_INV!
+        float drawX = std::round(x);
+        float drawY = std::round(y);
+        
+        // Arredonda para matar a linha preta (Sub-pixel tearing)
+
+        spr->Draw(drawX, drawY, Layer::MIDDLE);
+    }
+}
 
 
 // ─── BOTÃO ───────────────────────────────────────────────
@@ -29,7 +46,7 @@ ButtonObj::ButtonObj(float px, float py, const std::string& id) : id(id), presse
     anim->Select(0); // Começa não pressionado
 
     MoveTo(px, py);
-    BBox(new Rect(-14, -8, 14, 8)); // Hitbox achatada
+    BBox(new Rect(-14, -16, 14, 8));
 }
 ButtonObj::~ButtonObj() { delete anim; delete tileset; }
 void ButtonObj::Update() { anim->NextFrame(); }
@@ -48,11 +65,11 @@ Door::Door(float px, float py, const std::string& tex) {
     type = TYPE_DOOR;
     spr = new Sprite(tex.c_str());
     MoveTo(px, py);
-    BBox(new Rect(-16, -32, 16, 32)); // Hitbox alta
+    BBox(new Rect(-16, -22, 16, 32)); // Hitbox alta
 }
 Door::~Door() { delete spr; }
 void Door::Update() {}
-void Door::Draw() { spr->Draw(x, y, Layer::BACK); } // Porta fica atrás do rato
+void Door::Draw() { spr->Draw(x, y, Layer::BACK); }
 
 DecoObj::DecoObj(float px, float py, const std::string& tex) {
     type = 999; // Tipo neutro, engine ignora reações

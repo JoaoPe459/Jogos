@@ -18,6 +18,8 @@ private:
     float attackTimer = 0.0f;
     float attackCooldown = 0.3f;
     float prevY = 0.0f;
+    
+    float deathTimer = 1.0f;
     std::vector<Attack*> orbitals;
     void UpdateOrbitalPositions(); // Auxiliar para reorganizar
 
@@ -29,9 +31,11 @@ public:
     void Draw() override;
     void Update();
     void OnCollision(Object* obj) override;
+    void Die();
 
     int totalDamageDealt = 0;
     int totalLevelsVisited = 0;
+    bool isDead = false;
 
 };
 

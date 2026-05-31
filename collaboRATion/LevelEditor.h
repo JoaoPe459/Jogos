@@ -9,8 +9,10 @@
 
 enum class EType {
     WALL, RECT2, KILLZONE, SPAWN,
-    BOLA, ESPINHO, BOTAO, PORTA,
+    BOLA, ESPINHO,ESPINHO_INV, BOTAO, PORTA,
     DECO_BLOCK, DECO_RECT2,
+    PLATFORM_TOOL, FALLING_TOOL,
+    TRIGGER_TOOL,
     _COUNT
 };
 
@@ -18,9 +20,18 @@ struct EditorObj {
     EType type;
     float x = 0, y = 0;
     std::string id;
-
-    // Agora guardamos uma lista de Manequins visuais (necessário porque o RECT2 usa 6 blocos)
+    float w = 32.0f;
+    float h = 32.0f;
     std::vector<Object*> visuals;
+};
+struct EdWaypoint { float x, y; };
+struct EditorPath {
+    std::string wallId;
+    std::vector<EdWaypoint> nodes;
+    bool isLoop = false;
+    float speed = 150.0f;
+    int triggerMode = 1;
+    std::string triggerParam = "0";
 };
 
 class LevelEditor : public Game {
@@ -45,7 +56,11 @@ private:
     const char* GetTypeName(EType t) const;
     Sprite* decoSprite = nullptr;
 
+    std::vector<EditorPath> customPaths;
+    int currentEditingPath = -1;
+
 public:
+    void LoadProject(std::string path);
     void Init() override;
     void Update() override;
     void Draw() override;

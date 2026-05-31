@@ -2,6 +2,7 @@
 #include "Engine.h"
 #include "LevelMake.h" // Para carregar a fase depois
 #include "Level2.h"
+#include "LevelEditor.h"
 
 void LevelSelect::Init() {
     scene = new Scene();
@@ -50,8 +51,8 @@ void LevelSelect::Update() {
         if (transitionTimer >= 0.5f) {
             switch (targetLevel) {
             case 1: Engine::Next<Level2>(); return;
-            case 2: Engine::Next<Level2>(); return;
-            case 3: return;
+            case 2: Engine::Next<LevelEditor>(); return;
+            case 3: Engine::Next<Level2>(); return;
             case 4: return;
             }
         }
@@ -116,11 +117,11 @@ void LevelSelect::Draw() {
 
 void LevelSelect::Finalize() {
     delete backg;
-    delete scene;
+    delete scene;         
     if (blackBlock) delete blackBlock;
     if (transitionBlock) {
         delete transitionBlock;
         transitionBlock = nullptr;
     }
-    doors.clear();
+    doors.clear();         
 }
