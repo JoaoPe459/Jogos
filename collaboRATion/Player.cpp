@@ -58,12 +58,7 @@ void Player::OnCollision(Object* obj) {
     }
     else if (obj->Type() == TYPE_DOOR) {
 
-        LevelMake::avancarFase = true;
-        if (LevelMake::nivelDesbloqueado < 4)
-        {
-            LevelMake::nivelDesbloqueado++;
-        }
-        
+        LevelMake::avancarFase = true;        
         //this->MoveTo(-9999.0f, -9999.0f);
         moves->setVelX(0.0f);
         moves->setVelY(0.0f);
