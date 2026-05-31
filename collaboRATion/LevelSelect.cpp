@@ -55,6 +55,7 @@ void LevelSelect::Init()
     MapDoor* fase4 = new MapDoor(936, 386, 4);
     scene->Add(fase4, STATIC);
     doors.push_back(fase4);
+    LevelMake::CarregarProgresso();
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -81,38 +82,51 @@ void LevelSelect::Update()
             case 1:
                 LevelMake::mapasDoNivel = {
                     "Resources/Mundo1_Fase1.txt",
-                    "Resources/Mundo1_Fase2.txt",
-                    "Resources/Mundo1_Fase3.txt",
-                    "Resources/Mundo1_Fase4.txt"
+                    "Resources/Mundo1_Fase1.txt",
+                    "Resources/Mundo1_Fase1.txt",
+                    "Resources/Mundo1_Fase1.txt",
                 };
                 LevelMake::faseAtual = 0;
+                LevelMake::nivelDesbloqueado++;
                 Engine::Next<Level2>();
                 return;
 
             case 2:
                 //Engine::Next<LevelEditor>();
                 LevelMake::mapasDoNivel = {
-                    "Resources/Mundo2_Fase1.txt",
-                    "Resources/Mundo2_Fase2.txt",
-                    "Resources/Mundo2_Fase3.txt",
-                    "Resources/Mundo2_Fase4.txt"
+                    "Resources/Mundo1_Fase1.txt",
+                    "Resources/Mundo1_Fase1.txt",
+                    "Resources/Mundo1_Fase1.txt",
+                    "Resources/Mundo1_Fase1.txt",
                 };
                 LevelMake::faseAtual = 0;
+                LevelMake::nivelDesbloqueado++;
                 Engine::Next<Level2>();
                 return;
 
             case 3:
                 LevelMake::mapasDoNivel = {
-                    "Resources/Mundo3_Fase1.txt",
-                    "Resources/Mundo3_Fase2.txt",
-                    "Resources/Mundo3_Fase3.txt",
-                    "Resources/Mundo3_Fase4.txt"
+                    "Resources/Mundo1_Fase1.txt",
+                    "Resources/Mundo1_Fase1.txt",
+                    "Resources/Mundo1_Fase1.txt",
+                    "Resources/Mundo1_Fase1.txt",
                 };
                 LevelMake::faseAtual = 0;
+                LevelMake::nivelDesbloqueado++;
                 Engine::Next<Level2>();
                 return;
 
             case 4:
+                LevelMake::faseAtual = 0;
+                LevelMake::nivelDesbloqueado++;
+                Engine::Next<Level2>();
+                // ── ZERA O SAVE E FINALIZA O JOGO ────────────────────────────
+                LevelMake::nivelDesbloqueado = 0; // Reseta a variável de progresso
+                LevelMake::faseAtual = 0;
+                LevelMake::SalvarProgresso();     // Sobrescreve o arquivo de save com o progresso zerado
+
+                // Opção A: Ir para uma tela de fim de jogo (Descomente se tiver a classe)
+                // Engine::Next<EndGame>();
                 return; // Ainda não implementado
             }
         }

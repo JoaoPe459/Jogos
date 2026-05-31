@@ -9,7 +9,6 @@
 void Level2::Init()
 {
     LevelMake::Init(600.0f, 0, 0, "Resources/Level2.jpg");
-    CarregarProgresso();
 
     if (!LevelMake::mapasDoNivel.empty() && LevelMake::faseAtual < (int)LevelMake::mapasDoNivel.size())
     {
@@ -68,13 +67,7 @@ void Level2::Update()
                 if (pos != std::string::npos && pos + 5 < primeiro.size())
                     mundoAtual = primeiro[pos + 5] - '0'; // '1','2','3'...
             }
-
-            // Só avança o desbloqueio se este mundo ainda não tinha sido concluído
-            if (mundoAtual > 0 && LevelMake::nivelDesbloqueado < mundoAtual)
-            {
-                LevelMake::nivelDesbloqueado = mundoAtual;
-                
-            }
+  
             LevelMake::SalvarProgresso();
             Engine::Next<LevelSelect>();
         }
