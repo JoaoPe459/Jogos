@@ -854,7 +854,7 @@ void LevelMake::Draw()
         float posX = window->Width() - 30.0f;
         float posY = 40.0f;
 
-        terminal->Draw(posX, posY, textoMortes, Color(0.0f, 0.0f, 0.0f, 1.0f), Layer::FRONT,1);
+        terminal->Draw(posX, posY, textoMortes, Color(0.0f, 0.0f, 0.0f, 1.0f), Layer::FRONT,1);    
     }
 
     // 2. Desenha os Objetos da Cena

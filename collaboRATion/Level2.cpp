@@ -1,5 +1,6 @@
 #include "Engine.h"
 #include "Home.h"
+#include "Level1.h"
 #include "Level2.h"
 #include "LevelSelect.h"
 
@@ -27,7 +28,7 @@ void Level2::Update()
 {
     if (window->KeyPress(VK_ESCAPE))
     {
-        Engine::Next<Home>();
+        Engine::Next<LevelSelect>();
         return;
     }
 
@@ -69,7 +70,7 @@ void Level2::Update()
             }
             LevelMake::SalvarProgresso();
             if (LevelMake::nivelDesbloqueado == 4) {
-				Engine::Next<EndGame>();
+                Engine::Next<EndGame>();
                 return;
             }
             Engine::Next<LevelSelect>();

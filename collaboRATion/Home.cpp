@@ -21,6 +21,7 @@
 void Home::Init()
 {
     backg = new Sprite("Resources/TitleScreen.jpg");
+
 }
 
 // ------------------------------------------------------------------------------
@@ -40,7 +41,7 @@ void Home::Update()
     
     // passa ao primeiro nível com ENTER
     //if (window->KeyPress(VK_RETURN))
-    Engine::Next<LevelSelect>();
+    Engine::Next<Level1>();
 }
 
 // ------------------------------------------------------------------------------

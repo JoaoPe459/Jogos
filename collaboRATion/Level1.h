@@ -25,7 +25,7 @@ private:
 public:
     void Init();                    // inicializa jogo
     void Update() override;                  // atualiza lógica do jogo
-    //void Draw();                    // desenha jogo
+    void Draw() override;                    // desenha jogo
     //void Finalize() override;                // finaliza jogo
 };
 
