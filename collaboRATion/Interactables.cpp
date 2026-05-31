@@ -68,7 +68,7 @@ Door::Door(float px, float py, const std::string& tex) {
     BBox(new Rect(-16, -22, 16, 32)); // Hitbox alta
 }
 Door::~Door() { delete spr; }
-void Door::Update() {}
+void Door::Update() { if (ativada) return; }
 void Door::Draw() { spr->Draw(x, y, Layer::BACK); }
 
 DecoObj::DecoObj(float px, float py, const std::string& tex) {

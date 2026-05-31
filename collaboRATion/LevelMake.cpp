@@ -30,6 +30,7 @@ std::vector<std::string> LevelMake::mapasDoNivel = {};
 int LevelMake::faseAtual = 0;
 bool LevelMake::avancarFase = false;
 Audio* LevelMake::audioEngine = nullptr;
+int  LevelMake::nivelDesbloqueado = 0;
 
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -690,39 +691,7 @@ void LevelMake::DrawCentralMessage(const std::string& text,
     consolas->Draw(finalX, y, text, color);
 }
 
-void LevelMake::DrawHeartHealth()
-{
-    if (player == nullptr || heartSprite == nullptr) return;
 
-    const int heartCount = 10;
-    const int maxHp      = player->GetMaxHp();
-    int       hp         = player->GetHp();
-    if (hp < 0) hp = 0;
-
-    int filledHearts = 0;
-    if (maxHp > 0 && hp > 0)
-        filledHearts = (hp * heartCount + maxHp - 1) / maxHp;
-    if (filledHearts > heartCount) filledHearts = heartCount;
-
-    const float scale      = 2.0f;
-    const float spacing    = 6.0f;
-    const float heartWidth = heartSprite->Width() * scale;
-    const float totalWidth = (heartWidth * heartCount)
-                           + (spacing * (heartCount - 1));
-    const float startX     = window->CenterX() - (totalWidth / 2.0f)
-                           + (heartWidth / 2.0f);
-    const float y          = 72.0f;
-
-    for (int i = 0; i < heartCount; i++)
-    {
-        const bool  filled = i < filledHearts;
-        const Color color  = filled
-            ? Color(1.0f, 1.0f, 1.0f, 1.0f)
-            : Color(0.2f, 0.2f, 0.2f, 0.35f);
-        heartSprite->Draw(startX + i * (heartWidth + spacing),
-                          y, Layer::FRONT, scale, 0.0f, color);
-    }
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Init
@@ -781,6 +750,8 @@ void LevelMake::Init(float gravity, int maxFood, int maxGhost, string levelBackg
     // 4. Cria o jogador
     player = new Player();
     scene->Add(player, MOVING);
+
+    CarregarProgresso();
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -857,7 +828,6 @@ void LevelMake::Update()
     }
     scene->Update();
     scene->CollisionDetection();
-    UpdateStageTransition(gameTime);
     UpdateParsedMechanics();
     totalPlayTime += gameTime;
 
@@ -927,139 +897,22 @@ void LevelMake::Draw()
 }
 
 
-// ─────────────────────────────────────────────────────────────────────────────
-// SetStage / ChangeBackground
-// ─────────────────────────────────────────────────────────────────────────────
-
-void LevelMake::SetStage(int index)
+void LevelMake::SalvarProgresso()
 {
-    if (index < 0 || index >= bgCount || stages == nullptr) return;
-
-    ClearActivePortals();
-    currentBG = index;
-
-    if (player != nullptr && player->totalLevelsVisited == 0)
-        player->MoveTo(stages[currentBG].spawnX, stages[currentBG].spawnY);
-
-    if (!stages[currentBG].visited)
+    std::ofstream f("save.txt");
+    if (f.is_open())
     {
-        ghostAlive = MAX_GHOSTS;
-        CreateClosedDoorsForCurrentStage();
-    }
-    else
-    {
-        CreatePortalsForCurrentStage();
+        f << nivelDesbloqueado;
+        f.close();
     }
 }
 
-void LevelMake::ChangeBackground(int index)
+void LevelMake::CarregarProgresso()
 {
-    if (index >= 0 && index < bgCount) currentBG = index;
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Spawn helpers
-// ─────────────────────────────────────────────────────────────────────────────
-
-float LevelMake::GetSpawnX(int index) const
-{
-    if (index < 0 || index >= bgCount) return 0.0f;
-    return stages[index].spawnX;
-}
-
-float LevelMake::GetSpawnY(int index) const
-{
-    if (index < 0 || index >= bgCount) return 0.0f;
-    return stages[index].spawnY;
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Portais
-// ─────────────────────────────────────────────────────────────────────────────
-
-void LevelMake::UpdateStageTransition(float dt)
-{
-    if (changingStage)
+    std::ifstream f("save.txt");
+    if (f.is_open())
     {
-        changeCooldown -= dt;
-        if (changeCooldown <= 0.0f) changingStage = false;
+        f >> nivelDesbloqueado;
+        f.close();
     }
-}
-
-void LevelMake::CreatePortalsForCurrentStage()
-{
-    ClearActivePortals();
-    activePortalCount = stages[currentBG].portalCount;
-    if (activePortalCount > 0)
-    {
-        activePortals = new Entity*[activePortalCount];
-        for (int i = 0; i < activePortalCount; i++)
-        {
-            PortalData& data = stages[currentBG].portals[i];
-            Portal* p = new Portal(PortalX(data.x), PortalY(data.y),
-                                   data.targetBG, true,
-                                   PortalRotation(data.x, data.y));
-            activePortals[i] = p;
-            scene->Add(p, STATIC);
-        }
-    }
-}
-
-void LevelMake::CreateClosedDoorsForCurrentStage()
-{
-    ClearActivePortals();
-    activePortalCount = stages[currentBG].portalCount;
-    if (activePortalCount > 0)
-    {
-        activePortals = new Entity*[activePortalCount];
-        for (int i = 0; i < activePortalCount; i++)
-        {
-            PortalData& data = stages[currentBG].portals[i];
-            Portal* p = new Portal(PortalX(data.x), PortalY(data.y),
-                                   data.targetBG, false,
-                                   PortalRotation(data.x, data.y));
-            activePortals[i] = p;
-            scene->Add(p, STATIC);
-        }
-    }
-}
-
-void LevelMake::ClearActivePortals()
-{
-    if (activePortals == nullptr) return;
-    for (int i = 0; i < activePortalCount; i++)
-    {
-        if (activePortals[i] != nullptr)
-        {
-            static_cast<Entity*>(activePortals[i])->SetAlive(false);
-            scene->Delete(activePortals[i], STATIC);
-        }
-    }
-    delete[] activePortals;
-    activePortals     = nullptr;
-    activePortalCount = 0;
-}
-
-float LevelMake::PortalRotation(float x, float y) const
-{
-    const float pi = 3.14159265f;
-    if (y < 100.0f)                      return 0.0f;
-    if (y > window->Height() - 100.0f)  return pi;
-    if (x < 100.0f)                      return -pi / 2.0f;
-    if (x > window->Width()  - 100.0f)  return  pi / 2.0f;
-    return 0.0f;
-}
-
-float LevelMake::PortalX(float x) const
-{
-    if (x < 100.0f)                     return 150;
-    if (x > window->Width() - 100.0f)  return 1150;
-    return x;
-}
-
-float LevelMake::PortalY(float y) const
-{
-    if (y < 100.0f)                      return 100;
-    if (y > window->Height() - 100.0f)  return 690;
-    return y;
 }

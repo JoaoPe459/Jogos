@@ -9,12 +9,14 @@
 void Level2::Init()
 {
     LevelMake::Init(600.0f, 0, 0, "Resources/Level2.jpg");
+    CarregarProgresso();
 
-    if (!LevelMake::mapasDoNivel.empty() && LevelMake::faseAtual < LevelMake::mapasDoNivel.size()) {
-
+    if (!LevelMake::mapasDoNivel.empty() && LevelMake::faseAtual < (int)LevelMake::mapasDoNivel.size())
+    {
         LoadLevel2(LevelMake::mapasDoNivel[LevelMake::faseAtual]);
     }
-    else {
+    else
+    {
         LoadLevel2("Resources/Level_Editor_Output.txt");
     }
 }
@@ -50,15 +52,35 @@ void Level2::Update()
 
     LevelMake::Update();
 
-    if (LevelMake::avancarFase) {
-        LevelMake::avancarFase = false; 
+    if (LevelMake::avancarFase)
+    {
+        LevelMake::avancarFase = false;
         LevelMake::faseAtual++;
 
-        if (LevelMake::faseAtual >= LevelMake::mapasDoNivel.size()) {
+        if (LevelMake::faseAtual >= (int)LevelMake::mapasDoNivel.size())
+        {
+            int mundoAtual = 0;
+            if (!LevelMake::mapasDoNivel.empty())
+            {
+                const std::string& primeiro = LevelMake::mapasDoNivel[0];
+                // Procura "Mundo" seguido de dígito no caminho
+                size_t pos = primeiro.find("Mundo");
+                if (pos != std::string::npos && pos + 5 < primeiro.size())
+                    mundoAtual = primeiro[pos + 5] - '0'; // '1','2','3'...
+            }
+
+            // Só avança o desbloqueio se este mundo ainda não tinha sido concluído
+            if (mundoAtual > 0 && LevelMake::nivelDesbloqueado < mundoAtual)
+            {
+                LevelMake::nivelDesbloqueado = mundoAtual;
+                
+            }
+            LevelMake::SalvarProgresso();
             Engine::Next<LevelSelect>();
         }
-        else {
-            Engine::Next<Level2>(); 
+        else
+        {
+            Engine::Next<Level2>();
         }
     }
 }

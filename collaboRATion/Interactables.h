@@ -44,6 +44,7 @@ public:
 class Door : public Object {
 private:
     Sprite* spr;
+    bool ativada = false;
 public:
     Door(float px, float py, const std::string& tex);
     ~Door();

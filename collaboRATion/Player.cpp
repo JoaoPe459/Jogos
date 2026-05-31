@@ -139,43 +139,6 @@ void Player::OnCollision(Object* obj) {
             btn->Press();
         }
     }
-
-    if (obj->Type() == PORTAL) {
-        Portal* p = (Portal*)obj;
-        LevelMake* lvl = static_cast<LevelMake*>(Engine::game);
-        if (lvl && !lvl->IsChangingStage()) {
-            lvl->BeginStageChange();
-
-            int nextStage = p->targetBG;
-
-            // Ponto padrao seguro: centro do chao jogavel.
-            float newX = (PlayArea::Left + PlayArea::Right) / 2.0f;
-            float newY = (PlayArea::Top + PlayArea::Bottom) / 2.0f;
-
-
-            // Ao atravessar um portal, nasce do lado oposto ja dentro do piso.
-            if (p->Y() <= PlayArea::Top + 40.0f) {          // Portal no Topo
-                newX = p->X();
-                newY = PlayArea::Bottom - PlayArea::SpawnMargin;
-            }
-            else if (p->Y() >= PlayArea::Bottom - 40.0f) {     // Portal na Base
-                newX = p->X();
-                newY = PlayArea::Top + PlayArea::SpawnMargin;
-            }
-            else if (p->X() <= PlayArea::Left + 40.0f) {     // Portal na Esquerda
-                newX = PlayArea::Right - PlayArea::SpawnMargin;
-                newY = p->Y();
-            }
-            else if (p->X() >= PlayArea::Right - 40.0f) {    // Portal na Direita
-                newX = PlayArea::Left + PlayArea::SpawnMargin;
-                newY = p->Y();
-            }
-
-            this->MoveTo(newX, newY);
-            lvl->SetStage(nextStage);
-            lvl->SetStageChangeCooldown(0.2f);
-        }
-    }
 }
 
 void Player::Die() {

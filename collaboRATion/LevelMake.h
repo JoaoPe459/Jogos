@@ -105,7 +105,6 @@ struct PathData {
     int dir = 1;
     bool active = false;
 };
-
 struct TriggerZone { float x = 0.0f, y = 0.0f, w = 0.0f, h = 0.0f; };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -185,6 +184,7 @@ protected:
     // Atualiza todas as mecânicas carregadas pelo parser
     void UpdateParsedMechanics();
 
+   
 public:
     // ── Ciclo do jogo ─────────────────────────────────────────────
     void Init() {};
@@ -202,24 +202,16 @@ public:
     static void ToggleGravity() { Physics::Invert(); }
     static float GetGravity() { return Physics::GetGravity(); }
 
-    // ── Sistema de stage ──────────────────────────────────────────
-    void  ChangeBackground(int index);
-    void  SetStage(int index);
-    float GetSpawnX(int index) const;
-    float GetSpawnY(int index) const;
+   
 
     // ── Controle de portal ────────────────────────────────────────
     bool IsChangingStage()  const { return changingStage; }
     void BeginStageChange() { changingStage = true; }
     void SetStageChangeCooldown(float time) { changeCooldown = time; }
-    void UpdateStageTransition(float dt);
     int  GetCurrentStage()  const { return currentBG; }
-    void CreatePortalsForCurrentStage();
-    void CreateClosedDoorsForCurrentStage();
-    void ClearActivePortals();
-    float PortalRotation(float x, float y) const;
-    float PortalX(float x) const;
-    float PortalY(float y) const;
+
+    static void SalvarProgresso();
+    static void CarregarProgresso();
 
 
     int   currentBG = 0;
@@ -232,12 +224,12 @@ public:
     static std::vector<std::string> mapasDoNivel;
     static int faseAtual;
     static bool avancarFase;
+    static int nivelDesbloqueado;
     static Audio* audioEngine; // Acesso global ao sistema de áudio
     enum SoundIDs { JUMP_ID, DEATH_ID, BUTTON_ID, TOC_ID, GAME_SOUND_ID, WALK_ID, GRAVITY_ID };
 
     // ── HUD ───────────────────────────────────────────────────────
     void DrawCentralMessage(const std::string& text, Color color, float x, float y);
-    void DrawHeartHealth();
 
     // ── Estatísticas ──────────────────────────────────────────────
     int   ghostAlive = 0;
