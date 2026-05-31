@@ -246,9 +246,6 @@ void LevelMake::LoadLevel2(const std::string& path)
             TriggerZone tz; std::string id;
             ss >> id >> tz.x >> tz.y >> tz.w >> tz.h;
 
-            // Corrige o eixo X e Y para representarem o centro exato da grande área
-            tz.x = tz.x + (tz.w / 2.0f) - 16.0f;
-            tz.y = tz.y + (tz.h / 2.0f) - 16.0f;
             parsedTriggers[id] = tz;
         }
         else if (key == "MOD_INVERT_CONTROLS") {
@@ -511,17 +508,29 @@ void LevelMake::UpdateParsedMechanics()
     for (auto& pd : parsedPaths)
     {
         Object* objMovel = nullptr;
+        TriggerZone* trigMovel = nullptr;
 
-        // 1. Procura o objeto na LISTA UNIVERSAL (Acha Paredes, Portas, Espinhos, Zonas de Morte...)
+        // 1. Procura o objeto na LISTA DE FÍSICA (Paredes, Portas, Espinhos...)
         auto itObj = parsedObjects.find(pd.wallId);
         if (itObj != parsedObjects.end()) {
             objMovel = itObj->second;
         }
+        else {
+            // 2. Se não achou na física, procura na LISTA DE GATILHOS INVISÍVEIS!
+            auto itTrig = parsedTriggers.find(pd.wallId);
+            if (itTrig != parsedTriggers.end()) {
+                trigMovel = &itTrig->second;
+            }
+        }
 
-        // Se não achou o objeto de todo, salta para o próximo caminho
-        if (!objMovel) continue;
+        // Se não achou em nenhuma das duas listas, salta para o próximo caminho
+        if (!objMovel && !trigMovel) continue;
 
-        // --- VERIFICA OS GATILHOS PARA ACORDAR A PLATAFORMA/ESPINHO ---
+        // Guarda a posição atual (seja de um objeto físico ou de um gatilho)
+        float curX = objMovel ? objMovel->X() : trigMovel->x;
+        float curY = objMovel ? objMovel->Y() : trigMovel->y;
+
+        // --- VERIFICA OS GATILHOS PARA ACORDAR A PLATAFORMA/ESPINHO/GATILHO ---
         if (!pd.active) {
             if (pd.triggerMode == 0) {
                 // MODO 0: DISTÂNCIA
@@ -530,31 +539,46 @@ void LevelMake::UpdateParsedMechanics()
                     pd.active = true;
                 }
                 else {
-                    float dx = player->X() - objMovel->X();
-                    float dy = player->Y() - objMovel->Y();
+                    float dx = player->X() - curX;
+                    float dy = player->Y() - curY;
                     if (sqrtf(dx * dx + dy * dy) <= distToTrigger) pd.active = true;
                 }
             }
             else if (pd.triggerMode == 1) {
-                // MODO 1: AO PISAR
-                if (scene->Collision(player, objMovel) && player->Y() < objMovel->Y()) {
-                    pd.active = true;
+                    if (objMovel) {
+                        if (scene->Collision(player, objMovel) && player->Y() < objMovel->Y()) {
+                            pd.active = true;
+                        }
+                    else if (trigMovel) {
+                        // Calcula as 4 paredes invisíveis do Gatilho
+                        float left = trigMovel->x - 16.0f;
+                        float right = left + trigMovel->w;
+                        float top = trigMovel->y - 16.0f;
+                        float bottom = top + trigMovel->h;
+
+                        // Se o Rato estiver dentro desta "caixa", ativa!
+                        if (player->X() >= left && player->X() <= right &&
+                            player->Y() >= top && player->Y() <= bottom) {
+                            pd.active = true;
+                        }
+                    }
                 }
             }
             else if (pd.triggerMode == 2) {
-                // MODO 2: GATILHO (ÁREA INVISÍVEL) OU BOTÃO
                 auto itTrig = parsedTriggers.find(pd.triggerParam);
                 if (itTrig != parsedTriggers.end()) {
-                    float px = player->X();
-                    float py = player->Y();
-                    // Verifica se o jogador entrou na Área de Gatilho
-                    if (std::abs(px - itTrig->second.x) < itTrig->second.w / 2.0f &&
-                        std::abs(py - itTrig->second.y) < itTrig->second.h / 2.0f) {
+
+                    float left = itTrig->second.x - 16.0f;
+                    float right = left + itTrig->second.w;
+                    float top = itTrig->second.y - 16.0f;
+                    float bottom = top + itTrig->second.h;
+
+                    if (player->X() >= left && player->X() <= right &&
+                        player->Y() >= top && player->Y() <= bottom) {
                         pd.active = true;
                     }
                 }
                 else {
-                    // Se não era Trigger, tenta ver se é Botão
                     auto itBtn = parsedButtons.find(pd.triggerParam);
                     if (itBtn != parsedButtons.end()) {
                         if (itBtn->second->IsPressed()) pd.active = true;
@@ -566,13 +590,14 @@ void LevelMake::UpdateParsedMechanics()
         // --- MOVIMENTA O OBJETO UNIVERSAL ---
         if (pd.active && pd.pts.size() > 1) {
             Waypoint target = pd.pts[pd.currentPt];
-            float dx = target.x - objMovel->X();
-            float dy = target.y - objMovel->Y();
+            float dx = target.x - curX;
+            float dy = target.y - curY;
             float dist = sqrtf(dx * dx + dy * dy);
 
             if (dist < pd.speed * gameTime) {
                 // Crava o objeto exatamente no ponto
-                objMovel->MoveTo(target.x, target.y);
+                if (objMovel) objMovel->MoveTo(target.x, target.y);
+                if (trigMovel) { trigMovel->x = target.x; trigMovel->y = target.y; }
 
                 if (!pd.isLoop && pd.currentPt == (int)pd.pts.size() - 1) {
                     // Chegou ao fim, desliga!
@@ -587,13 +612,19 @@ void LevelMake::UpdateParsedMechanics()
             }
             else {
                 // Continua a andar em direção ao alvo
-                objMovel->MoveTo(objMovel->X() + (dx / dist) * pd.speed * gameTime, objMovel->Y() + (dy / dist) * pd.speed * gameTime);
+                float newX = curX + (dx / dist) * pd.speed * gameTime;
+                float newY = curY + (dy / dist) * pd.speed * gameTime;
+
+                if (objMovel) objMovel->MoveTo(newX, newY);
+                if (trigMovel) { trigMovel->x = newX; trigMovel->y = newY; }
             }
 
             // Sincroniza os blocos secundários APENAS se o objeto for uma Parede (Wall)
-            auto itWall = parsedWalls.find(pd.wallId);
-            if (itWall != parsedWalls.end()) {
-                for (Block* b : itWall->second->GetBlocks()) b->SyncToOwner();
+            if (objMovel) {
+                auto itWall = parsedWalls.find(pd.wallId);
+                if (itWall != parsedWalls.end()) {
+                    for (Block* b : itWall->second->GetBlocks()) b->SyncToOwner();
+                }
             }
         }
     }
@@ -603,15 +634,17 @@ void LevelMake::UpdateParsedMechanics()
 
         bool isAtivo = false;
 
-        // 1. PRIMEIRO: Tenta ver se este ID é uma ÁREA DE GATILHO
         auto itTrig = parsedTriggers.find(id);
         if (itTrig != parsedTriggers.end()) {
-            float px = player->X();
-            float py = player->Y();
 
-            // Verifica se o Rato está dentro do retângulo do Gatilho invisível
-            if (std::abs(px - itTrig->second.x) < itTrig->second.w / 2.0f &&
-                std::abs(py - itTrig->second.y) < itTrig->second.h / 2.0f) {
+            float left = itTrig->second.x - 16.0f;
+            float right = left + itTrig->second.w;
+            float top = itTrig->second.y - 16.0f;
+            float bottom = top + itTrig->second.h;
+
+            // Verifica se o Rato está dentro da caixa exata
+            if (player->X() >= left && player->X() <= right &&
+                player->Y() >= top && player->Y() <= bottom) {
                 isAtivo = true;
             }
         }
