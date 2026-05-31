@@ -751,7 +751,6 @@ void LevelMake::Init(float gravity, int maxFood, int maxGhost, string levelBackg
     player = new Player();
     scene->Add(player, MOVING);
 
-    CarregarProgresso();
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -902,7 +901,7 @@ void LevelMake::SalvarProgresso()
     std::ofstream f("save.txt");
     if (f.is_open())
     {
-        f << nivelDesbloqueado;
+        f << LevelMake::nivelDesbloqueado;
         f.close();
     }
 }
@@ -912,7 +911,7 @@ void LevelMake::CarregarProgresso()
     std::ifstream f("save.txt");
     if (f.is_open())
     {
-        f >> nivelDesbloqueado;
+        f >> LevelMake::nivelDesbloqueado;
         f.close();
     }
 }
