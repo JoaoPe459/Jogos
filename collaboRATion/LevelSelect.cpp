@@ -118,7 +118,6 @@ void LevelSelect::Update()
 
             case 4:
                 LevelMake::faseAtual = 0;
-                LevelMake::nivelDesbloqueado++;
                 Engine::Next<Level2>();
                 // ── ZERA O SAVE E FINALIZA O JOGO ────────────────────────────
                 LevelMake::nivelDesbloqueado = 0; // Reseta a variável de progresso
