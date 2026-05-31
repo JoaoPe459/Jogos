@@ -87,10 +87,10 @@ void LevelSelect::Update()
             {
             case 1:
                 LevelMake::mapasDoNivel = {
-                    //"Resources/Mundo1_Fase1.txt",
-                    /*"Resources/Mundo1_Fase2.txt",
+                    "Resources/Mundo1_Fase1.txt",
+                    "Resources/Mundo1_Fase2.txt",
                     "Resources/Mundo1_Fase3.txt",
-                    "Resources/Mundo1_Fase4.txt",*/
+                    "Resources/Mundo1_Fase4.txt",
                 };
                 LevelMake::nivelDesbloqueado = 1;
                 LevelMake::faseAtual = 0;
@@ -99,11 +99,10 @@ void LevelSelect::Update()
 
             case 2:
                 LevelMake::mapasDoNivel = {
-                    //"Resources/Mundo1_Fase1.txt",
-                    /*"Resources/Mundo2_Fase1.txt",
+                    "Resources/Mundo2_Fase1.txt",
                     "Resources/Mundo2_Fase2.txt",
                     "Resources/Mundo2_Fase3.txt",
-                    "Resources/Mundo2_Fase4.txt",*/
+                    "Resources/Mundo2_Fase4.txt",
                 };
                 LevelMake::nivelDesbloqueado = 2;
                 LevelMake::faseAtual = 0;
@@ -112,11 +111,10 @@ void LevelSelect::Update()
 
             case 3:
                 LevelMake::mapasDoNivel = {
-                    //"Resources/Mundo1_Fase1.txt",
-                    /*"Resources/Mundo3_Fase1.txt",
+                    "Resources/Mundo3_Fase1.txt",
                     "Resources/Mundo3_Fase2.txt",
                     "Resources/Mundo3_Fase3.txt",
-                    "Resources/Mundo3_Fase4.txt",*/
+                    "Resources/Mundo3_Fase4.txt",
                 };
                 LevelMake::faseAtual = 0;
                 LevelMake::nivelDesbloqueado = 3;
@@ -125,11 +123,10 @@ void LevelSelect::Update()
 
             case 4:
                 LevelMake::mapasDoNivel = {
-                    "Resources/Mundo1_Fase1.txt",
-                    /*"Resources/Mundo4_Fase1.txt",
+                    "Resources/Mundo4_Fase1.txt",
                     "Resources/Mundo4_Fase2.txt",
                     "Resources/Mundo4_Fase3.txt",
-                    "Resources/Mundo4_Fase4.txt",*/
+                    "Resources/Mundo4_Fase4.txt",
                 };
                 LevelMake::faseAtual = 0;
                 LevelMake::nivelDesbloqueado = 4;
