@@ -18,9 +18,9 @@ static bool MundoDesbloqueado(int numMundo)
     switch (numMundo)
     {
     case 1: return true;                              // Sempre liberado
-    case 2: return LevelMake::nivelDesbloqueado == 1; // Exige concluir Mundo 1
-    case 3: return LevelMake::nivelDesbloqueado == 2; // Exige concluir Mundo 2
-    case 4: return LevelMake::nivelDesbloqueado == 3; // Exige concluir Mundo 3
+    case 2: return LevelMake::nivelDesbloqueado >= 1; // Exige concluir Mundo 1
+    case 3: return LevelMake::nivelDesbloqueado >= 2; // Exige concluir Mundo 2
+    case 4: return LevelMake::nivelDesbloqueado >= 3; // Exige concluir Mundo 3
     default: return false;
     }
 }
