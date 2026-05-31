@@ -32,6 +32,17 @@ void Level2::Update()
         return;
     }
 
+    if (window->KeyPress('N'))
+    {
+        if (LevelMake::nivelDesbloqueado != 4)
+        {
+			Engine::Next<LevelSelect>();
+            return;
+        }
+		Engine::Next<EndGame>();
+		return;
+    }
+
     // Debug: girar o spinner manualmente pelo id "spin"
     auto itSpin = parsedWalls.find("spin");
     if (itSpin != parsedWalls.end())
