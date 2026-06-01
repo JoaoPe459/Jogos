@@ -71,6 +71,11 @@ void LevelSelect::Update()
 
     scene->Update();
 
+    if (window->KeyPress('H')) {
+        Engine::Next<LevelEditor>();
+        return;
+    }
+
     // ── Transição em andamento: aguarda timer e troca de cena ────────────────
     if (isTransitioning)
     {
