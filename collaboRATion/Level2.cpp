@@ -68,6 +68,7 @@ void Level2::Update()
                     mundoAtual = primeiro[pos + 5] - '0'; // '1','2','3'...
             }
   
+            LevelMake::nivelDesbloqueado++;
             LevelMake::SalvarProgresso();
             Engine::Next<LevelSelect>();
         }
