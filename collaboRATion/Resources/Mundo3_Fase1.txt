@@ -276,7 +276,7 @@ BLOCK Obj_185 0 0 32 32 Resources/Tijolo.png Obj_185_tag
 WALL Obj_186 592 176
 BLOCK Obj_186 0 0 32 32 Resources/Tijolo.png Obj_186_tag
 
-SPAWN 112 528
+SPAWN 112 480
 
 WALL Obj_1 16 208
 BLOCK Obj_1 0 0 32 32 Resources/Tijolo.png Obj_1_tag
