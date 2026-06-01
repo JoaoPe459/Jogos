@@ -362,4 +362,5 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
-collaboRATion/save.txt
+!save.txt
+!**/save.txt
