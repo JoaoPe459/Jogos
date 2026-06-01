@@ -9,10 +9,10 @@ Spike::Spike(float px, float py, const std::string& tex, bool inv) {
     MoveTo(px, py);
 
     if (invertido) {
-        BBox(new Rect(-16.0f, -16.0f, 16.0f, -2.0f));
+        BBox(new Rect(-16.0f, -16.0f, 16.0f, -7.0f));
     }
     else {
-        BBox(new Rect(-16.0f, 2.0f, 16.0f, 16.0f));
+        BBox(new Rect(-16.0f, 7.0f, 16.0f, 16.0f));
     }
 }
 Spike::~Spike() { delete spr; }

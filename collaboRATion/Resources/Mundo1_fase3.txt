@@ -450,7 +450,7 @@ BLOCK Obj_186 0 0 32 32 Resources/Tijolo.png Obj_186_tag
 
 PORTA Obj_187 1040 560
 
-SPAWN 200 200
+SPAWN 880 464
 
 WALL Obj_194 1072 464
 BLOCK Obj_194 0 0 32 32 Resources/Tijolo.png Obj_194_tag
