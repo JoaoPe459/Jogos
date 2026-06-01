@@ -2,19 +2,398 @@
 BACKGROUND Resources/Fundo.png
 GRAVITY 1250.0
 
-MOD_INVERT_CONTROLS 0
-MOD_MOVE_WORLD 1
+MOD_INVERT_CONTROLS 1
+MOD_MOVE_WORLD 0
 MOD_GRAVITY_JUMP 0
 
-DECO_RECT2 16 16
+DECO_BLOCK 176 368
 
-DECO_RECT2 16 48
+DECO_BLOCK 336 368
 
-DECO_RECT2 16 80
+DECO_BLOCK 496 368
 
-DECO_RECT2 16 112
+DECO_BLOCK 656 368
 
-DECO_RECT2 16 144
+DECO_BLOCK 816 368
+
+DECO_BLOCK 976 368
+
+DECO_BLOCK 1008 368
+
+DECO_BLOCK 1040 368
+
+DECO_BLOCK 1072 368
+
+DECO_BLOCK 1104 368
+
+DECO_BLOCK 1168 368
+
+DECO_BLOCK 1136 368
+
+DECO_BLOCK 1200 368
+
+DECO_BLOCK 176 400
+
+WALL Obj_38 144 368
+BLOCK Obj_38 0 0 32 32 Resources/Tijolo.png Obj_38_tag
+
+WALL Obj_39 144 336
+BLOCK Obj_39 0 0 32 32 Resources/Tijolo.png Obj_39_tag
+
+WALL Obj_40 176 336
+BLOCK Obj_40 0 0 32 32 Resources/Tijolo.png Obj_40_tag
+
+WALL Obj_41 208 336
+BLOCK Obj_41 0 0 32 32 Resources/Tijolo.png Obj_41_tag
+
+WALL Obj_42 208 368
+BLOCK Obj_42 0 0 32 32 Resources/Tijolo.png Obj_42_tag
+
+WALL Obj_43 304 368
+BLOCK Obj_43 0 0 32 32 Resources/Tijolo.png Obj_43_tag
+
+WALL Obj_44 304 336
+BLOCK Obj_44 0 0 32 32 Resources/Tijolo.png Obj_44_tag
+
+WALL Obj_45 336 336
+BLOCK Obj_45 0 0 32 32 Resources/Tijolo.png Obj_45_tag
+
+WALL Obj_46 368 336
+BLOCK Obj_46 0 0 32 32 Resources/Tijolo.png Obj_46_tag
+
+WALL Obj_47 368 368
+BLOCK Obj_47 0 0 32 32 Resources/Tijolo.png Obj_47_tag
+
+WALL Obj_48 464 368
+BLOCK Obj_48 0 0 32 32 Resources/Tijolo.png Obj_48_tag
+
+WALL Obj_49 464 336
+BLOCK Obj_49 0 0 32 32 Resources/Tijolo.png Obj_49_tag
+
+WALL Obj_50 496 336
+BLOCK Obj_50 0 0 32 32 Resources/Tijolo.png Obj_50_tag
+
+WALL Obj_51 528 336
+BLOCK Obj_51 0 0 32 32 Resources/Tijolo.png Obj_51_tag
+
+WALL Obj_52 528 368
+BLOCK Obj_52 0 0 32 32 Resources/Tijolo.png Obj_52_tag
+
+WALL Obj_53 624 368
+BLOCK Obj_53 0 0 32 32 Resources/Tijolo.png Obj_53_tag
+
+WALL Obj_54 624 336
+BLOCK Obj_54 0 0 32 32 Resources/Tijolo.png Obj_54_tag
+
+WALL Obj_55 656 336
+BLOCK Obj_55 0 0 32 32 Resources/Tijolo.png Obj_55_tag
+
+WALL Obj_56 688 336
+BLOCK Obj_56 0 0 32 32 Resources/Tijolo.png Obj_56_tag
+
+WALL Obj_57 688 368
+BLOCK Obj_57 0 0 32 32 Resources/Tijolo.png Obj_57_tag
+
+WALL Obj_58 784 368
+BLOCK Obj_58 0 0 32 32 Resources/Tijolo.png Obj_58_tag
+
+WALL Obj_59 784 336
+BLOCK Obj_59 0 0 32 32 Resources/Tijolo.png Obj_59_tag
+
+WALL Obj_60 816 336
+BLOCK Obj_60 0 0 32 32 Resources/Tijolo.png Obj_60_tag
+
+WALL Obj_61 848 336
+BLOCK Obj_61 0 0 32 32 Resources/Tijolo.png Obj_61_tag
+
+WALL Obj_62 848 368
+BLOCK Obj_62 0 0 32 32 Resources/Tijolo.png Obj_62_tag
+
+WALL Obj_63 944 368
+BLOCK Obj_63 0 0 32 32 Resources/Tijolo.png Obj_63_tag
+
+WALL Obj_64 944 336
+BLOCK Obj_64 0 0 32 32 Resources/Tijolo.png Obj_64_tag
+
+WALL Obj_65 1008 336
+BLOCK Obj_65 0 0 32 32 Resources/Tijolo.png Obj_65_tag
+
+WALL Obj_66 1040 336
+BLOCK Obj_66 0 0 32 32 Resources/Tijolo.png Obj_66_tag
+
+WALL Obj_67 976 336
+BLOCK Obj_67 0 0 32 32 Resources/Tijolo.png Obj_67_tag
+
+WALL Obj_68 1072 336
+BLOCK Obj_68 0 0 32 32 Resources/Tijolo.png Obj_68_tag
+
+WALL Obj_69 1104 336
+BLOCK Obj_69 0 0 32 32 Resources/Tijolo.png Obj_69_tag
+
+WALL Obj_70 1136 336
+BLOCK Obj_70 0 0 32 32 Resources/Tijolo.png Obj_70_tag
+
+WALL Obj_71 1168 336
+BLOCK Obj_71 0 0 32 32 Resources/Tijolo.png Obj_71_tag
+
+WALL Obj_72 1200 336
+BLOCK Obj_72 0 0 32 32 Resources/Tijolo.png Obj_72_tag
+
+WALL Obj_73 1232 336
+BLOCK Obj_73 0 0 32 32 Resources/Tijolo.png Obj_73_tag
+
+WALL Obj_74 1232 368
+BLOCK Obj_74 0 0 32 32 Resources/Tijolo.png Obj_74_tag
+
+WALL Obj_75 144 400
+BLOCK Obj_75 0 0 32 32 Resources/Tijolo.png Obj_75_tag
+
+WALL Obj_76 144 464
+BLOCK Obj_76 0 0 32 32 Resources/Tijolo.png Obj_76_tag
+
+WALL Obj_77 144 432
+BLOCK Obj_77 0 0 32 32 Resources/Tijolo.png Obj_77_tag
+
+WALL Obj_78 144 496
+BLOCK Obj_78 0 0 32 32 Resources/Tijolo.png Obj_78_tag
+
+WALL Obj_79 144 528
+BLOCK Obj_79 0 0 32 32 Resources/Tijolo.png Obj_79_tag
+
+WALL Obj_94 208 528
+BLOCK Obj_94 0 0 32 32 Resources/Tijolo.png Obj_94_tag
+
+WALL Obj_95 208 496
+BLOCK Obj_95 0 0 32 32 Resources/Tijolo.png Obj_95_tag
+
+WALL Obj_96 208 464
+BLOCK Obj_96 0 0 32 32 Resources/Tijolo.png Obj_96_tag
+
+WALL Obj_97 208 432
+BLOCK Obj_97 0 0 32 32 Resources/Tijolo.png Obj_97_tag
+
+WALL Obj_98 208 400
+BLOCK Obj_98 0 0 32 32 Resources/Tijolo.png Obj_98_tag
+
+WALL Obj_99 304 400
+BLOCK Obj_99 0 0 32 32 Resources/Tijolo.png Obj_99_tag
+
+WALL Obj_100 304 432
+BLOCK Obj_100 0 0 32 32 Resources/Tijolo.png Obj_100_tag
+
+WALL Obj_101 304 464
+BLOCK Obj_101 0 0 32 32 Resources/Tijolo.png Obj_101_tag
+
+WALL Obj_102 304 496
+BLOCK Obj_102 0 0 32 32 Resources/Tijolo.png Obj_102_tag
+
+WALL Obj_103 304 528
+BLOCK Obj_103 0 0 32 32 Resources/Tijolo.png Obj_103_tag
+
+WALL Obj_118 368 528
+BLOCK Obj_118 0 0 32 32 Resources/Tijolo.png Obj_118_tag
+
+WALL Obj_119 368 496
+BLOCK Obj_119 0 0 32 32 Resources/Tijolo.png Obj_119_tag
+
+WALL Obj_120 368 464
+BLOCK Obj_120 0 0 32 32 Resources/Tijolo.png Obj_120_tag
+
+WALL Obj_121 368 432
+BLOCK Obj_121 0 0 32 32 Resources/Tijolo.png Obj_121_tag
+
+WALL Obj_122 368 400
+BLOCK Obj_122 0 0 32 32 Resources/Tijolo.png Obj_122_tag
+
+WALL Obj_123 464 400
+BLOCK Obj_123 0 0 32 32 Resources/Tijolo.png Obj_123_tag
+
+WALL Obj_124 464 464
+BLOCK Obj_124 0 0 32 32 Resources/Tijolo.png Obj_124_tag
+
+WALL Obj_125 464 432
+BLOCK Obj_125 0 0 32 32 Resources/Tijolo.png Obj_125_tag
+
+WALL Obj_126 464 496
+BLOCK Obj_126 0 0 32 32 Resources/Tijolo.png Obj_126_tag
+
+WALL Obj_127 464 528
+BLOCK Obj_127 0 0 32 32 Resources/Tijolo.png Obj_127_tag
+
+WALL Obj_128 528 432
+BLOCK Obj_128 0 0 32 32 Resources/Tijolo.png Obj_128_tag
+
+WALL Obj_129 624 432
+BLOCK Obj_129 0 0 32 32 Resources/Tijolo.png Obj_129_tag
+
+WALL Obj_130 528 400
+BLOCK Obj_130 0 0 32 32 Resources/Tijolo.png Obj_130_tag
+
+WALL Obj_131 528 464
+BLOCK Obj_131 0 0 32 32 Resources/Tijolo.png Obj_131_tag
+
+WALL Obj_132 528 496
+BLOCK Obj_132 0 0 32 32 Resources/Tijolo.png Obj_132_tag
+
+WALL Obj_133 528 528
+BLOCK Obj_133 0 0 32 32 Resources/Tijolo.png Obj_133_tag
+
+WALL Obj_134 624 400
+BLOCK Obj_134 0 0 32 32 Resources/Tijolo.png Obj_134_tag
+
+WALL Obj_135 624 464
+BLOCK Obj_135 0 0 32 32 Resources/Tijolo.png Obj_135_tag
+
+WALL Obj_136 624 496
+BLOCK Obj_136 0 0 32 32 Resources/Tijolo.png Obj_136_tag
+
+WALL Obj_137 624 528
+BLOCK Obj_137 0 0 32 32 Resources/Tijolo.png Obj_137_tag
+
+WALL Obj_138 688 400
+BLOCK Obj_138 0 0 32 32 Resources/Tijolo.png Obj_138_tag
+
+WALL Obj_139 688 432
+BLOCK Obj_139 0 0 32 32 Resources/Tijolo.png Obj_139_tag
+
+WALL Obj_140 688 496
+BLOCK Obj_140 0 0 32 32 Resources/Tijolo.png Obj_140_tag
+
+WALL Obj_141 688 528
+BLOCK Obj_141 0 0 32 32 Resources/Tijolo.png Obj_141_tag
+
+WALL Obj_142 688 464
+BLOCK Obj_142 0 0 32 32 Resources/Tijolo.png Obj_142_tag
+
+WALL Obj_143 784 400
+BLOCK Obj_143 0 0 32 32 Resources/Tijolo.png Obj_143_tag
+
+WALL Obj_144 784 464
+BLOCK Obj_144 0 0 32 32 Resources/Tijolo.png Obj_144_tag
+
+WALL Obj_145 784 496
+BLOCK Obj_145 0 0 32 32 Resources/Tijolo.png Obj_145_tag
+
+WALL Obj_146 784 528
+BLOCK Obj_146 0 0 32 32 Resources/Tijolo.png Obj_146_tag
+
+WALL Obj_147 784 432
+BLOCK Obj_147 0 0 32 32 Resources/Tijolo.png Obj_147_tag
+
+WALL Obj_148 848 400
+BLOCK Obj_148 0 0 32 32 Resources/Tijolo.png Obj_148_tag
+
+WALL Obj_149 848 432
+BLOCK Obj_149 0 0 32 32 Resources/Tijolo.png Obj_149_tag
+
+WALL Obj_150 848 496
+BLOCK Obj_150 0 0 32 32 Resources/Tijolo.png Obj_150_tag
+
+WALL Obj_151 848 464
+BLOCK Obj_151 0 0 32 32 Resources/Tijolo.png Obj_151_tag
+
+WALL Obj_152 848 528
+BLOCK Obj_152 0 0 32 32 Resources/Tijolo.png Obj_152_tag
+
+WALL Obj_153 944 400
+BLOCK Obj_153 0 0 32 32 Resources/Tijolo.png Obj_153_tag
+
+WALL Obj_154 944 464
+BLOCK Obj_154 0 0 32 32 Resources/Tijolo.png Obj_154_tag
+
+WALL Obj_155 944 496
+BLOCK Obj_155 0 0 32 32 Resources/Tijolo.png Obj_155_tag
+
+WALL Obj_156 944 528
+BLOCK Obj_156 0 0 32 32 Resources/Tijolo.png Obj_156_tag
+
+WALL Obj_157 944 432
+BLOCK Obj_157 0 0 32 32 Resources/Tijolo.png Obj_157_tag
+
+WALL Obj_158 1232 400
+BLOCK Obj_158 0 0 32 32 Resources/Tijolo.png Obj_158_tag
+
+WALL Obj_159 1232 432
+BLOCK Obj_159 0 0 32 32 Resources/Tijolo.png Obj_159_tag
+
+WALL Obj_160 1232 464
+BLOCK Obj_160 0 0 32 32 Resources/Tijolo.png Obj_160_tag
+
+WALL Obj_161 1232 496
+BLOCK Obj_161 0 0 32 32 Resources/Tijolo.png Obj_161_tag
+
+WALL Obj_162 1232 528
+BLOCK Obj_162 0 0 32 32 Resources/Tijolo.png Obj_162_tag
+
+ESPINHO Obj_163 16 528
+
+ESPINHO Obj_164 48 528
+
+ESPINHO Obj_165 80 528
+
+ESPINHO Obj_166 112 528
+
+ESPINHO Obj_167 400 528
+
+ESPINHO Obj_168 272 528
+
+ESPINHO Obj_169 240 528
+
+ESPINHO Obj_170 432 528
+
+ESPINHO Obj_171 560 528
+
+ESPINHO Obj_172 592 528
+
+ESPINHO Obj_173 720 528
+
+ESPINHO Obj_174 752 528
+
+ESPINHO Obj_175 880 528
+
+ESPINHO Obj_176 912 528
+
+ESPINHO Obj_177 1264 528
+
+ESPINHO Obj_178 1296 528
+
+SPAWN 80 240
+
+DECO_RECT2 16 560
+
+DECO_RECT2 208 560
+
+DECO_RECT2 400 560
+
+DECO_RECT2 592 560
+
+DECO_RECT2 784 560
+
+DECO_RECT2 976 528
+
+DECO_RECT2 976 560
+
+DECO_RECT2 1168 560
+
+DECO_RECT2 976 496
+
+DECO_RECT2 976 464
+
+DECO_RECT2 976 432
+
+DECO_RECT2 976 400
+
+DECO_RECT2 1040 400
+
+DECO_RECT2 1040 432
+
+DECO_RECT2 1040 464
+
+DECO_RECT2 1040 496
+
+DECO_RECT2 1040 528
+
+DECO_RECT2 16 592
 
 DECO_RECT2 16 624
 
@@ -26,99 +405,59 @@ DECO_RECT2 16 720
 
 DECO_RECT2 16 752
 
-DECO_RECT2 208 16
+DECO_RECT2 208 752
 
-DECO_RECT2 208 48
+DECO_RECT2 208 720
 
-DECO_RECT2 208 80
+DECO_RECT2 208 688
 
-DECO_RECT2 208 112
+DECO_RECT2 208 656
 
-DECO_RECT2 208 144
+DECO_RECT2 208 624
 
-DECO_RECT2 80 752
+DECO_RECT2 208 592
 
-DECO_RECT2 80 720
-
-DECO_RECT2 80 688
-
-DECO_RECT2 80 656
-
-DECO_RECT2 80 624
-
-DECO_RECT2 400 624
-
-DECO_RECT2 592 624
-
-DECO_RECT2 784 624
-
-DECO_RECT2 976 624
-
-DECO_RECT2 1168 624
-
-DECO_RECT2 400 144
-
-DECO_RECT2 592 144
-
-DECO_RECT2 784 144
-
-DECO_RECT2 976 144
-
-DECO_RECT2 1168 144
-
-DECO_RECT2 1136 656
-
-DECO_RECT2 1136 688
-
-DECO_RECT2 1136 720
-
-DECO_RECT2 1136 752
-
-DECO_RECT2 1136 112
-
-DECO_RECT2 1136 80
-
-DECO_RECT2 1136 48
-
-DECO_RECT2 1136 16
-
-DECO_RECT2 400 112
-
-DECO_RECT2 400 80
-
-DECO_RECT2 400 48
-
-DECO_RECT2 400 16
-
-DECO_RECT2 592 16
-
-DECO_RECT2 592 48
-
-DECO_RECT2 592 80
-
-DECO_RECT2 592 112
-
-DECO_RECT2 784 112
-
-DECO_RECT2 784 80
-
-DECO_RECT2 784 48
-
-DECO_RECT2 784 16
-
-DECO_RECT2 976 48
-
-DECO_RECT2 976 80
-
-DECO_RECT2 976 112
-
-DECO_RECT2 976 16
+DECO_RECT2 400 592
 
 DECO_RECT2 400 656
 
+DECO_RECT2 400 688
+
+DECO_RECT2 400 720
+
+DECO_RECT2 432 720
+
+DECO_RECT2 400 752
+
+DECO_RECT2 400 624
+
+DECO_RECT2 592 592
+
+DECO_RECT2 592 624
+
+DECO_RECT2 592 688
+
+DECO_RECT2 592 720
+
 DECO_RECT2 592 656
 
+DECO_RECT2 592 752
+
+DECO_RECT2 784 752
+
+DECO_RECT2 784 720
+
+DECO_RECT2 784 688
+
 DECO_RECT2 784 656
+
+DECO_RECT2 784 624
+
+DECO_RECT2 784 592
+
+DECO_RECT2 976 592
+
+DECO_RECT2 976 624
 
 DECO_RECT2 976 656
 
@@ -128,488 +467,156 @@ DECO_RECT2 976 720
 
 DECO_RECT2 976 752
 
-DECO_RECT2 400 688
+DECO_RECT2 1168 752
 
-DECO_RECT2 400 720
+DECO_RECT2 1168 720
 
-DECO_RECT2 400 752
+DECO_RECT2 1168 688
 
-DECO_RECT2 592 688
+DECO_RECT2 1168 656
 
-DECO_RECT2 592 720
+DECO_RECT2 1168 624
 
-DECO_RECT2 592 752
+DECO_RECT2 1168 592
 
-DECO_RECT2 784 688
+DECO_BLOCK 176 432
 
-DECO_RECT2 784 720
+DECO_BLOCK 176 464
 
-DECO_RECT2 784 752
+DECO_BLOCK 176 496
 
-WALL Obj_105 208 592
-BLOCK Obj_105 0 0 32 32 Resources/Tijolo.png Obj_105_tag
+DECO_BLOCK 176 528
 
-WALL Obj_108 304 592
-BLOCK Obj_108 0 0 32 32 Resources/Tijolo.png Obj_108_tag
+DECO_BLOCK 336 400
 
-WALL Obj_109 336 592
-BLOCK Obj_109 0 0 32 32 Resources/Tijolo.png Obj_109_tag
+DECO_BLOCK 336 432
 
-WALL Obj_110 368 592
-BLOCK Obj_110 0 0 32 32 Resources/Tijolo.png Obj_110_tag
+DECO_BLOCK 336 464
 
-WALL Obj_111 432 592
-BLOCK Obj_111 0 0 32 32 Resources/Tijolo.png Obj_111_tag
+DECO_BLOCK 336 496
 
-WALL Obj_112 400 592
-BLOCK Obj_112 0 0 32 32 Resources/Tijolo.png Obj_112_tag
+DECO_BLOCK 336 528
 
-WALL Obj_113 464 592
-BLOCK Obj_113 0 0 32 32 Resources/Tijolo.png Obj_113_tag
+DECO_BLOCK 496 400
 
-WALL Obj_114 496 592
-BLOCK Obj_114 0 0 32 32 Resources/Tijolo.png Obj_114_tag
+DECO_BLOCK 496 432
 
-WALL Obj_115 528 592
-BLOCK Obj_115 0 0 32 32 Resources/Tijolo.png Obj_115_tag
+DECO_BLOCK 496 464
 
-WALL Obj_116 560 592
-BLOCK Obj_116 0 0 32 32 Resources/Tijolo.png Obj_116_tag
+DECO_BLOCK 496 528
 
-WALL Obj_117 592 592
-BLOCK Obj_117 0 0 32 32 Resources/Tijolo.png Obj_117_tag
+DECO_BLOCK 496 496
 
-WALL Obj_118 624 592
-BLOCK Obj_118 0 0 32 32 Resources/Tijolo.png Obj_118_tag
+DECO_BLOCK 656 400
 
-WALL Obj_119 656 592
-BLOCK Obj_119 0 0 32 32 Resources/Tijolo.png Obj_119_tag
+DECO_BLOCK 656 464
 
-WALL Obj_120 688 592
-BLOCK Obj_120 0 0 32 32 Resources/Tijolo.png Obj_120_tag
+DECO_BLOCK 656 496
 
-WALL Obj_121 752 592
-BLOCK Obj_121 0 0 32 32 Resources/Tijolo.png Obj_121_tag
+DECO_BLOCK 656 528
 
-WALL Obj_122 720 592
-BLOCK Obj_122 0 0 32 32 Resources/Tijolo.png Obj_122_tag
+DECO_BLOCK 656 432
 
-WALL Obj_123 784 592
-BLOCK Obj_123 0 0 32 32 Resources/Tijolo.png Obj_123_tag
+DECO_BLOCK 816 400
 
-WALL Obj_124 816 592
-BLOCK Obj_124 0 0 32 32 Resources/Tijolo.png Obj_124_tag
+DECO_BLOCK 816 432
 
-WALL Obj_125 848 592
-BLOCK Obj_125 0 0 32 32 Resources/Tijolo.png Obj_125_tag
+DECO_BLOCK 816 464
 
-WALL Obj_126 880 592
-BLOCK Obj_126 0 0 32 32 Resources/Tijolo.png Obj_126_tag
+DECO_BLOCK 816 496
 
-WALL Obj_127 912 592
-BLOCK Obj_127 0 0 32 32 Resources/Tijolo.png Obj_127_tag
+DECO_BLOCK 816 528
 
-WALL Obj_128 944 592
-BLOCK Obj_128 0 0 32 32 Resources/Tijolo.png Obj_128_tag
+PORTA Obj_264 1200 304
 
-WALL Obj_129 1008 592
-BLOCK Obj_129 0 0 32 32 Resources/Tijolo.png Obj_129_tag
+WALL Obj_265 16 16
+RECT2 Obj_265 0 0 32 32 Resources/Tijolo.png Obj_265_tag
 
-WALL Obj_130 976 592
-BLOCK Obj_130 0 0 32 32 Resources/Tijolo.png Obj_130_tag
+WALL Obj_266 208 16
+RECT2 Obj_266 0 0 32 32 Resources/Tijolo.png Obj_266_tag
 
-WALL Obj_131 1040 592
-BLOCK Obj_131 0 0 32 32 Resources/Tijolo.png Obj_131_tag
+WALL Obj_267 400 16
+RECT2 Obj_267 0 0 32 32 Resources/Tijolo.png Obj_267_tag
 
-WALL Obj_132 1072 592
-BLOCK Obj_132 0 0 32 32 Resources/Tijolo.png Obj_132_tag
+WALL Obj_268 592 16
+RECT2 Obj_268 0 0 32 32 Resources/Tijolo.png Obj_268_tag
 
-WALL Obj_133 1104 592
-BLOCK Obj_133 0 0 32 32 Resources/Tijolo.png Obj_133_tag
+WALL Obj_269 784 16
+RECT2 Obj_269 0 0 32 32 Resources/Tijolo.png Obj_269_tag
 
-WALL Obj_146 1104 176
-BLOCK Obj_146 0 0 32 32 Resources/Tijolo.png Obj_146_tag
+WALL Obj_270 976 16
+RECT2 Obj_270 0 0 32 32 Resources/Tijolo.png Obj_270_tag
 
-WALL Obj_147 1072 176
-BLOCK Obj_147 0 0 32 32 Resources/Tijolo.png Obj_147_tag
+WALL Obj_271 1168 16
+RECT2 Obj_271 0 0 32 32 Resources/Tijolo.png Obj_271_tag
 
-WALL Obj_148 1040 176
-BLOCK Obj_148 0 0 32 32 Resources/Tijolo.png Obj_148_tag
+TRIGGER Obj_272 304 272 32 64
 
-WALL Obj_149 1008 176
-BLOCK Obj_149 0 0 32 32 Resources/Tijolo.png Obj_149_tag
+TRIGGER Obj_273 464 272 32 64
 
-WALL Obj_150 944 176
-BLOCK Obj_150 0 0 32 32 Resources/Tijolo.png Obj_150_tag
+TRIGGER Obj_274 624 272 32 64
 
-WALL Obj_151 976 176
-BLOCK Obj_151 0 0 32 32 Resources/Tijolo.png Obj_151_tag
+TRIGGER Obj_275 784 272 32 64
 
-WALL Obj_152 912 176
-BLOCK Obj_152 0 0 32 32 Resources/Tijolo.png Obj_152_tag
+ESPINHO_INV Obj_299 304 48
 
-WALL Obj_153 880 176
-BLOCK Obj_153 0 0 32 32 Resources/Tijolo.png Obj_153_tag
+ESPINHO_INV Obj_300 336 48
 
-WALL Obj_154 848 176
-BLOCK Obj_154 0 0 32 32 Resources/Tijolo.png Obj_154_tag
+ESPINHO_INV Obj_301 368 48
 
-WALL Obj_155 784 176
-BLOCK Obj_155 0 0 32 32 Resources/Tijolo.png Obj_155_tag
+ESPINHO_INV Obj_302 464 48
 
-WALL Obj_156 816 176
-BLOCK Obj_156 0 0 32 32 Resources/Tijolo.png Obj_156_tag
+ESPINHO_INV Obj_303 528 48
 
-WALL Obj_157 752 176
-BLOCK Obj_157 0 0 32 32 Resources/Tijolo.png Obj_157_tag
+ESPINHO_INV Obj_304 496 48
 
-WALL Obj_158 720 176
-BLOCK Obj_158 0 0 32 32 Resources/Tijolo.png Obj_158_tag
+ESPINHO_INV Obj_305 624 48
 
-WALL Obj_159 688 176
-BLOCK Obj_159 0 0 32 32 Resources/Tijolo.png Obj_159_tag
+ESPINHO_INV Obj_306 656 48
 
-WALL Obj_160 624 176
-BLOCK Obj_160 0 0 32 32 Resources/Tijolo.png Obj_160_tag
+ESPINHO_INV Obj_307 688 48
 
-WALL Obj_161 656 176
-BLOCK Obj_161 0 0 32 32 Resources/Tijolo.png Obj_161_tag
+ESPINHO_INV Obj_308 784 48
 
-WALL Obj_162 560 176
-BLOCK Obj_162 0 0 32 32 Resources/Tijolo.png Obj_162_tag
+ESPINHO_INV Obj_309 816 48
 
-WALL Obj_163 528 176
-BLOCK Obj_163 0 0 32 32 Resources/Tijolo.png Obj_163_tag
+ESPINHO_INV Obj_310 848 48
 
-WALL Obj_164 496 176
-BLOCK Obj_164 0 0 32 32 Resources/Tijolo.png Obj_164_tag
+TRIGGER Obj_311 976 272 32 32
 
-WALL Obj_165 464 176
-BLOCK Obj_165 0 0 32 32 Resources/Tijolo.png Obj_165_tag
+ESPINHO Obj_312 1008 368
 
-WALL Obj_166 400 176
-BLOCK Obj_166 0 0 32 32 Resources/Tijolo.png Obj_166_tag
+PATH Obj_299 300 2 Obj_272 0 2 304 48 304 368 
 
-WALL Obj_167 336 176
-BLOCK Obj_167 0 0 32 32 Resources/Tijolo.png Obj_167_tag
+PATH Obj_300 300 2 Obj_272 0 2 336 48 336 368 
 
-WALL Obj_168 304 176
-BLOCK Obj_168 0 0 32 32 Resources/Tijolo.png Obj_168_tag
+PATH Obj_301 300 2 Obj_272 0 2 368 48 368 368 
 
-WALL Obj_169 272 176
-BLOCK Obj_169 0 0 32 32 Resources/Tijolo.png Obj_169_tag
+PATH Obj_302 300 2 Obj_273 0 2 464 48 464 368 
 
-WALL Obj_170 240 176
-BLOCK Obj_170 0 0 32 32 Resources/Tijolo.png Obj_170_tag
+PATH Obj_304 300 2 Obj_273 0 2 496 48 496 368 
 
-WALL Obj_171 208 176
-BLOCK Obj_171 0 0 32 32 Resources/Tijolo.png Obj_171_tag
+PATH Obj_303 300 2 Obj_273 0 2 528 48 528 368 
 
-WALL Obj_184 368 176
-BLOCK Obj_184 0 0 32 32 Resources/Tijolo.png Obj_184_tag
+PATH Obj_305 300 2 Obj_274 0 2 624 48 624 368 
 
-WALL Obj_185 432 176
-BLOCK Obj_185 0 0 32 32 Resources/Tijolo.png Obj_185_tag
+PATH Obj_306 300 2 Obj_274 0 2 656 48 656 368 
 
-WALL Obj_186 592 176
-BLOCK Obj_186 0 0 32 32 Resources/Tijolo.png Obj_186_tag
+PATH Obj_307 300 2 Obj_274 0 2 688 48 688 368 
 
-SPAWN 112 432
+PATH Obj_308 300 2 Obj_275 0 2 784 48 784 368 
 
-WALL Obj_1 16 208
-BLOCK Obj_1 0 0 32 32 Resources/Tijolo.png Obj_1_tag
+PATH Obj_309 300 2 Obj_275 0 2 816 48 816 368 
 
-WALL Obj_2 16 240
-BLOCK Obj_2 0 0 32 32 Resources/Tijolo.png Obj_2_tag
+PATH Obj_310 300 2 Obj_275 0 2 848 48 848 368 
 
-WALL Obj_3 16 272
-BLOCK Obj_3 0 0 32 32 Resources/Tijolo.png Obj_3_tag
+PATH Obj_312 900 2 Obj_311 0 2 1008 368 1008 304 
 
-WALL Obj_4 16 304
-BLOCK Obj_4 0 0 32 32 Resources/Tijolo.png Obj_4_tag
+MOD_TOGGLE Obj_272 INVERT_CONTROLS
 
-WALL Obj_5 16 336
-BLOCK Obj_5 0 0 32 32 Resources/Tijolo.png Obj_5_tag
+MOD_TOGGLE Obj_273 INVERT_CONTROLS
 
-WALL Obj_6 16 368
-BLOCK Obj_6 0 0 32 32 Resources/Tijolo.png Obj_6_tag
+MOD_TOGGLE Obj_274 INVERT_CONTROLS
 
-WALL Obj_7 16 400
-BLOCK Obj_7 0 0 32 32 Resources/Tijolo.png Obj_7_tag
-
-WALL Obj_8 16 464
-BLOCK Obj_8 0 0 32 32 Resources/Tijolo.png Obj_8_tag
-
-WALL Obj_9 16 496
-BLOCK Obj_9 0 0 32 32 Resources/Tijolo.png Obj_9_tag
-
-WALL Obj_10 16 528
-BLOCK Obj_10 0 0 32 32 Resources/Tijolo.png Obj_10_tag
-
-WALL Obj_11 16 560
-BLOCK Obj_11 0 0 32 32 Resources/Tijolo.png Obj_11_tag
-
-WALL Obj_12 16 432
-BLOCK Obj_12 0 0 32 32 Resources/Tijolo.png Obj_12_tag
-
-WALL Obj_13 1296 240
-BLOCK Obj_13 0 0 32 32 Resources/Tijolo.png Obj_13_tag
-
-WALL Obj_14 1296 208
-BLOCK Obj_14 0 0 32 32 Resources/Tijolo.png Obj_14_tag
-
-WALL Obj_15 1296 272
-BLOCK Obj_15 0 0 32 32 Resources/Tijolo.png Obj_15_tag
-
-WALL Obj_16 1296 304
-BLOCK Obj_16 0 0 32 32 Resources/Tijolo.png Obj_16_tag
-
-WALL Obj_17 1296 336
-BLOCK Obj_17 0 0 32 32 Resources/Tijolo.png Obj_17_tag
-
-WALL Obj_18 1296 368
-BLOCK Obj_18 0 0 32 32 Resources/Tijolo.png Obj_18_tag
-
-WALL Obj_19 1296 400
-BLOCK Obj_19 0 0 32 32 Resources/Tijolo.png Obj_19_tag
-
-WALL Obj_20 1296 432
-BLOCK Obj_20 0 0 32 32 Resources/Tijolo.png Obj_20_tag
-
-WALL Obj_21 1296 464
-BLOCK Obj_21 0 0 32 32 Resources/Tijolo.png Obj_21_tag
-
-WALL Obj_22 1296 496
-BLOCK Obj_22 0 0 32 32 Resources/Tijolo.png Obj_22_tag
-
-WALL Obj_23 1296 528
-BLOCK Obj_23 0 0 32 32 Resources/Tijolo.png Obj_23_tag
-
-WALL Obj_24 1296 560
-BLOCK Obj_24 0 0 32 32 Resources/Tijolo.png Obj_24_tag
-
-WALL Obj_25 16 176
-RECT2 Obj_25 0 0 32 32 Resources/Tijolo.png Obj_25_tag
-
-WALL Obj_26 16 592
-RECT2 Obj_26 0 0 32 32 Resources/Tijolo.png Obj_26_tag
-
-WALL Obj_27 1136 592
-RECT2 Obj_27 0 0 32 32 Resources/Tijolo.png Obj_27_tag
-
-WALL Obj_28 1136 176
-RECT2 Obj_28 0 0 32 32 Resources/Tijolo.png Obj_28_tag
-
-PORTA Obj_30 1232 560
-
-WALL Obj_31 240 624
-BLOCK Obj_31 0 0 32 32 Resources/Tijolo.png Obj_31_tag
-
-WALL Obj_32 240 656
-BLOCK Obj_32 0 0 32 32 Resources/Tijolo.png Obj_32_tag
-
-WALL Obj_33 240 688
-BLOCK Obj_33 0 0 32 32 Resources/Tijolo.png Obj_33_tag
-
-WALL Obj_34 240 720
-BLOCK Obj_34 0 0 32 32 Resources/Tijolo.png Obj_34_tag
-
-WALL Obj_35 240 752
-BLOCK Obj_35 0 0 32 32 Resources/Tijolo.png Obj_35_tag
-
-WALL Obj_36 272 752
-BLOCK Obj_36 0 0 32 32 Resources/Tijolo.png Obj_36_tag
-
-WALL Obj_39 272 656
-BLOCK Obj_39 0 0 32 32 Resources/Tijolo.png Obj_39_tag
-
-WALL Obj_40 272 624
-BLOCK Obj_40 0 0 32 32 Resources/Tijolo.png Obj_40_tag
-
-WALL Obj_41 304 624
-BLOCK Obj_41 0 0 32 32 Resources/Tijolo.png Obj_41_tag
-
-WALL Obj_42 336 624
-BLOCK Obj_42 0 0 32 32 Resources/Tijolo.png Obj_42_tag
-
-WALL Obj_43 336 656
-BLOCK Obj_43 0 0 32 32 Resources/Tijolo.png Obj_43_tag
-
-WALL Obj_44 304 656
-BLOCK Obj_44 0 0 32 32 Resources/Tijolo.png Obj_44_tag
-
-WALL Obj_45 304 688
-BLOCK Obj_45 0 0 32 32 Resources/Tijolo.png Obj_45_tag
-
-WALL Obj_46 336 688
-BLOCK Obj_46 0 0 32 32 Resources/Tijolo.png Obj_46_tag
-
-WALL Obj_47 336 720
-BLOCK Obj_47 0 0 32 32 Resources/Tijolo.png Obj_47_tag
-
-WALL Obj_48 304 720
-BLOCK Obj_48 0 0 32 32 Resources/Tijolo.png Obj_48_tag
-
-WALL Obj_49 304 752
-BLOCK Obj_49 0 0 32 32 Resources/Tijolo.png Obj_49_tag
-
-WALL Obj_50 336 752
-BLOCK Obj_50 0 0 32 32 Resources/Tijolo.png Obj_50_tag
-
-WALL Obj_52 240 592
-BLOCK Obj_52 0 0 32 32 Resources/Tijolo.png Obj_52_tag
-
-WALL Obj_53 272 592
-BLOCK Obj_53 0 0 32 32 Resources/Tijolo.png Obj_53_tag
-
-WALL Obj_54 272 688
-BLOCK Obj_54 0 0 32 32 Resources/Tijolo.png Obj_54_tag
-
-WALL Obj_55 272 720
-BLOCK Obj_55 0 0 32 32 Resources/Tijolo.png Obj_55_tag
-
-TRIGGER Obj_56 208 464 32 128
-
-KILLZONE Obj_57 272 752 32 32 1 mortal
-
-KILLZONE Obj_58 304 752 32 32 1 mortal
-
-DECO_BLOCK 368 624
-
-DECO_BLOCK 368 656
-
-DECO_BLOCK 368 688
-
-DECO_BLOCK 368 720
-
-DECO_BLOCK 368 752
-
-ESPINHO Obj_199 464 624
-
-ESPINHO Obj_200 496 624
-
-ESPINHO Obj_201 528 624
-
-TRIGGER Obj_202 464 496 32 96
-
-WALL Obj_203 816 624
-BLOCK Obj_203 0 0 32 32 Resources/Tijolo.png Obj_203_tag
-
-WALL Obj_204 816 656
-BLOCK Obj_204 0 0 32 32 Resources/Tijolo.png Obj_204_tag
-
-WALL Obj_205 816 688
-BLOCK Obj_205 0 0 32 32 Resources/Tijolo.png Obj_205_tag
-
-WALL Obj_206 816 720
-BLOCK Obj_206 0 0 32 32 Resources/Tijolo.png Obj_206_tag
-
-WALL Obj_207 752 624
-BLOCK Obj_207 0 0 32 32 Resources/Tijolo.png Obj_207_tag
-
-WALL Obj_208 752 656
-BLOCK Obj_208 0 0 32 32 Resources/Tijolo.png Obj_208_tag
-
-WALL Obj_209 752 688
-BLOCK Obj_209 0 0 32 32 Resources/Tijolo.png Obj_209_tag
-
-WALL Obj_210 752 720
-BLOCK Obj_210 0 0 32 32 Resources/Tijolo.png Obj_210_tag
-
-WALL Obj_211 784 720
-BLOCK Obj_211 0 0 32 32 Resources/Tijolo.png Obj_211_tag
-
-WALL Obj_212 784 688
-BLOCK Obj_212 0 0 32 32 Resources/Tijolo.png Obj_212_tag
-
-WALL Obj_213 784 656
-BLOCK Obj_213 0 0 32 32 Resources/Tijolo.png Obj_213_tag
-
-WALL Obj_214 784 624
-BLOCK Obj_214 0 0 32 32 Resources/Tijolo.png Obj_214_tag
-
-KILLZONE Obj_215 752 720 32 32 1 mortal
-
-KILLZONE Obj_216 752 752 32 32 1 mortal
-
-KILLZONE Obj_217 784 752 32 32 1 mortal
-
-KILLZONE Obj_218 816 752 32 32 1 mortal
-
-KILLZONE Obj_219 816 720 32 32 1 mortal
-
-KILLZONE Obj_220 784 720 32 32 1 mortal
-
-TRIGGER Obj_221 624 464 32 128
-
-ESPINHO Obj_223 624 624
-
-TRIGGER Obj_224 752 464 32 128
-
-WALL Obj_225 496 304
-BLOCK Obj_225 0 0 32 32 Resources/Tijolo.png Obj_225_tag
-
-WALL Obj_226 528 272
-BLOCK Obj_226 0 0 32 32 Resources/Tijolo.png Obj_226_tag
-
-WALL Obj_227 560 304
-BLOCK Obj_227 0 0 32 32 Resources/Tijolo.png Obj_227_tag
-
-WALL Obj_228 464 336
-BLOCK Obj_228 0 0 32 32 Resources/Tijolo.png Obj_228_tag
-
-WALL Obj_229 496 336
-BLOCK Obj_229 0 0 32 32 Resources/Tijolo.png Obj_229_tag
-
-WALL Obj_230 560 336
-BLOCK Obj_230 0 0 32 32 Resources/Tijolo.png Obj_230_tag
-
-WALL Obj_231 624 336
-BLOCK Obj_231 0 0 32 32 Resources/Tijolo.png Obj_231_tag
-
-WALL Obj_232 400 304
-BLOCK Obj_232 0 0 32 32 Resources/Tijolo.png Obj_232_tag
-
-WALL Obj_233 432 304
-BLOCK Obj_233 0 0 32 32 Resources/Tijolo.png Obj_233_tag
-
-WALL Obj_234 400 272
-BLOCK Obj_234 0 0 32 32 Resources/Tijolo.png Obj_234_tag
-
-WALL Obj_235 432 240
-BLOCK Obj_235 0 0 32 32 Resources/Tijolo.png Obj_235_tag
-
-PATH Obj_108 150 2 Obj_56 0 2 304 592 336 592 
-
-PATH Obj_41 150 2 Obj_56 0 2 304 624 336 624 
-
-PATH Obj_44 150 2 Obj_56 0 2 304 656 336 656 
-
-PATH Obj_45 150 2 Obj_56 0 2 304 688 336 688 
-
-PATH Obj_48 150 2 Obj_56 0 2 304 720 336 720 
-
-PATH Obj_49 150 2 Obj_56 0 2 304 752 336 752 
-
-PATH Obj_53 150 2 Obj_56 0 2 272 592 240 592 
-
-PATH Obj_40 150 2 Obj_56 0 2 272 624 240 624 
-
-PATH Obj_39 150 2 Obj_56 0 2 272 656 240 656 
-
-PATH Obj_54 150 2 Obj_56 0 2 272 688 240 688 
-
-PATH Obj_55 150 2 Obj_56 0 2 272 720 240 720 
-
-PATH Obj_36 150 2 Obj_56 0 2 272 752 240 752 
-
-PATH Obj_199 1200 2 Obj_202 0 2 464 624 464 560 
-
-PATH Obj_200 1200 2 Obj_202 0 2 496 624 496 560 
-
-PATH Obj_201 1200 2 Obj_202 0 2 528 624 528 560 
-
-PATH Obj_223 150 2 Obj_224 0 2 624 624 624 560 
-
-PATH Obj_224 1200 2 Obj_221 0 2 752 464 976 464 
+MOD_TOGGLE Obj_275 INVERT_CONTROLS
 

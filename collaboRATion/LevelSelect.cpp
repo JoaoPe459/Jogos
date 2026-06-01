@@ -88,9 +88,9 @@ void LevelSelect::Update()
             case 1:
                 LevelMake::mapasDoNivel = {
                     "Resources/Mundo1_Fase1.txt",
-                    "Resources/Mundo1_Fase1.txt",
-                    "Resources/Mundo1_Fase1.txt",
-                    "Resources/Mundo1_Fase1.txt",
+                    "Resources/Mundo1_Fase2.txt",
+                    "Resources/Mundo1_Fase3.txt",
+                    "Resources/Mundo1_Fase4.txt",
                 };
                 LevelMake::faseAtual = 0;
                 Engine::Next<Level2>();
@@ -120,6 +120,12 @@ void LevelSelect::Update()
                 return;
 
             case 4:
+                LevelMake::mapasDoNivel = {
+                    "Resources/Mundo4_Fase1.txt",
+                    "Resources/Mundo4_Fase2.txt",
+                    "Resources/Mundo4_Fase3.txt",
+                    "Resources/Mundo4_Fase4.txt",
+                };
                 LevelMake::faseAtual = 0;
                 Engine::Next<Level2>();
                 // ── ZERA O SAVE E FINALIZA O JOGO ───────────────────────────
