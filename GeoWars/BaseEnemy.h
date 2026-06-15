@@ -56,6 +56,9 @@ protected:
     virtual void UpdateAI(float dt) = 0;
     virtual void DrawSprite() = 0;
 
+    // ---- ataque melee ----
+    virtual void Attack();
+
     // ---- física vetorial ----
     Vector* speed;
     bool     onGround;
@@ -68,10 +71,14 @@ protected:
     float      hurtTimer;
     float      deadTimer;
     float      alertTimer;
+    float      attackTimer;
+    float      attackCooldown;
 
     // ---- stats ----
     int        hp, maxHp;
     int        geoDrop;
+    int        attackDamage;
+    float      attackRange;
 
     // ---- half-extents AABB ----
     float      hw, hh;

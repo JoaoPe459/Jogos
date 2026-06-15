@@ -10,6 +10,7 @@
 #include "GeoPickup.h"
 #include "IDamageable.h"
 #include "Physics.h"
+#include "AttackHitbox.h"
 #include <cmath>
 #include <algorithm>
 using std::min;
@@ -21,8 +22,10 @@ BaseEnemy::BaseEnemy(int maxHp, int geoDrop)
     : onGround(false), facingRight(false),
     state(ES_IDLE),
     hurtTimer(0), deadTimer(0), alertTimer(0),
+    attackTimer(0), attackCooldown(0),
     invincible(false), invincibleTimer(0),
     hp(maxHp), maxHp(maxHp), geoDrop(geoDrop),
+    attackDamage(1), attackRange(60.0f),
     hw(16.0f), hh(16.0f)
 {
     type = ENEMY;
@@ -73,6 +76,8 @@ void BaseEnemy::Update()
     // Decrementa timers
     if (hurtTimer > 0) hurtTimer -= dt;
     if (alertTimer > 0) alertTimer -= dt;
+    if (attackTimer > 0) attackTimer -= dt;
+    if (attackCooldown > 0) attackCooldown -= dt;
     if (invincibleTimer > 0) invincibleTimer -= dt;
     else                     invincible = false;
 
@@ -103,6 +108,12 @@ void BaseEnemy::Update()
         return;
     }
     else if (state == ES_HURT && hurtTimer <= 0)
+    {
+        state = ES_PATROL;
+    }
+
+    // Estado de ataque: retorna ao patrol ao terminar
+    if (state == ES_ATTACK && attackTimer <= 0)
     {
         state = ES_PATROL;
     }
@@ -302,6 +313,26 @@ bool BaseEnemy::PlayerInSight(float range) const
 
     // Sem tilemap: linha de visada sempre livre
     return true;
+}
+
+// -------------------------------------------------------------------------------
+
+// -------------------------------------------------------------------------------
+
+void BaseEnemy::Attack()
+{
+    if (attackCooldown > 0) return;
+    if (state == ES_DEAD || state == ES_HURT) return;
+
+    state = ES_ATTACK;
+    attackTimer = 0.4f;
+    attackCooldown = 1.0f;
+
+    // Offset do hitbox na direção do inimigo
+    float ox = facingRight ? hw + 24.0f : -(hw + 24.0f);
+    float oy = 0;
+
+    GeoWars::scene->Add(new AttackHitbox(x + ox, y + oy, attackDamage, type), STATIC);
 }
 
 // -------------------------------------------------------------------------------

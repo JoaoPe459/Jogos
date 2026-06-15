@@ -10,8 +10,8 @@
 class AttackHitbox : public Object
 {
 public:
-    AttackHitbox(float px, float py, int dmg, float duration = 0.12f)
-        : damage(dmg), timer(duration), hitCount(0), maxHits(3)
+    AttackHitbox(float px, float py, int dmg, uint creator, float duration = 0.12f)
+        : damage(dmg), creatorType(creator), timer(duration), hitCount(0), maxHits(3)
     {
         MoveTo(px, py);
         BBox(new Rect(28.0f, 24.0f, 0, 0));
@@ -31,14 +31,15 @@ public:
 
     void OnCollision(Object* obj) override
     {
-        if (obj->Type() == ENEMY || obj->Type() == BOSS)
+        // Evita friendly-fire: não acerta objetos do mesmo tipo do criador
+        if (obj->Type() == creatorType)
+            return;
+
+        IDamageable* target = dynamic_cast<IDamageable*>(obj);
+        if (target)
         {
-            IDamageable* e = dynamic_cast<IDamageable*>(obj);
-            if (e)
-            {
-                e->TakeDamage(damage);
-                hitCount++;
-            }
+            target->TakeDamage(damage);
+            hitCount++;
         }
     }
 
@@ -46,9 +47,10 @@ public:
 
 private:
     int   damage;
+    uint  creatorType;  // PLAYER ou ENEMY — quem criou o hitbox
     float timer;
     int   hitCount;
-    int   maxHits;    // evita acertar o mesmo grupo várias vezes no mesmo swing
+    int   maxHits;      // evita acertar o mesmo grupo várias vezes no mesmo swing
 };
 
 // -------------------------------------------------------------------------------

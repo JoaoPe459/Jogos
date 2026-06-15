@@ -9,6 +9,7 @@
 #include "IDamageable.h"
 #include "GeoWars.h"
 #include "Physics.h"
+#include "AttackHitbox.h"
 #include <algorithm>
 
 using std::min;
@@ -467,7 +468,7 @@ void Player::SpawnAttackHitbox()
     float oy = 0;
     int   dmg = (attackCombo == 2) ? 2 : 1;
 
-    //GeoWars::scene->Add(new AttackHitbox(x + ox, y + oy, dmg), STATIC);
+    GeoWars::scene->Add(new AttackHitbox(x + ox, y + oy, dmg, type), STATIC);
     hitParticles->Generate(x + ox, y + oy, 8);
 }
 

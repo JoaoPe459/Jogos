@@ -1,5 +1,6 @@
 #include "Flyer.h"
 #include "GeoWars.h"
+#include "AttackHitbox.h"
 #include <cmath>
 
 Flyer::Flyer(float startX, float startY)
@@ -113,6 +114,8 @@ void Flyer::UpdateAI(float dt)
             state = ES_ATTACK;
             diveTimer = 0.5f;
             diveCooldown = 1.8f;
+
+            Attack();
         }
 
         if (!PlayerInSight(350.0f))
@@ -172,4 +175,20 @@ void Flyer::OnCollision(Object* obj)
 {
     if (GetHP() < 1)
         GeoWars::scene->Delete(this, MOVING);
+}
+
+// -------------------------------------------------------------------------------
+
+void Flyer::Attack()
+{
+    // Flyer gerencia seu próprio estado de ataque (mergulho),
+    // apenas spawna o hitbox e ajusta timers sem alterar state
+    if (attackCooldown > 0) return;
+    if (state == ES_DEAD || state == ES_HURT) return;
+
+    attackCooldown = 1.0f;
+    attackTimer = 0.5f;    // evita que BaseEnemy resolva ES_ATTACK prematuramente
+
+    float ox = facingRight ? hw + 24.0f : -(hw + 24.0f);
+    GeoWars::scene->Add(new AttackHitbox(x + ox, y, attackDamage, type), STATIC);
 }

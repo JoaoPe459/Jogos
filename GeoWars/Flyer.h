@@ -29,6 +29,7 @@ protected:
     void DrawSprite()       override;
     void ApplyGravity(float dt) {} // sem gravidade
 	void OnCollision(Object* obj) override;
+	void Attack() override;
 private:
 
     TileSet* animation;               // folha de sprites do personagem

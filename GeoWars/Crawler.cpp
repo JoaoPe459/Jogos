@@ -110,6 +110,12 @@ void Crawler::UpdateAI(float dt)
             speed->ScaleTo(0.0f);
             state = ES_PATROL;
         }
+
+        // Ataca se estiver próximo do player
+        if (PlayerInRange(attackRange))
+        {
+            Attack();
+        }
         break;
     }
 
