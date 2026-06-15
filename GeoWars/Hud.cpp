@@ -73,10 +73,6 @@ void Hud::Draw()
     font->Draw(40, 132, text.str(), textColor);
 
     text.str("");
-    text << "Mísseis: " << GeoWars::scene->Size() - 5;
-    font->Draw(40, 152, text.str(), textColor);
-
-    text.str("");
     text << "Movimento";
     bold->Draw(window->CenterX() - 84.0f, window->Height() - 7.0f, text.str(), textColor);
 

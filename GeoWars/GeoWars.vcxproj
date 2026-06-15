@@ -234,7 +234,6 @@
     <ClCompile Include="Audio.cpp" />
     <ClCompile Include="Background.cpp" />
     <ClCompile Include="BaseEnemy.cpp" />
-    <ClCompile Include="Blue.cpp" />
     <ClCompile Include="Controller.cpp" />
     <ClCompile Include="Crawler.cpp" />
     <ClCompile Include="Delay.cpp" />
@@ -245,13 +244,10 @@
     <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="GeoWars.cpp" />
     <ClCompile Include="Graphics.cpp" />
-    <ClCompile Include="Green.cpp" />
     <ClCompile Include="Hud.cpp" />
     <ClCompile Include="Image.cpp" />
-    <ClCompile Include="Magenta.cpp" />
     <ClCompile Include="Missile.cpp" />
     <ClCompile Include="Object.cpp" />
-    <ClCompile Include="Orange.cpp" />
     <ClCompile Include="Particles.cpp" />
     <ClCompile Include="Physics.h" />
     <ClCompile Include="Player.cpp" />
@@ -268,28 +264,27 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
+    <ClInclude Include="AttackHitbox.h" />
     <ClInclude Include="Audio.h" />
     <ClInclude Include="Background.h" />
     <ClInclude Include="BaseEnemy.h" />
-    <ClInclude Include="Blue.h" />
     <ClInclude Include="Controller.h" />
     <ClInclude Include="Crawler.h" />
     <ClInclude Include="Delay.h" />
+    <ClInclude Include="EnemyProjectile.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="Flyer.h" />
     <ClInclude Include="Font.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Geometry.h" />
+    <ClInclude Include="GeoPickup.h" />
     <ClInclude Include="GeoWars.h" />
     <ClInclude Include="Graphics.h" />
-    <ClInclude Include="Green.h" />
     <ClInclude Include="Hud.h" />
     <ClInclude Include="IDamageable.h" />
     <ClInclude Include="Image.h" />
-    <ClInclude Include="Magenta.h" />
     <ClInclude Include="Missile.h" />
     <ClInclude Include="Object.h" />
-    <ClInclude Include="Orange.h" />
     <ClInclude Include="Particles.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Random.h" />

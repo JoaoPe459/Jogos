@@ -12,12 +12,10 @@
 #include "Resources.h"
 #include "GeoWars.h"
 #include "Engine.h"    
-#include "Magenta.h"
-#include "Blue.h"    
-#include "Green.h"
-#include "Orange.h"
 #include "Delay.h"
 #include "IDamageable.h"
+#include "Crawler.h"
+#include "Flyer.h"
 // ------------------------------------------------------------------------------
 
 Player * GeoWars::player  = nullptr;
@@ -55,13 +53,13 @@ void GeoWars::Init()
     // 3º — player e demais objetos (audio e scene já existem)
     backg = new Background("Resources/Space.jpg");
     player = new Player();
+	Crawler* crawler = new Crawler(player->X(), player->Y());
+	Flyer* flyer = new Flyer(player->X(), player->Y());
     hud = new Hud();
 
     scene->Add(player, STATIC);
-    scene->Add(new Magenta(player), STATIC);
-    scene->Add(new Blue(player), STATIC);
-    scene->Add(new Green(player), STATIC);
-    scene->Add(new Orange(player), STATIC);
+	scene->Add(crawler, MOVING);
+	scene->Add(flyer, MOVING);
     scene->Add(new Delay(), STATIC);
 
     // ----------------------

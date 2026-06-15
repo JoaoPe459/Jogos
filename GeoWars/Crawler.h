@@ -26,12 +26,12 @@ public:
 protected:
     void UpdateAI(float dt) override;
     void DrawSprite()       override;
-
+	void OnCollision(Object* obj) override;
 private:
 
     TileSet* animation = nullptr;
     Animation* anim;
-
+	Vector* speed;
 
 
     float   patrolSpeed;

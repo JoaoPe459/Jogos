@@ -14,10 +14,10 @@ class Physics
 {
 public:
     // Constantes de f�sica
-    static constexpr float GRAVITY = 980.0f;   // pixels/s�  (realista)
+    static constexpr float GRAVITY = 800.0f;   // pixels/s�  (realista)
     static constexpr float MAX_FALL_SPEED = 600.0f;   // velocidade m�xima de queda
-    static constexpr float JUMP_FORCE = 520.0f;   // impulso do pulo
-    static constexpr float DOUBLE_JUMP = 440.0f;   // impulso do segundo pulo
+    static constexpr float JUMP_FORCE = 720.0f;   // impulso do pulo
+    static constexpr float DOUBLE_JUMP = 640.0f;   // impulso do segundo pulo
     static constexpr float MOVE_SPEED = 220.0f;   // velocidade horizontal
     static constexpr float DASH_SPEED = 620.0f;   // velocidade do dash
     static constexpr float DASH_DURATION = 0.18f;    // dura��o do dash em segundos

@@ -3,10 +3,10 @@
 #include <cmath>
 
 Flyer::Flyer(float startX, float startY)
-    : BaseEnemy(2, 3),         // 2 HP, dropa 3 geo
+    : BaseEnemy(2, 3),
     orbitAngle(0.0f),
     orbitRadius(80.0f),
-    orbitSpeed(90.0f),       // graus/segundo
+    orbitSpeed(90.0f),
     diveSpeed(320.0f),
     diveTimer(0.0f),
     diveCooldown(0.0f),
@@ -22,12 +22,16 @@ Flyer::Flyer(float startX, float startY)
 
     MoveTo(startX, startY);
     state = ES_PATROL;
+
+    // vetor velocidade — começa parado
+    speed = new Vector(0.0f, 0.0f);
 }
 
 // -------------------------------------------------------------------------------
 
 Flyer::~Flyer()
 {
+    delete speed;
     delete anim;
     delete animation;
 }
@@ -40,19 +44,28 @@ void Flyer::UpdateAI(float dt)
 
     switch (state)
     {
-        // ---- Patrulha: órbita senoidal em volta da posição inicial ----
+        // ---- Patrulha: órbita senoidal ----
     case ES_PATROL:
     {
         orbitAngle += orbitSpeed * dt;
-        velX = cosf(orbitAngle * 3.14159f / 180.0f) * 60.0f;
-        velY = sinf(orbitAngle * 3.14159f / 180.0f) * 30.0f;
 
-        // Avista o player: muda para alerta
+        // Converte posição da órbita em vetor polar
+        float vx = cosf(orbitAngle * 3.14159f / 180.0f) * 60.0f;
+        float vy = sinf(orbitAngle * 3.14159f / 180.0f) * 30.0f;
+
+        speed->ScaleTo(0.0f);
+        if (vx != 0.0f || vy != 0.0f)
+        {
+            float angle = atan2f(vy, vx) * (180.0f / 3.14159f);
+            float mag = sqrtf(vx * vx + vy * vy);
+            speed->Add(Vector(angle, mag));
+        }
+
         if (PlayerInSight(250.0f))
         {
             state = ES_ALERT;
             alertTimer = 0.3f;
-            velX = velY = 0;
+            speed->ScaleTo(0.0f);
         }
         break;
     }
@@ -60,7 +73,7 @@ void Flyer::UpdateAI(float dt)
     // ---- Alerta ----
     case ES_ALERT:
     {
-        velX = velY = 0;
+        speed->ScaleTo(0.0f);
         if (alertTimer <= 0) state = ES_CHASE;
         break;
     }
@@ -68,55 +81,55 @@ void Flyer::UpdateAI(float dt)
     // ---- Perseguição: circula acima do player e mergulha ----
     case ES_CHASE:
     {
-        // posição alvo: levemente acima do player
+        // Alvo: levemente acima do player
         float targetX = GeoWars::player->X();
         float targetY = GeoWars::player->Y() - 120.0f;
 
         float dx = targetX - x;
-        float dy = targetY - y;
+        float dy = -(targetY - y);   // inverte Y para sistema vetorial
         float dist = sqrtf(dx * dx + dy * dy);
 
-        // Aproxima suavemente
+        facingRight = (GeoWars::player->X() > x);
+
+        // Aproxima suavemente na direção do alvo
+        speed->ScaleTo(0.0f);
         if (dist > 5.0f)
         {
-            velX = (dx / dist) * 90.0f;
-            velY = (dy / dist) * 90.0f;
+            float angle = atan2f(dy, dx) * (180.0f / 3.14159f);
+            speed->Add(Vector(angle, 90.0f));
         }
-        else
-        {
-            velX = velY = 0;
-        }
-
-        facingRight = GeoWars::player->X() > x;
 
         // Mergulha se próximo o suficiente e cooldown zerado
         if (dist < 160.0f && diveCooldown <= 0)
         {
+            // Calcula ângulo exato em direção ao player
+            float adx = GeoWars::player->X() - x;
+            float ady = -(GeoWars::player->Y() - y); // inverte Y
+            float angle = atan2f(ady, adx) * (180.0f / 3.14159f);
+
+            speed->ScaleTo(0.0f);
+            speed->Add(Vector(angle, diveSpeed));
+
             state = ES_ATTACK;
             diveTimer = 0.5f;
             diveCooldown = 1.8f;
-            float adx = GeoWars::player->X() - x;
-            float ady = GeoWars::player->Y() - y;
-            float len = sqrtf(adx * adx + ady * ady);
-            if (len > 0) { adx /= len; ady /= len; }
-            velX = adx * diveSpeed;
-            velY = ady * diveSpeed;
         }
 
-        // Perdeu visão
         if (!PlayerInSight(350.0f))
+        {
+            speed->ScaleTo(0.0f);
             state = ES_PATROL;
-
+        }
         break;
     }
 
-    // ---- Ataque: mergulho em linha reta ----
+    // ---- Ataque: mantém o vetor do mergulho até acabar o timer ----
     case ES_ATTACK:
     {
         diveTimer -= dt;
         if (diveTimer <= 0)
         {
-            velX = velY = 0;
+            speed->ScaleTo(0.0f);
             state = ES_CHASE;
         }
         break;
@@ -125,6 +138,16 @@ void Flyer::UpdateAI(float dt)
     default:
         break;
     }
+
+    // Aplica translação pelo vetor velocidade
+    Translate(speed->XComponent() * dt,
+        -speed->YComponent() * dt);
+
+    // Restringe às bordas do mapa
+    if (x - hw < 0)       MoveTo(hw, y);
+    if (x + hw > 3840.0f) MoveTo(3840.0f - hw, y);
+    if (y - hh < 0)       MoveTo(x, hh);
+    if (y + hh > 2160.0f) MoveTo(x, 2160.0f - hh);
 }
 
 // -------------------------------------------------------------------------------
@@ -132,20 +155,21 @@ void Flyer::UpdateAI(float dt)
 void Flyer::DrawSprite()
 {
     float flipX = facingRight ? 1.0f : -1.0f;
-    float dt = gameTime;
 
     switch (state)
     {
     case ES_ATTACK:
-        anim->Draw(x, y, z, 1.0f, 0);
-        break;
     case ES_HURT:
-        anim->Draw(x, y, z, 1.0f, 0);
-        break;
     default:
-        anim->Draw(x, y, z, 1.0f, 0);
+        anim->Draw(x, y, Layer::MIDDLE, 1.0f, 0, flipX);
         break;
     }
 }
 
 // -------------------------------------------------------------------------------
+
+void Flyer::OnCollision(Object* obj)
+{
+    if (GetHP() < 1)
+        GeoWars::scene->Delete(this, MOVING);
+}

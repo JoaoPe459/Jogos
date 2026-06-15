@@ -6,30 +6,32 @@
 #include "GeoWars.h"
 
 Crawler::Crawler(float startX, float startY)
-    : BaseEnemy(3, 2),      // 3 HP, dropa 2 geo
+    : BaseEnemy(3, 2),
     patrolSpeed(60.0f),
     chaseSpeed(110.0f),
     patrolTimer(0.0f),
     edgeCheckOffset(20.0f)
 {
-
-
     animation = new TileSet("Resources/Player/Rato.png", 64, 64, 15, 30);
     anim = new Animation(animation, 0.130f, true);
 
     hw = 14.0f;
     hh = 12.0f;
-    BBox(new Circle(20.0f));
+    BBox(new Circle(45.0f));
 
     MoveTo(startX, startY);
     facingRight = true;
     state = ES_PATROL;
+
+    // vetor velocidade — começa parado
+    speed = new Vector(0.0f, 0.0f);
 }
 
 // -------------------------------------------------------------------------------
 
 Crawler::~Crawler()
 {
+    delete speed;
     delete animation;
     delete anim;
 }
@@ -38,14 +40,7 @@ Crawler::~Crawler()
 
 bool Crawler::CheckEdgeAhead() const
 {
-    //if (!Player::tilemap) return false;
-
-    float checkX = facingRight ? x + hw + edgeCheckOffset : x - hw - edgeCheckOffset;
-    float checkY = y + hh + 4.0f;    // logo abaixo dos pés
-
-    //TileType t = Player::tilemap->GetAt(checkX, checkY);
-    //return (t == TILE_EMPTY);          // beira: vazio abaixo
-    return false;
+    return false; // sem tilemap por enquanto
 }
 
 // -------------------------------------------------------------------------------
@@ -57,21 +52,22 @@ void Crawler::UpdateAI(float dt)
         // ---- Patrulha ----
     case ES_PATROL:
     {
-        velX = facingRight ? patrolSpeed : -patrolSpeed;
+        // Move horizontalmente na direção atual
+        float angle = facingRight ? 0.0f : 180.0f;
+        speed->ScaleTo(0.0f);
+        speed->Add(Vector(angle, patrolSpeed));
 
-        // Vira ao detectar beira ou parede
         if (CheckEdgeAhead())
         {
             facingRight = !facingRight;
-            patrolTimer = 0.3f;      // pequena pausa ao virar
+            patrolTimer = 0.3f;
         }
 
-        // Passa para alerta ao ver o player
         if (PlayerInSight(200.0f))
         {
             state = ES_ALERT;
-            alertTimer = 0.4f;        // pequena pausa de "avistamento"
-            velX = 0;
+            alertTimer = 0.4f;
+            speed->ScaleTo(0.0f);
         }
         break;
     }
@@ -79,7 +75,7 @@ void Crawler::UpdateAI(float dt)
     // ---- Alerta (avistou o player) ----
     case ES_ALERT:
     {
-        velX = 0;
+        speed->ScaleTo(0.0f);
         if (alertTimer <= 0)
             state = ES_CHASE;
         break;
@@ -88,20 +84,30 @@ void Crawler::UpdateAI(float dt)
     // ---- Perseguição ----
     case ES_CHASE:
     {
-        //float dx = SilkSong::player->X() - x;
-        //facingRight = (dx > 0);
-        //velX = facingRight ? chaseSpeed : -chaseSpeed;
+        Player* player = GeoWars::player;
+        if (player)
+        {
+            // Calcula ângulo exato em direção ao player
+            float dx = player->X() - x;
+            float dy = -(player->Y() - y); // inverte Y para sistema vetorial
+            float angle = atan2f(dy, dx) * (180.0f / 3.14159f);
 
-        // Beira: para de perseguir, volta a patrulhar
+            facingRight = (dx > 0);
+
+            // Aplica velocidade de perseguição na direção do player
+            speed->ScaleTo(0.0f);
+            speed->Add(Vector(angle, chaseSpeed));
+        }
+
         if (CheckEdgeAhead())
         {
-            velX = 0;
+            speed->ScaleTo(0.0f);
             state = ES_PATROL;
         }
 
-        // Perdeu linha de visada: volta a patrulhar
         if (!PlayerInSight(280.0f))
         {
+            speed->ScaleTo(0.0f);
             state = ES_PATROL;
         }
         break;
@@ -110,6 +116,16 @@ void Crawler::UpdateAI(float dt)
     default:
         break;
     }
+
+    // Aplica translação pelo vetor velocidade
+    Translate(speed->XComponent() * dt,
+        -speed->YComponent() * dt);
+
+    // Restringe às bordas do mapa
+    if (x - hw < 0)           MoveTo(hw, y);
+    if (x + hw > 3840.0f)     MoveTo(3840.0f - hw, y);
+    if (y - hh < 0)           MoveTo(x, hh);
+    if (y + hh > 2160.0f)     MoveTo(x, 2160.0f - hh);
 }
 
 // -------------------------------------------------------------------------------
@@ -117,28 +133,25 @@ void Crawler::UpdateAI(float dt)
 void Crawler::DrawSprite()
 {
     float flipX = facingRight ? 1.0f : -1.0f;
-    float dt = gameTime;
 
     switch (state)
     {
     case ES_IDLE:
     case ES_ALERT:
-        anim->Draw(x, y, Layer::MIDDLE, 1.0f, 0, flipX);
-        break;
-
     case ES_PATROL:
     case ES_CHASE:
-        anim->Draw(x, y, Layer::MIDDLE, 1.0f, 0, flipX);
-        break;
-
     case ES_HURT:
-        anim->Draw(x, y, Layer::MIDDLE, 1.0f, 0, flipX);
-        break;
-
     default:
         anim->Draw(x, y, Layer::MIDDLE, 1.0f, 0, flipX);
         break;
     }
 }
 
-// -------------------------------------------------------------------------------
+void Crawler::OnCollision(Object* obj)
+{
+    if (GetHP() < 1)
+    {
+        GeoWars::scene->Delete(this, this->Type());
+    }
+}
+

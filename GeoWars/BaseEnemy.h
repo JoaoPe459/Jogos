@@ -1,10 +1,10 @@
 /**********************************************************************************
-// BaseEnemy (Arquivo de Cabe�alho)
+// BaseEnemy (Arquivo de Cabeçalho)
 //
-// Descri��o:   Classe base para todos os inimigos.
+// Descrição:   Classe base para todos os inimigos.
 //              Herda de Object e implementa IDamageable.
-//              Cont�m f�sica com gravidade, sistema de HP, knockback,
-//              drop de geo e integra��o com tilemap.
+//              Contém física com gravidade, sistema de HP, knockback,
+//              drop de geo e integração com tilemap.
 //
 **********************************************************************************/
 
@@ -14,12 +14,12 @@
 #include "Object.h"
 #include "IDamageable.h"
 #include "Particles.h"
-//#include "TileMap.h"
+#include "Vector.h"
 #include "Physics.h"
 
 // -------------------------------------------------------------------------------
 
-// Estados gen�ricos dos inimigos
+// Estados genéricos dos inimigos
 enum EnemyState
 {
     ES_IDLE,
@@ -28,7 +28,7 @@ enum EnemyState
     ES_ATTACK,
     ES_HURT,
     ES_DEAD,
-    ES_ALERT,    // viu o player, vai come�ar a perseguir
+    ES_ALERT,    // viu o player, vai começar a perseguir
 };
 
 // -------------------------------------------------------------------------------
@@ -40,24 +40,24 @@ public:
     virtual ~BaseEnemy();
 
     // Object
-    void Update()   override;
-    void Draw()     override;
-    void OnCollision(Object* obj) override;
+    void Update()              override;
+    void Draw()                override;
+    void OnCollision(Object*)  override;
 
     // IDamageable
-    void TakeDamage(int dmg) override;
-    bool IsAlive()    const  override { return hp > 0; }
+    void TakeDamage(int dmg)   override;
+    bool IsAlive() const       override { return hp > 0; }
 
-    int  GetHP()      const { return hp; }
-    int  GetMaxHP()   const { return maxHp; }
+    int  GetHP()   const { return hp; }
+    int  GetMaxHP() const { return maxHp; }
 
 protected:
     // ---- subclasses implementam AI ----
     virtual void UpdateAI(float dt) = 0;
     virtual void DrawSprite() = 0;
 
-    // ---- f�sica ----
-    float    velX, velY;
+    // ---- física vetorial ----
+    Vector* speed;
     bool     onGround;
     bool     facingRight;
     void     ApplyGravity(float dt);
@@ -66,27 +66,29 @@ protected:
     // ---- estado ----
     EnemyState state;
     float      hurtTimer;
-    float      deadTimer;      // espera antes de remover da cena
+    float      deadTimer;
     float      alertTimer;
 
     // ---- stats ----
     int        hp, maxHp;
-    int        geoDrop;        // geo que cai ao morrer
+    int        geoDrop;
 
     // ---- half-extents AABB ----
     float      hw, hh;
 
-    // ---- part�culas ----
+    // ---- partículas ----
     Particles* deathParticles;
     Particles* hurtParticles;
 
-    // ---- helper: dist�ncia ao player ----
-    float DistToPlayer() const;
-    float AngleToPlayer() const;
-    bool  PlayerInRange(float range) const;
-    bool  PlayerInSight(float range) const;  // verifica linha de visada
+    // ---- helpers ----
+    float DistToPlayer()          const;
+    float AngleToPlayer()         const;
+    bool  PlayerInRange(float r)  const;
+    bool  PlayerInSight(float r)  const;
 
 private:
+    bool invincible;
+    float invincibleTimer;
     void SpawnGeoPickup();
 };
 

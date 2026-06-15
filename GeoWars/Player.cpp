@@ -161,6 +161,15 @@ void Player::Update()
     ApplyGravity(dt);
     UpdateState();
     UpdateParticles(dt);
+
+    if (x < 50)
+        MoveTo(50, y);
+    if (y < 50)
+        MoveTo(x, 50);
+    if (x > game->Width() - 50)
+        MoveTo(game->Width() - 50, y);
+    if (y > game->Height() - 50)
+        MoveTo(x, game->Height() - 50);
 }
 
 // -------------------------------------------------------------------------------
