@@ -27,7 +27,7 @@ Player::Player()
     onGround(false), onCeiling(false), onWallLeft(false), onWallRight(false),
     jumpsLeft(2), coyoteTimer(0), jumpBufferTimer(0), jumpHeld(false),
     dashTimer(0), dashCooldown(0), dashDirX(1), canDash(true),
-    attackTimer(0), attackCooldown(0), attackCombo(0), comboResetTimer(0),
+    attackTimer(0.50f), attackCooldown(0), attackCombo(0), comboResetTimer(0),
     hurtTimer(0), invincibleTimer(0), invincible(false),
     hp(5), maxHp(5), soul(0), geo(0), healTimer(0)
 {
@@ -510,7 +510,8 @@ void Player::Heal(int amount)
 
 void Player::OnCollision(Object* obj)
 {
-    // colisões com inimigos e projéteis são gerenciadas pelos próprios inimigos
+    if (obj && obj->Type() == PLATFORM)
+        obj->OnCollision(this);  // delega para a Platform resolver
 }
 
 // -------------------------------------------------------------------------------

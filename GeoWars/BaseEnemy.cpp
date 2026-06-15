@@ -122,7 +122,7 @@ void BaseEnemy::Update()
     UpdateAI(dt);
 
     // Física
-    //ApplyGravity(dt);
+    ApplyGravity(dt);
     Translate(speed->XComponent() * dt,
         -speed->YComponent() * dt);
     ResolveTiles();
@@ -174,7 +174,7 @@ void BaseEnemy::TakeDamage(int dmg)
 {
     if (invincible || state == ES_DEAD) return;
 
-    hp = max(hp - dmg, 0);
+    hp -= dmg;
     hurtParticles->Generate(x, y, 6);
 
     if (hp <= 0)

@@ -14,7 +14,7 @@ public:
         : damage(dmg), creatorType(creator), timer(duration), hitCount(0), maxHits(3)
     {
         MoveTo(px, py);
-        BBox(new Rect(28.0f, 24.0f, 0, 0));
+        BBox(new Rect(48.0f, 48.0f, 0, 0));
         type = ATTACK;
     }
 

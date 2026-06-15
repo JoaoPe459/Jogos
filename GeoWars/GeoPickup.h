@@ -51,7 +51,7 @@ public:
 
         if (lifetime <= 0 || collected)
         {
-            //SilkSong::scene->Delete();
+            GeoWars::scene->Delete(this, PICKUP);
             return;
         }
 
@@ -91,7 +91,7 @@ public:
                 p->AddSoul(5);       // matar inimigos recarrega soul
             }
             GeoWars::audio->Play(GEO_SFX);
-            GeoWars::scene->Delete();
+            GeoWars::scene->Delete(this, PICKUP);
         }
     }
 

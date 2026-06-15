@@ -54,7 +54,7 @@ void Hud::Draw()
 
     // define cor do texto
     Color textColor{ 0.7f, 0.7f, 0.7f, 1.0f };
-
+    Color hpColor{ 1.0f, 0.2f, 0.2f, 1.0f };
     // desenha texto
     text.str("");
     text << "Geometry Wars";
@@ -79,6 +79,11 @@ void Hud::Draw()
     text.str("");
     text << "Disparo";
     bold->Draw(window->CenterX() + 115.0f, window->Height() - 7.0f, text.str(), textColor);
+    
+    text.str("");
+    text << "Vida: " << GeoWars::player->GetHP();
+    bold->Draw(window->CenterX() + 205.0f, window->Height() - 7.0f, text.str(), hpColor);
+
 }
 
 // -------------------------------------------------------------------------------

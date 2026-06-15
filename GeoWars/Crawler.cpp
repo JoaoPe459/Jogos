@@ -6,7 +6,7 @@
 #include "GeoWars.h"
 
 Crawler::Crawler(float startX, float startY)
-    : BaseEnemy(3, 2),
+    : BaseEnemy(1, 2),
     patrolSpeed(60.0f),
     chaseSpeed(110.0f),
     patrolTimer(0.0f),
@@ -122,16 +122,6 @@ void Crawler::UpdateAI(float dt)
     default:
         break;
     }
-
-    // Aplica translação pelo vetor velocidade
-    Translate(speed->XComponent() * dt,
-        -speed->YComponent() * dt);
-
-    // Restringe às bordas do mapa
-    if (x - hw < 0)           MoveTo(hw, y);
-    if (x + hw > 3840.0f)     MoveTo(3840.0f - hw, y);
-    if (y - hh < 0)           MoveTo(x, hh);
-    if (y + hh > 2160.0f)     MoveTo(x, 2160.0f - hh);
 }
 
 // -------------------------------------------------------------------------------
