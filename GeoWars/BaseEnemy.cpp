@@ -94,8 +94,10 @@ void BaseEnemy::Update()
             -speed->YComponent() * dt);
 
         if (deadTimer <= 0)
+        {   // <--- CHAVES ADICIONADAS AQUI PARA EVITAR O CRASH!
             GeoWars::enemies.Remove(this);
             GeoWars::scene->Delete();
+        }
         return;
     }
 
@@ -115,8 +117,6 @@ void BaseEnemy::Update()
     }
 
     // Estado de ataque: retorna ao patrol ao terminar
-    // (subclasses com lógica própria de ataque, ex: o mergulho do Flyer,
-    // setam customAttackState = true e controlam essa transição sozinhas)
     if (state == ES_ATTACK && attackTimer <= 0 && !customAttackState)
     {
         state = ES_PATROL;
@@ -128,6 +128,7 @@ void BaseEnemy::Update()
     {
         ApplyGravity(dt);
     }
+
     Translate(speed->XComponent() * dt,
         -speed->YComponent() * dt);
     ResolveTiles();
@@ -136,14 +137,10 @@ void BaseEnemy::Update()
     hurtParticles->Update(dt);
     deathParticles->Update(dt);
 
-    if (x < 50)
-        MoveTo(50, y);
-    if (y < 50)
-        MoveTo(x, 50);
-    if (x > game->Width() - 50)
-        MoveTo(game->Width() - 50, y);
-    if (y > game->Height() - 50)
-        MoveTo(x, game->Height() - 50);
+    if (x < 50) MoveTo(50, y);
+    if (y < 50) MoveTo(x, 50);
+    if (x > game->Width() - 50) MoveTo(game->Width() - 50, y);
+    if (y > game->Height() - 50) MoveTo(x, game->Height() - 50);
 }
 
 // -------------------------------------------------------------------------------
@@ -177,7 +174,16 @@ void BaseEnemy::OnCollision(Object* obj)
 
 void BaseEnemy::TakeDamage(int dmg)
 {
-    if (invincible || state == ES_DEAD) return;
+    if (state == ES_DEAD) return;
+
+    // Se o inimigo já tomou hit e está invencível, dá um feedback visual/sonoro
+    // Isso avisa o cérebro do jogador que o ataque pegou, mas foi "defendido"
+    if (invincible)
+    {
+        hurtParticles->Generate(x, y, 2); // Faísca menor
+        GeoWars::audio->Play(HITWALL);    // Som metálico/bloqueio
+        return;
+    }
 
     hp -= dmg;
     hurtParticles->Generate(x, y, 6);
@@ -201,7 +207,7 @@ void BaseEnemy::TakeDamage(int dmg)
     state = ES_HURT;
     hurtTimer = 0.35f;
     invincible = true;
-    invincibleTimer = 0.4f;
+    invincibleTimer = 0.25f; // <--- REDUZIDO PARA 0.25! Garante que o combo do player conecte.
 
     float knockbackAngle = (x >= GeoWars::player->X()) ? 60.0f : 120.0f; // diagonal p/ cima e p/ fora
     speed->ScaleTo(0.0f);
@@ -331,13 +337,26 @@ void BaseEnemy::Attack()
 
     state = ES_ATTACK;
     attackTimer = 0.4f;
-    attackCooldown = 1.0f;
+    attackCooldown = 1.0f; // Tempo até poder atirar de novo
 
-    // Offset do hitbox na direção do inimigo
+    // Distância inicial na frente do inimigo
     float ox = facingRight ? hw + 24.0f : -(hw + 24.0f);
     float oy = 0;
 
-    GeoWars::scene->Add(new AttackHitbox(x + ox, y + oy, attackDamage, type, this), MOVING);
+    // Define a velocidade baseada na direção que o inimigo está olhando
+    float attackSpeed = facingRight ? 550.0f : -550.0f;
+
+    // Dispara o Hitbox
+    GeoWars::scene->Add(new AttackHitbox(
+        x + ox, y + oy,
+        attackDamage,
+        type,
+        nullptr,      // owner = nullptr (para não seguir o inimigo)
+        0.8f,         // Duração de 0.8s (vai bem longe!)
+        3,            // Número de alvos
+        48.0f, 48.0f, // Largura e Altura
+        attackSpeed   // A velocidade que criamos!
+    ), MOVING);
 }
 
 // -------------------------------------------------------------------------------

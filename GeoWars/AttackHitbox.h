@@ -17,15 +17,16 @@ public:
     // mantendo o mesmo offset relativo de quando foi criado — assim ele não
     // fica "para trás" se o atacante continuar se movendo durante o swing.
     AttackHitbox(float px, float py, int dmg, uint creator, Object* owner = nullptr,
-        float duration = 0.12f, int maxTargets = 3, float width = 48.0f, float height = 48.0f)
+        float duration = 0.12f, int maxTargets = 3, float width = 48.0f, float height = 48.0f, float velX = 0.0f)
         : damage(dmg), creatorType(creator), timer(duration),
         maxTargets(maxTargets), markedForDelete(false),
         owner(owner),
         offsetX(owner ? px - owner->X() : 0.0f),
-        offsetY(owner ? py - owner->Y() : 0.0f)
+        offsetY(owner ? py - owner->Y() : 0.0f),
+        velocityX(velX)
     {
         MoveTo(px, py);
-        BBox(new Rect(width, height, 0, 0));
+        BBox(new Rect(-width / 2, -height / 2, width / 2, height / 2));
         type = ATTACK;
         hitTargets.reserve(maxTargets);
     }
@@ -37,7 +38,13 @@ public:
         timer -= gameTime;
 
         if (owner)
+        {
             MoveTo(owner->X() + offsetX, owner->Y() + offsetY);
+        }
+        else if (velocityX != 0.0f)
+        {
+            Translate(velocityX * gameTime, 0.0f);
+        }
 
         if (!markedForDelete &&
             (timer <= 0 || (int)hitTargets.size() >= maxTargets))
@@ -85,6 +92,7 @@ private:
     Object* owner;       // apenas para seguir a posição; nunca é deletado por aqui
     float   offsetX;
     float   offsetY;
+    float velocityX;
 
     std::vector<Object*> hitTargets; // alvos já atingidos neste swing (não dereferenciados,
     // só usados para comparação de ponteiro)

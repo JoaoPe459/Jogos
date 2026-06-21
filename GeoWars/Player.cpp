@@ -38,7 +38,7 @@ Player::Player()
     speed = new Vector(90.0f, 0.0f);
 
     // AABB como bounding box
-    BBox(new Circle(32.0f));
+    BBox(new Rect(-20.0f, -32.0f, 20.0f, 32.0f));
 
     // posição inicial: ponto de spawn do mapa
     MoveTo(window->CenterX(), window->CenterY());
@@ -464,12 +464,45 @@ void Player::UpdateParticles(float dt)
 
 void Player::SpawnAttackHitbox()
 {
-    float ox = facingRight ? HW + 16.0f : -(HW + 16.0f);
+    // Aumentamos o offset novamente. Como o hitbox agora tem 80 de largura, 
+    // colocar o centro dele em "HW + 28" faz com que a ponta da espada vá bem longe,
+    // e a "metade de trás" do hitbox ainda cubra a área grudada no player.
+    float ox = facingRight ? HW + 28.0f : -(HW + 28.0f);
     float oy = 0;
     int   dmg = (attackCombo == 2) ? 2 : 1;
 
-    GeoWars::scene->Add(new AttackHitbox(x + ox, y + oy, dmg, type, this), MOVING);
-    hitParticles->Generate(x + ox, y + oy, 8);
+    if (attackCombo == 2)
+    {
+        // --- GOLPE 3: PROJÉTIL (Onda de Choque) ---
+        float projSpeed = facingRight ? 750.0f : -750.0f;
+
+        GeoWars::scene->Add(new AttackHitbox(
+            x + ox, y + oy,
+            dmg,
+            type,
+            nullptr,
+            0.5f,
+            5,
+            64.0f, 64.0f,
+            projSpeed
+        ), MOVING);
+
+        hitParticles->Generate(x + ox, y + oy, 20);
+    }
+    else
+    {
+        GeoWars::scene->Add(new AttackHitbox(
+            x + ox, y + oy,
+            dmg,
+            type,
+            this,
+            0.20f, // Nova duração
+            3,
+            80.0f, 64.0f // Nova largura e altura
+        ), MOVING);
+
+        hitParticles->Generate(x + ox, y + oy, 8);
+    }
 }
 
 // -------------------------------------------------------------------------------
@@ -521,6 +554,8 @@ void Player::Draw()
     // Pisca durante invencibilidade
     if (invincible && (int)(invincibleTimer * 10) % 2 == 0) return;
 
+    float flipX = facingRight ? 1.0f : -1.0f;
+    //sprite->Draw(x, y, Layer::FRONT, 1.0f, 0.0f, flipX);
 
     if (healTimer > 0)
         hitParticles->Draw(Layer::MIDDLE, 1.0f);
