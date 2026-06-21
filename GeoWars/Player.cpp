@@ -515,8 +515,9 @@ void Player::TakeDamage(int dmg)
 
     if (hp <= 0)
     {
-        state = PS_DEAD;
+        //state = PS_DEAD;
         GeoWars::audio->Play(DEATH_SFX);
+        hp = 5;
         return;
     }
 
