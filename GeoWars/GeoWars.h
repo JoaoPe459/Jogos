@@ -20,6 +20,21 @@
 #include "Background.h"
 #include "Player.h"
 #include "Hud.h"
+#include "BaseEnemy.h"
+
+
+
+
+struct EnemyManager {
+    BaseEnemy* list[100]; // Vetor primitivo de ponteiros
+    int count;            // Quantidade atual de inimigos no mapa
+
+    EnemyManager() : count(0) {}
+
+    bool Add(BaseEnemy* enemy);
+    void Remove(BaseEnemy* enemy);
+    void Clear();
+};
 
 // ------------------------------------------------------------------------------
 
@@ -39,6 +54,7 @@ public:
     static Audio * audio;           // sitema de áudio
     static Scene * scene;           // cena do jogo
     static bool viewHUD;            // visualização do painel
+    static EnemyManager enemies;
 
     void Init();                    // inicialização
     void Update();                  // atualização

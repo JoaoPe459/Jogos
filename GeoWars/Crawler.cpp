@@ -1,13 +1,6 @@
 #include "Crawler.h"
 #include "GeoWars.h"
 
-// -------------------------------------------------------------------------------
-// IMPORTANTE: adicione ao Crawler.h (seção private) — usado pela patrulha por
-// raio, já que CheckEdgeAhead() ainda não tem tilemap pra detectar borda real:
-//
-//     float spawnX;   // posição X de origem, usada como centro da patrulha
-// -------------------------------------------------------------------------------
-
 Crawler::Crawler(float startX, float startY)
     : BaseEnemy(1, 2),
     patrolSpeed(60.0f),
@@ -28,15 +21,15 @@ Crawler::Crawler(float startX, float startY)
     facingRight = true;
     state = ES_PATROL;
 
-    // vetor velocidade — começa parado
-    speed = new Vector(0.0f, 0.0f);
+    // A classe BaseEnemy JÁ inicializa o 'speed'. 
+    // Não faça 'speed = new Vector()' aqui para não causar memory leak.
 }
 
 // -------------------------------------------------------------------------------
 
 Crawler::~Crawler()
 {
-    delete speed;
+    // A classe BaseEnemy JÁ faz o 'delete speed'.
     delete animation;
     delete anim;
 }
@@ -52,21 +45,14 @@ bool Crawler::CheckEdgeAhead() const
 
 void Crawler::UpdateAI(float dt)
 {
-    // Checagem de morte movida pra cá: antes só rodava dentro de OnCollision,
-    // então um Crawler que tomasse o dano fatal sem estar colidindo com nada
-    // naquele frame (ex.: dano à distância) ficava "vivo" até a próxima colisão.
-    if (GetHP() < 1)
-    {
-        GeoWars::scene->Delete(this, this->Type());
-        return;
-    }
+    // A checagem de "GetHP() < 1" foi removida daqui!
+    // A classe BaseEnemy::Update() já cuida de matar, explodir e remover da Scene.
 
     switch (state)
     {
         // ---- Patrulha ----
     case ES_PATROL:
     {
-        // Move horizontalmente na direção atual
         float angle = facingRight ? 0.0f : 180.0f;
         speed->ScaleTo(0.0f);
         speed->Add(Vector(angle, patrolSpeed));
@@ -74,9 +60,6 @@ void Crawler::UpdateAI(float dt)
         if (patrolTimer > 0.0f)
             patrolTimer -= dt;
 
-        // Sem tilemap pra detectar borda real (CheckEdgeAhead é só um stub por
-        // enquanto), então patrulhamos num raio a partir do ponto de spawn —
-        // assim o Crawler vai e volta ao invés de andar reto até a borda do mapa
         const float kPatrolRange = 180.0f;
         bool hitRightEdge = facingRight && (x - spawnX) > kPatrolRange;
         bool hitLeftEdge = !facingRight && (spawnX - x) > kPatrolRange;
@@ -84,14 +67,14 @@ void Crawler::UpdateAI(float dt)
         if (patrolTimer <= 0.0f && (CheckEdgeAhead() || hitRightEdge || hitLeftEdge))
         {
             facingRight = !facingRight;
-            patrolTimer = 0.3f; // evita virar várias vezes seguidas na borda
+            patrolTimer = 0.3f;
         }
 
         if (PlayerInSight(200.0f))
         {
             state = ES_ALERT;
             alertTimer = 0.4f;
-            facingRight = (GeoWars::player->X() > x); // já vira de frente pro player
+            facingRight = (GeoWars::player->X() > x);
             speed->ScaleTo(0.0f);
         }
         break;
@@ -101,8 +84,6 @@ void Crawler::UpdateAI(float dt)
     case ES_ALERT:
     {
         speed->ScaleTo(0.0f);
-
-        // Faltava decrementar — antes disso o Crawler nunca saía do alerta
         alertTimer -= dt;
 
         if (alertTimer <= 0)
@@ -116,14 +97,12 @@ void Crawler::UpdateAI(float dt)
         Player* player = GeoWars::player;
         if (player)
         {
-            // Calcula ângulo exato em direção ao player
             float dx = player->X() - x;
-            float dy = -(player->Y() - y); // inverte Y para sistema vetorial
+            float dy = -(player->Y() - y);
             float angle = atan2f(dy, dx) * (180.0f / 3.14159f);
 
             facingRight = (dx > 0);
 
-            // Aplica velocidade de perseguição na direção do player
             speed->ScaleTo(0.0f);
             speed->Add(Vector(angle, chaseSpeed));
         }
@@ -140,9 +119,6 @@ void Crawler::UpdateAI(float dt)
             state = ES_PATROL;
         }
 
-        // Ataca se estiver próximo do player — BaseEnemy::Attack() já tem
-        // seu próprio cooldown interno (attackCooldown), então é seguro
-        // chamar aqui sem gating adicional
         if (PlayerInRange(attackRange))
         {
             Attack();
@@ -176,6 +152,8 @@ void Crawler::DrawSprite()
 
 void Crawler::OnCollision(Object* obj)
 {
+    // Chama a classe base PRIMEIRO para garantir que o Crawler vai causar dano ao Player
+    BaseEnemy::OnCollision(obj);
 
     if (obj && obj->Type() == PLATFORM)
         obj->OnCollision(this);

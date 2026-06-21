@@ -36,7 +36,6 @@ public:
     {
         timer -= gameTime;
 
-        // Acompanha o atacante (ver comentário no construtor)
         if (owner)
             MoveTo(owner->X() + offsetX, owner->Y() + offsetY);
 

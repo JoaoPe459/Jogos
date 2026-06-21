@@ -31,7 +31,6 @@ private:
 
     TileSet* animation = nullptr;
     Animation* anim;
-	Vector* speed;
 
 
     float   patrolSpeed;

@@ -94,7 +94,8 @@ void BaseEnemy::Update()
             -speed->YComponent() * dt);
 
         if (deadTimer <= 0)
-            GeoWars::scene->Delete(this, MOVING);
+            GeoWars::enemies.Remove(this);
+            GeoWars::scene->Delete();
         return;
     }
 

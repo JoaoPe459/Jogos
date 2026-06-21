@@ -25,10 +25,14 @@ Audio  * GeoWars::audio   = nullptr;
 Scene  * GeoWars::scene   = nullptr;
 bool     GeoWars::viewHUD = false;
 
+EnemyManager GeoWars::enemies;
+
 // ------------------------------------------------------------------------------
 
 void GeoWars::Init() 
 {
+
+    enemies.Clear();
     audio = new Audio();
     audio->Add(THEME, "Resources/Theme.wav");
     audio->Add(FIRE, "Resources/Fire.wav");
@@ -160,6 +164,34 @@ void GeoWars::Finalize()
     delete hud;
     delete scene;
     delete backg;
+}
+
+bool EnemyManager::Add(BaseEnemy* enemy)
+{
+    if (count >= 100) return false; // Impede que passe do limite
+
+    list[count] = enemy;
+    count++;
+    return true;
+}
+
+void EnemyManager::Remove(BaseEnemy* enemy)
+{
+    for (int i = 0; i < count; i++)
+    {
+        if (list[i] == enemy)
+        {
+            list[i] = list[count - 1];
+            list[count - 1] = nullptr;
+            count--;
+            return;
+        }
+    }
+}
+
+void EnemyManager::Clear()
+{
+    count = 0;
 }
 
 

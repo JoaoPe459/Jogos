@@ -34,7 +34,6 @@ private:
 
     TileSet* animation;               // folha de sprites do personagem
     Animation* anim;                   // animação do personagem
-    Vector* speed;
 
     float   orbitAngle;        // ângulo atual de órbita
     float   orbitRadius;       // raio da órbita ao redor de um ponto

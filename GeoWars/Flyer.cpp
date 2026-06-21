@@ -29,15 +29,12 @@ Flyer::Flyer(float startX, float startY)
     customAttackState = true;
     hasGravity = false;
 
-    // vetor velocidade — começa parado
-    speed = new Vector(0.0f, 0.0f);
 }
 
 // -------------------------------------------------------------------------------
 
 Flyer::~Flyer()
 {
-    delete speed;
     delete anim;
     delete animation;
 }
@@ -48,7 +45,8 @@ void Flyer::UpdateAI(float dt)
 {
     if (GetHP() < 1)
     {
-        GeoWars::scene->Delete(this, MOVING);
+        GeoWars::enemies.Remove(this);
+        GeoWars::scene->Delete();
         return;
     }
 

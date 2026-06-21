@@ -214,8 +214,8 @@ void LevelGrid::LoadTestLevel()
 void LevelGrid::SpawnAll()
 {
     float halfCell = cellSize / 2.0f;
-    float platW    = cellSize;       // largura da plataforma = 1 célula
-    float platH    = cellSize;       // altura  da plataforma = 1 célula
+    float platW = cellSize;       // largura da plataforma = 1 célula
+    float platH = cellSize;       // altura  da plataforma = 1 célula
 
     for (int r = 0; r < rows; r++)
     {
@@ -246,6 +246,7 @@ void LevelGrid::SpawnAll()
             {
                 Crawler* cr = new Crawler(cx, cy);
                 GeoWars::scene->Add(cr, MOVING);
+                GeoWars::enemies.Add(cr);        // <--- Registra no vetor de inimigos
             }
             break;
 
@@ -253,6 +254,7 @@ void LevelGrid::SpawnAll()
             {
                 Flyer* f = new Flyer(cx, cy);
                 GeoWars::scene->Add(f, MOVING);
+                GeoWars::enemies.Add(f);         // <--- Registra no vetor de inimigos
             }
             break;
 
