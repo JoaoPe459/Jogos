@@ -2,7 +2,7 @@
 #include "GeoWars.h"
 
 Crawler::Crawler(float startX, float startY)
-    : BaseEnemy(1, 2),
+    : BaseEnemy(3, 2),
     patrolSpeed(60.0f),
     chaseSpeed(110.0f),
     patrolTimer(0.0f),

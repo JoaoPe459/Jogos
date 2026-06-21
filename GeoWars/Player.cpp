@@ -469,7 +469,7 @@ void Player::SpawnAttackHitbox()
     // e a "metade de trás" do hitbox ainda cubra a área grudada no player.
     float ox = facingRight ? HW + 28.0f : -(HW + 28.0f);
     float oy = 0;
-    int   dmg = (attackCombo == 2) ? 2 : 1;
+    int   dmg = (attackCombo == 2) ? 1 : 1;
 
     if (attackCombo == 2)
     {

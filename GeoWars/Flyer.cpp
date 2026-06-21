@@ -4,7 +4,7 @@
 #include <cmath>
 
 Flyer::Flyer(float startX, float startY)
-    : BaseEnemy(2, 3),
+    : BaseEnemy(3, 3),
     orbitAngle(0.0f),
     orbitRadius(80.0f),
     orbitSpeed(90.0f),
