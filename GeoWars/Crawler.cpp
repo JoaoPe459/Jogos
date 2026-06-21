@@ -1,9 +1,12 @@
-// -------------------------------------------------------------------------------
-// IMPLEMENTAÇÃO
-// -------------------------------------------------------------------------------
-
 #include "Crawler.h"
 #include "GeoWars.h"
+
+// -------------------------------------------------------------------------------
+// IMPORTANTE: adicione ao Crawler.h (seção private) — usado pela patrulha por
+// raio, já que CheckEdgeAhead() ainda não tem tilemap pra detectar borda real:
+//
+//     float spawnX;   // posição X de origem, usada como centro da patrulha
+// -------------------------------------------------------------------------------
 
 Crawler::Crawler(float startX, float startY)
     : BaseEnemy(1, 2),
@@ -12,6 +15,8 @@ Crawler::Crawler(float startX, float startY)
     patrolTimer(0.0f),
     edgeCheckOffset(20.0f)
 {
+    spawnX = startX;
+
     animation = new TileSet("Resources/Player/Rato.png", 64, 64, 15, 30);
     anim = new Animation(animation, 0.130f, true);
 
@@ -47,6 +52,15 @@ bool Crawler::CheckEdgeAhead() const
 
 void Crawler::UpdateAI(float dt)
 {
+    // Checagem de morte movida pra cá: antes só rodava dentro de OnCollision,
+    // então um Crawler que tomasse o dano fatal sem estar colidindo com nada
+    // naquele frame (ex.: dano à distância) ficava "vivo" até a próxima colisão.
+    if (GetHP() < 1)
+    {
+        GeoWars::scene->Delete(this, this->Type());
+        return;
+    }
+
     switch (state)
     {
         // ---- Patrulha ----
@@ -57,16 +71,27 @@ void Crawler::UpdateAI(float dt)
         speed->ScaleTo(0.0f);
         speed->Add(Vector(angle, patrolSpeed));
 
-        if (CheckEdgeAhead())
+        if (patrolTimer > 0.0f)
+            patrolTimer -= dt;
+
+        // Sem tilemap pra detectar borda real (CheckEdgeAhead é só um stub por
+        // enquanto), então patrulhamos num raio a partir do ponto de spawn —
+        // assim o Crawler vai e volta ao invés de andar reto até a borda do mapa
+        const float kPatrolRange = 180.0f;
+        bool hitRightEdge = facingRight && (x - spawnX) > kPatrolRange;
+        bool hitLeftEdge = !facingRight && (spawnX - x) > kPatrolRange;
+
+        if (patrolTimer <= 0.0f && (CheckEdgeAhead() || hitRightEdge || hitLeftEdge))
         {
             facingRight = !facingRight;
-            patrolTimer = 0.3f;
+            patrolTimer = 0.3f; // evita virar várias vezes seguidas na borda
         }
 
         if (PlayerInSight(200.0f))
         {
             state = ES_ALERT;
             alertTimer = 0.4f;
+            facingRight = (GeoWars::player->X() > x); // já vira de frente pro player
             speed->ScaleTo(0.0f);
         }
         break;
@@ -76,6 +101,10 @@ void Crawler::UpdateAI(float dt)
     case ES_ALERT:
     {
         speed->ScaleTo(0.0f);
+
+        // Faltava decrementar — antes disso o Crawler nunca saía do alerta
+        alertTimer -= dt;
+
         if (alertTimer <= 0)
             state = ES_CHASE;
         break;
@@ -111,7 +140,9 @@ void Crawler::UpdateAI(float dt)
             state = ES_PATROL;
         }
 
-        // Ataca se estiver próximo do player
+        // Ataca se estiver próximo do player — BaseEnemy::Attack() já tem
+        // seu próprio cooldown interno (attackCooldown), então é seguro
+        // chamar aqui sem gating adicional
         if (PlayerInRange(attackRange))
         {
             Attack();
@@ -145,9 +176,7 @@ void Crawler::DrawSprite()
 
 void Crawler::OnCollision(Object* obj)
 {
-    if (GetHP() < 1)
-    {
-        GeoWars::scene->Delete(this, this->Type());
-    }
-}
 
+    if (obj && obj->Type() == PLATFORM)
+        obj->OnCollision(this);
+}

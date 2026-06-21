@@ -38,6 +38,7 @@ private:
     float   chaseSpeed;
     float   patrolTimer;       // tempo até virar durante patrulha
     float   edgeCheckOffset;   // distância à frente para checar beira
+    float   spawnX;
 
     bool    CheckEdgeAhead() const;   // true se há vazio à frente
 };

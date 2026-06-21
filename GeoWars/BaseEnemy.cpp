@@ -23,10 +23,11 @@ BaseEnemy::BaseEnemy(int maxHp, int geoDrop)
     state(ES_IDLE),
     hurtTimer(0), deadTimer(0), alertTimer(0),
     attackTimer(0), attackCooldown(0),
+    customAttackState(false),
     invincible(false), invincibleTimer(0),
     hp(maxHp), maxHp(maxHp), geoDrop(geoDrop),
     attackDamage(1), attackRange(60.0f),
-    hw(16.0f), hh(16.0f)
+    hw(16.0f), hh(16.0f), hasGravity(true)
 {
     type = ENEMY;
     speed = new Vector(0.0f, 0.0f);
@@ -113,16 +114,19 @@ void BaseEnemy::Update()
     }
 
     // Estado de ataque: retorna ao patrol ao terminar
-    if (state == ES_ATTACK && attackTimer <= 0)
+    // (subclasses com lógica própria de ataque, ex: o mergulho do Flyer,
+    // setam customAttackState = true e controlam essa transição sozinhas)
+    if (state == ES_ATTACK && attackTimer <= 0 && !customAttackState)
     {
         state = ES_PATROL;
     }
 
-    // AI específica da subclasse
     UpdateAI(dt);
 
-    // Física
-    ApplyGravity(dt);
+    if (hasGravity)
+    {
+        ApplyGravity(dt);
+    }
     Translate(speed->XComponent() * dt,
         -speed->YComponent() * dt);
     ResolveTiles();
@@ -332,7 +336,7 @@ void BaseEnemy::Attack()
     float ox = facingRight ? hw + 24.0f : -(hw + 24.0f);
     float oy = 0;
 
-    GeoWars::scene->Add(new AttackHitbox(x + ox, y + oy, attackDamage, type), STATIC);
+    GeoWars::scene->Add(new AttackHitbox(x + ox, y + oy, attackDamage, type, this), MOVING);
 }
 
 // -------------------------------------------------------------------------------

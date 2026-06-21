@@ -24,6 +24,11 @@ Flyer::Flyer(float startX, float startY)
     MoveTo(startX, startY);
     state = ES_PATROL;
 
+    // O mergulho usa diveTimer pra controlar sua própria duração/estado —
+    // sem isso, o BaseEnemy reverte ES_ATTACK->ES_PATROL sozinho no meio do mergulho
+    customAttackState = true;
+    hasGravity = false;
+
     // vetor velocidade — começa parado
     speed = new Vector(0.0f, 0.0f);
 }
@@ -41,6 +46,12 @@ Flyer::~Flyer()
 
 void Flyer::UpdateAI(float dt)
 {
+    if (GetHP() < 1)
+    {
+        GeoWars::scene->Delete(this, MOVING);
+        return;
+    }
+
     if (diveCooldown > 0) diveCooldown -= dt;
 
     switch (state)
@@ -75,6 +86,8 @@ void Flyer::UpdateAI(float dt)
     case ES_ALERT:
     {
         speed->ScaleTo(0.0f);
+        if (GeoWars::player)
+            facingRight = (GeoWars::player->X() > x);
         if (alertTimer <= 0) state = ES_CHASE;
         break;
     }
@@ -173,8 +186,9 @@ void Flyer::DrawSprite()
 
 void Flyer::OnCollision(Object* obj)
 {
-    if (GetHP() < 1)
-        GeoWars::scene->Delete(this, MOVING);
+    // Checagem de morte saiu daqui — agora roda todo frame em UpdateAI.
+    if (obj && obj->Type() == PLATFORM)
+        obj->OnCollision(this);
 }
 
 // -------------------------------------------------------------------------------
@@ -190,5 +204,5 @@ void Flyer::Attack()
     attackTimer = 0.5f;    // evita que BaseEnemy resolva ES_ATTACK prematuramente
 
     float ox = facingRight ? hw + 24.0f : -(hw + 24.0f);
-    GeoWars::scene->Add(new AttackHitbox(x + ox, y, attackDamage, type), STATIC);
+    GeoWars::scene->Add(new AttackHitbox(x + ox, y, attackDamage, type, this), MOVING);
 }

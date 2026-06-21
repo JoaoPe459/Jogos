@@ -4,18 +4,30 @@
 #include "Object.h"
 #include "GeoWars.h"
 #include "IDamageable.h"
+#include <vector>
+#include <algorithm>
 
 // -------------------------------------------------------------------------------
 
 class AttackHitbox : public Object
 {
 public:
-    AttackHitbox(float px, float py, int dmg, uint creator, float duration = 0.12f)
-        : damage(dmg), creatorType(creator), timer(duration), hitCount(0), maxHits(3)
+    // 'owner' é quem disparou o golpe (player ou inimigo). Se informado, o
+    // hitbox passa a seguir a posição de 'owner' durante toda sua duração,
+    // mantendo o mesmo offset relativo de quando foi criado — assim ele não
+    // fica "para trás" se o atacante continuar se movendo durante o swing.
+    AttackHitbox(float px, float py, int dmg, uint creator, Object* owner = nullptr,
+        float duration = 0.12f, int maxTargets = 3, float width = 48.0f, float height = 48.0f)
+        : damage(dmg), creatorType(creator), timer(duration),
+        maxTargets(maxTargets), markedForDelete(false),
+        owner(owner),
+        offsetX(owner ? px - owner->X() : 0.0f),
+        offsetY(owner ? py - owner->Y() : 0.0f)
     {
         MoveTo(px, py);
-        BBox(new Rect(48.0f, 48.0f, 0, 0));
+        BBox(new Rect(width, height, 0, 0));
         type = ATTACK;
+        hitTargets.reserve(maxTargets);
     }
 
     ~AttackHitbox() {}
@@ -23,23 +35,42 @@ public:
     void Update() override
     {
         timer -= gameTime;
-        if (timer <= 0 || hitCount >= maxHits)
-            GeoWars::scene->Delete(this, STATIC);
+
+        // Acompanha o atacante (ver comentário no construtor)
+        if (owner)
+            MoveTo(owner->X() + offsetX, owner->Y() + offsetY);
+
+        if (!markedForDelete &&
+            (timer <= 0 || (int)hitTargets.size() >= maxTargets))
+        {
+            markedForDelete = true;
+            GeoWars::scene->Delete(this, MOVING);
+        }
     }
 
     void Draw() override {}
 
     void OnCollision(Object* obj) override
     {
-        // Evita friendly-fire: não acerta objetos do mesmo tipo do criador
+        // Já vai ser destruído ou já bateu no limite de alvos: ignora colisões extras
+        // (importante caso o Delete da cena seja processado só no fim do frame)
+        if (markedForDelete || (int)hitTargets.size() >= maxTargets)
+            return;
+
+        // Evita friendly-fire: não acerta objetos do mesmo "time" do criador
         if (obj->Type() == creatorType)
+            return;
+
+        // Evita acertar o mesmo alvo mais de uma vez dentro do mesmo swing,
+        // mesmo que o hitbox continue sobrepondo o alvo por vários frames
+        if (std::find(hitTargets.begin(), hitTargets.end(), obj) != hitTargets.end())
             return;
 
         IDamageable* target = dynamic_cast<IDamageable*>(obj);
         if (target)
         {
             target->TakeDamage(damage);
-            hitCount++;
+            hitTargets.push_back(obj);
         }
     }
 
@@ -47,10 +78,17 @@ public:
 
 private:
     int   damage;
-    uint  creatorType;  // PLAYER ou ENEMY — quem criou o hitbox
+    uint  creatorType;   // PLAYER ou ENEMY — quem criou o hitbox
     float timer;
-    int   hitCount;
-    int   maxHits;      // evita acertar o mesmo grupo várias vezes no mesmo swing
+    int   maxTargets;    // número máximo de alvos DISTINTOS atingidos no swing
+    bool  markedForDelete;
+
+    Object* owner;       // apenas para seguir a posição; nunca é deletado por aqui
+    float   offsetX;
+    float   offsetY;
+
+    std::vector<Object*> hitTargets; // alvos já atingidos neste swing (não dereferenciados,
+    // só usados para comparação de ponteiro)
 };
 
 // -------------------------------------------------------------------------------

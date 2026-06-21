@@ -41,8 +41,9 @@ public:
 
     // Object
     void Update()              override;
-    void Draw()                override;
     void OnCollision(Object*)  override;
+
+    void Draw()                override;
 
     // IDamageable
     void TakeDamage(int dmg)   override;
@@ -65,6 +66,7 @@ protected:
     bool     facingRight;
     void     ApplyGravity(float dt);
     void     ResolveTiles();
+    bool hasGravity;
 
     // ---- estado ----
     EnemyState state;
@@ -73,6 +75,7 @@ protected:
     float      alertTimer;
     float      attackTimer;
     float      attackCooldown;
+    bool customAttackState;
 
     // ---- stats ----
     int        hp, maxHp;

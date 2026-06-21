@@ -43,6 +43,7 @@ private:
     float   diveTimer;         // tempo de mergulho ativo
     float   diveCooldown;      // cooldown entre mergulhos
     float   idleY;             // altura de patrulha
+    bool customAttackState;
 
     bool    diving;
 };

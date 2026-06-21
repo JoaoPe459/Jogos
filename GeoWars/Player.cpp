@@ -468,7 +468,7 @@ void Player::SpawnAttackHitbox()
     float oy = 0;
     int   dmg = (attackCombo == 2) ? 2 : 1;
 
-    GeoWars::scene->Add(new AttackHitbox(x + ox, y + oy, dmg, type), STATIC);
+    GeoWars::scene->Add(new AttackHitbox(x + ox, y + oy, dmg, type, this), MOVING);
     hitParticles->Generate(x + ox, y + oy, 8);
 }
 
@@ -521,7 +521,7 @@ void Player::Draw()
     // Pisca durante invencibilidade
     if (invincible && (int)(invincibleTimer * 10) % 2 == 0) return;
 
-    
+
     if (healTimer > 0)
         hitParticles->Draw(Layer::MIDDLE, 1.0f);
 
