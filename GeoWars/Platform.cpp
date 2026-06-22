@@ -89,7 +89,7 @@ void Platform::OnCollision(Object* obj)
 
     // só bloqueia Player e inimigos
     uint objType = obj->Type();
-    if (objType != PLAYER && objType != ENEMY)
+    if (objType != PLAYER && objType != ENEMY && objType != PICKUP)
         return;
 
     Rect* platRect = (Rect*)BBox();

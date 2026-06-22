@@ -84,6 +84,10 @@ void Hud::Draw()
     text << "Vida: " << GeoWars::player->GetHP();
     bold->Draw(window->CenterX() + 205.0f, window->Height() - 7.0f, text.str(), hpColor);
 
+    text.str("");
+    text << "Geo: " << GeoWars::player->GetSoul();
+    bold->Draw(window->CenterX() + 265.0f, window->Height() - 7.0f, text.str(), hpColor);
+
 }
 
 // -------------------------------------------------------------------------------
