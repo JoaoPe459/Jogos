@@ -49,7 +49,7 @@ void Flyer::UpdateAI(float dt)
         GeoWars::scene->Delete();
         return;
     }
-
+    
     if (diveCooldown > 0) diveCooldown -= dt;
 
     switch (state)
@@ -157,11 +157,6 @@ void Flyer::UpdateAI(float dt)
     Translate(speed->XComponent() * dt,
         -speed->YComponent() * dt);
 
-    // Restringe às bordas do mapa
-    if (x - hw < 0)       MoveTo(hw, y);
-    if (x + hw > 3840.0f) MoveTo(3840.0f - hw, y);
-    if (y - hh < 0)       MoveTo(x, hh);
-    if (y + hh > 2160.0f) MoveTo(x, 2160.0f - hh);
 }
 
 // -------------------------------------------------------------------------------

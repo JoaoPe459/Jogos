@@ -27,6 +27,7 @@
 #include "Platform.h"
 #include "Crawler.h"
 #include "Flyer.h"
+#include "MobSpawner.h"
 
 #include <fstream>
 #include <algorithm>
@@ -55,6 +56,8 @@ int LevelGrid::CharToSpawnType(char ch)
     case 'P': case '2':  return SPAWN_PLAYER;
     case 'C': case '3':  return SPAWN_CRAWLER;
     case 'F': case '4':  return SPAWN_FLYER;
+    case 'S': case '5':  return SPAWN_SPAWNER;
+    case 'A': case '6':  return SPAWN_SPAWNER2;
 
     // —— novos tipos podem ser adicionados aqui ——
 
@@ -255,6 +258,18 @@ void LevelGrid::SpawnAll()
                 Flyer* f = new Flyer(cx, cy);
                 GeoWars::scene->Add(f, MOVING);
                 GeoWars::enemies.Add(f);         // <--- Registra no vetor de inimigos
+            }
+            break;
+
+            case SPAWN_SPAWNER:
+            {
+                SpawnPoint sp(cx, cy, SMOB_CRAWLER, 400.f, 4.f, 3);
+                GeoWars::spawner.AddPoint(sp);
+            }
+            case SPAWN_SPAWNER2:
+            {
+                SpawnPoint sp(cx, cy, SMOB_FLYER, 400.f, 4.f, 3);
+                GeoWars::spawner.AddPoint(sp);
             }
             break;
 

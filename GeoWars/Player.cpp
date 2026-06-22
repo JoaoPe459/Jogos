@@ -83,6 +83,20 @@ Player::Player()
     hit.maxSpeed = 200.0f;
     hit.color = { 1.0f, 0.9f, 0.3f, 1.0f };
     hitParticles = new Particles(hit);
+
+    Generator ambient;
+    ambient.imgFile = "Resources/Spark.png"; // Troque para um png de poeira se preferir
+    ambient.angle = 0.0f;
+    ambient.spread = 360.0f;       // Vai para qualquer direção aleatória
+    ambient.lifetime = 4.0f;       // Duram bastante tempo na tela
+    ambient.frequency = 0.0f;      // Deixe 0, vamos forçar a geração manualmente
+    ambient.percentToDim = 0.8f;
+    ambient.minSpeed = 5.0f;       // Movimentação bem lenta
+    ambient.maxSpeed = 20.0f;
+    ambient.color = { 0.6f, 0.8f, 0.6f, 0.4f }; // Cor suave e um pouco transparente
+
+    ambientParticles = new Particles(ambient);
+    ambientSpawnTimer = 0.0f;
 }
 
 // -------------------------------------------------------------------------------
@@ -92,6 +106,7 @@ Player::~Player()
     delete sprite;
     delete speed;
     delete dustParticles; delete dashParticles; delete hitParticles;
+    delete ambientParticles;
 }
 
 // -------------------------------------------------------------------------------
@@ -135,6 +150,7 @@ void Player::Update()
     if (state == PS_HURT && hurtTimer > 0)
     {
         ApplyGravity(dt);
+        Translate(speed->XComponent() * dt, -speed->YComponent() * dt);
         UpdateParticles(dt);
         return;
     }
@@ -199,7 +215,7 @@ void Player::HandleInput(float dt)
     if (!right && !left)
     {
         if (speed->Magnitude() > 0.1f)
-            Move(Vector(speed->Angle() + 180.0f, Physics::FRICTION * dt));
+            Move(Vector(speed->Angle() + 280.0f, Physics::FRICTION * dt));
         else
             speed->ScaleTo(0.0f);
     }
@@ -455,9 +471,29 @@ void Player::UpdateParticles(float dt)
     if (state == PS_RUNNING && onGround)
         dustParticles->Generate(x, y + HH);
 
+    // --- Spawn de Partículas Ambiente ---
+    ambientSpawnTimer += dt;
+
+    if (ambientSpawnTimer > 0.05f)
+    {
+        ambientSpawnTimer = 0.0f;
+
+        // Gera um ângulo aleatório (0 a 360 convertido para radianos)
+        float angle = (rand() % 360) * 3.14159f / 180.0f;
+
+        // Gera uma distância aleatória do player, de 0 até 1000 pixels
+        float distance = (float)(rand() % 1000);
+
+        float offsetX = distance * cos(angle);
+        float offsetY = distance * sin(angle);
+
+        ambientParticles->Generate(x + offsetX, y + offsetY, 1);
+    }
+
     dustParticles->Update(dt);
     dashParticles->Update(dt);
     hitParticles->Update(dt);
+    ambientParticles->Update(dt); // Atualiza as partículas ambiente
 }
 
 // -------------------------------------------------------------------------------
@@ -561,6 +597,7 @@ void Player::Draw()
     if (healTimer > 0)
         hitParticles->Draw(Layer::MIDDLE, 1.0f);
 
+    ambientParticles->Draw(Layer::LOWER, 0.6f);
     dustParticles->Draw(Layer::LOWER, 1.0f);
     dashParticles->Draw(Layer::MIDDLE, 0.8f);
     hitParticles->Draw(Layer::UPPER, 1.0f);

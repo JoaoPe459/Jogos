@@ -41,6 +41,8 @@ enum SpawnType
     SPAWN_PLAYER   = 2,     // ponto de spawn do jogador
     SPAWN_CRAWLER  = 3,     // inimigo Crawler
     SPAWN_FLYER    = 4,     // inimigo Flyer
+    SPAWN_SPAWNER  = 5,     // ponto de spawn automático
+    SPAWN_SPAWNER2  = 6,     // ponto de spawn automático
 
     // ——— aberto para futuras adições ———
     // SPAWN_BOSS, SPAWN_PICKUP, SPAWN_PROJECTILE, etc.

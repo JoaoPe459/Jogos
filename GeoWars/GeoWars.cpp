@@ -24,6 +24,7 @@ Player * GeoWars::player  = nullptr;
 Audio  * GeoWars::audio   = nullptr;
 Scene  * GeoWars::scene   = nullptr;
 bool     GeoWars::viewHUD = false;
+MobSpawner GeoWars::spawner;
 
 EnemyManager GeoWars::enemies;
 
@@ -66,6 +67,7 @@ void GeoWars::Init()
     if (!grid.LoadFromFile("Resources/Level1.txt"))
         grid.LoadTestLevel();       // fallback se o arquivo n�o existir
     grid.SpawnAll();
+    spawner.LoadFromGrid(grid);
 
     scene->Add(player, MOVING);
     scene->Add(new Delay(), STATIC);
@@ -96,6 +98,7 @@ void GeoWars::Update()
     // atualiza cena e calcula colis�es
     scene->Update();
 	scene->CollisionDetection();
+    spawner.Update(gameTime);
 
     // ativa ou desativa a bounding box
     if (window->KeyPress('B'))

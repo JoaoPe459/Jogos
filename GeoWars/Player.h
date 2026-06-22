@@ -44,6 +44,9 @@ private:
     Particles* dashParticles;   // rastro do dash
     Particles* hitParticles;    // impacto do ataque
 
+    Particles* ambientParticles; // Partículas flutuantes ao redor
+    float      ambientSpawnTimer; // Controla a frequência de geração
+
     // ---- estado de f�sica ----
     PlayerState state;
     bool        facingRight;

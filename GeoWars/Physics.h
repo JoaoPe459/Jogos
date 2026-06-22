@@ -16,7 +16,7 @@ public:
     // Constantes de f�sica
     static constexpr float GRAVITY = 800.0f;   // pixels/s�  (realista)
     static constexpr float MAX_FALL_SPEED = 600.0f;   // velocidade m�xima de queda
-    static constexpr float JUMP_FORCE = 720.0f;   // impulso do pulo
+    static constexpr float JUMP_FORCE = 1720.0f;   // impulso do pulo
     static constexpr float DOUBLE_JUMP = 640.0f;   // impulso do segundo pulo
     static constexpr float MOVE_SPEED = 220.0f;   // velocidade horizontal
     static constexpr float DASH_SPEED = 620.0f;   // velocidade do dash

@@ -220,7 +220,7 @@ void BaseEnemy::TakeDamage(int dmg)
 
 void BaseEnemy::ApplyGravity(float dt)
 {
-    if (state == ES_DEAD) return; // morte tem impulso próprio, sem gravidade extra
+    //if (state == ES_DEAD) return; // morte tem impulso próprio, sem gravidade extra
 
     // Empurra vetor para baixo (270°)
     speed->Add(Vector(270.0f, Physics::GRAVITY * dt));

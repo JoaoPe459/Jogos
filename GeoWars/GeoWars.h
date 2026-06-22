@@ -21,6 +21,7 @@
 #include "Player.h"
 #include "Hud.h"
 #include "BaseEnemy.h"
+#include "MobSpawner.h"
 
 
 
@@ -55,6 +56,7 @@ public:
     static Scene * scene;           // cena do jogo
     static bool viewHUD;            // visualização do painel
     static EnemyManager enemies;
+    static MobSpawner spawner;
 
     void Init();                    // inicialização
     void Update();                  // atualização

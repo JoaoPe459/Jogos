@@ -248,6 +248,7 @@
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="LevelGrid.cpp" />
     <ClCompile Include="Missile.cpp" />
+    <ClCompile Include="MobSpawner.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Particles.cpp" />
     <ClCompile Include="Physics.h" />
@@ -287,6 +288,7 @@
     <ClInclude Include="Image.h" />
     <ClInclude Include="LevelGrid.h" />
     <ClInclude Include="Missile.h" />
+    <ClInclude Include="MobSpawner.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Particles.h" />
     <ClInclude Include="Platform.h" />
