@@ -32,13 +32,75 @@ Player::Player()
     hp(5), maxHp(5), soul(0), geo(0), healTimer(0)
 {
     // carrega sprites
-    sprite = new Sprite("Resources/Player.png");
+    attack = new TileSet("Resources/Player/attack.png", 136, 138, 5, 10);
+    damage = new TileSet("Resources/Player/damage.png", 124, 138, 6, 12);
+    death = new TileSet("Resources/Player/death.png", 116, 138, 18, 36);
+    idle = new TileSet("Resources/Player/idle.png", 61, 138, 9, 18);
+    jump = new TileSet("Resources/Player/jump.png", 103, 138, 12, 24);
+    turn = new TileSet("Resources/Player/turn.png", 72, 138, 2, 4);
+    walk = new TileSet("Resources/Player/walk.png", 86, 138, 13, 26);
+
+    animAttack = new Animation(attack, 0.06f, true);
+    animDamage = new Animation(damage, 0.1f, false);
+    animDeath = new Animation(death, 0.06f, false);
+    animIdle = new Animation(idle, 0.06f, true);
+    animJump = new Animation(jump, 0.06f, true);
+    animTurn = new Animation(turn, 0.06f, false);
+    animWalk = new Animation(walk, 0.06f, true);
+
+    uint SeqAttackleft[5] = { 0,1,2,3,4 };
+    uint SeqAttackright[5] = { 9,8,7,6,5 };
+    animAttack->Add(0, SeqAttackleft, 5);
+    animAttack->Add(1, SeqAttackright, 5);
+
+    uint SeqIdleleft[9] = { 0,1,2,3,4,5,6,7,8 };
+    uint SeqIdleright[9] = { 17,16,15,14,13,12,11,10,9 };
+    animIdle->Add(0, SeqIdleleft, 9);
+    animIdle->Add(1, SeqIdleright, 9);
+
+    uint SeqDamageleft[6] = { 0,1,2,3,4,5 };
+    uint SeqDamageright[6] = { 11,10,9,8,7,6 };
+    animDamage->Add(0, SeqDamageleft, 6);
+    animDamage->Add(1, SeqDamageright, 6);
+
+    uint SeqDeathleft[18] = { 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17 };
+    uint SeqDeathright[18] = { 35,34,33,32,31,30,29,28,27,26,25,24,23,22,21,20,19,18 };
+    animDeath->Add(0, SeqDeathleft, 18);
+    animDeath->Add(1, SeqDeathright, 18);
+
+    uint SeqJumpleft[12] = { 0,1,2,3,4,5,6,7,8,9,10,11 };
+    uint SeqJumpright[12] = { 23,22,21,20,19,18,17,16,15,14,13,12 };
+    animJump->Add(0, SeqJumpleft, 12);
+    animJump->Add(1, SeqJumpright, 12);
+    uint SeqJumpLoopleft[3] = { 9,10,11 };
+    uint SeqJumpLoopright[3] = { 14,13,12 };
+    animJump->Add(2, SeqJumpLoopleft, 3);
+    animJump->Add(3, SeqJumpLoopright, 3);
+
+    uint SeqTurnleft[2] = { 0,1 };
+    uint SeqTurnright[2] = { 3,2 };
+    animTurn->Add(0, SeqTurnleft, 2);
+    animTurn->Add(1, SeqTurnright, 2);
+
+    uint SeqWalkleft[13] = { 0,1,2,3,4,5,6,7,8,9,10,11,12 };
+    uint SeqWalkright[13] = { 25,24,23,22,21,20,19,18,17,16,15,14,13 };
+    animWalk->Add(0, SeqWalkleft, 13);
+    animWalk->Add(1, SeqWalkright, 13);
+    uint SeqWalkCycleleft[9] = { 4,5,6,7,8,9,10,11,12 };
+    uint SeqWalkCycleright[9] = { 21,20,19,18,17,16,15,14,13 };
+    animWalk->Add(2, SeqWalkCycleleft, 9);
+    animWalk->Add(3, SeqWalkCycleright, 9);
+
+    anim = animIdle;
+    animState = 0;
+    anim->Select(animState);
+
 
     // vetor velocidade — começa parado apontando para cima
     speed = new Vector(90.0f, 0.0f);
 
     // AABB como bounding box
-    BBox(new Rect(-20.0f, -32.0f, 20.0f, 32.0f));
+    BBox(new Rect(-27.0f, -61.0f, 27.0f, 61.0f));
 
     // posição inicial: ponto de spawn do mapa
     MoveTo(window->CenterX(), window->CenterY());
@@ -103,7 +165,22 @@ Player::Player()
 
 Player::~Player()
 {
-    delete sprite;
+    delete attack;
+    delete damage;
+    delete death;
+    delete idle;
+    delete jump;
+    delete turn;
+    delete walk;
+
+    delete animAttack;
+    delete animDamage;
+    delete animDeath;
+    delete animIdle;
+    delete animJump;
+    delete animTurn;
+    delete animWalk;
+
     delete speed;
     delete dustParticles; delete dashParticles; delete hitParticles;
     delete ambientParticles;
@@ -444,24 +521,137 @@ void Player::ResolveTiles()
 
 void Player::UpdateState()
 {
-    if (state == PS_DASHING)                   return;
-    if (state == PS_HURT && hurtTimer > 0)     return;
-    if (attackTimer > 0) { state = PS_ATTACKING; return; }
+    prevAnim = anim;
+
+    if (state == PS_DASHING)
+    {
+        anim = animWalk;
+        animState = facingRight ? 1 : 0;
+        anim->Select(animState);
+        return;
+    }
+    if (state == PS_HURT && hurtTimer > 0)
+    {
+        anim = animDamage;
+        animState = facingRight ? 1 : 0;
+        anim->Select(animState);
+        return;
+    }
+    if (attackTimer > 0)
+    {
+        state = PS_ATTACKING;
+        anim = animAttack;
+        animState = facingRight ? 1 : 0;
+        anim->Select(animState);
+        return;
+    }
 
     if (!onGround)
     {
         if (onWallLeft || onWallRight)
+        {
             state = PS_WALL_SLIDING;
-        else if (speed->YComponent() > 0)   // Y positivo = subindo
-            state = PS_JUMPING;
+            anim = animJump;
+            animState = facingRight ? 1 : 0;
+            anim->Select(animState);
+        }
         else
-            state = PS_FALLING;
+        {
+            state = (speed->YComponent() > 0) ? PS_JUMPING : PS_FALLING;
+            anim = animJump;
+
+            if (prevAnim != animJump)
+            {
+                // começou a pular agora
+                jumpLoopStarted = false;
+                jumpStartTimer = 0.0f;
+                animState = facingRight ? 1 : 0;
+                anim->Select(animState);
+                anim->Restart();
+            }
+            else if (!jumpLoopStarted)
+            {
+                jumpStartTimer += gameTime;
+                if (jumpStartTimer >= 9 * 0.06f)
+                {
+                    jumpLoopStarted = true;
+                    animState = facingRight ? 3 : 2;
+                    anim->Select(animState);
+                }
+            }
+            if (facingRight != prevFacingRight)
+            {
+                animState = jumpLoopStarted ? (facingRight ? 3 : 2)
+                    : (facingRight ? 1 : 0);
+                anim->Select(animState);
+            }
+        }
+
+        if (onGround)
+        {
+            jumpLoopStarted = false;
+            jumpStartTimer = 0.0f;
+        }
     }
     else
     {
-        // Velocidade horizontal significativa = correndo
-        state = (fabsf(speed->XComponent()) > 10.0f) ? PS_RUNNING : PS_IDLE;
+        if (fabsf(speed->XComponent()) > 10.0f)
+        {
+            state = PS_RUNNING;
+
+            // mudou de direção enquanto andava
+            if (prevAnim == animWalk && facingRight != prevFacingRight)
+            {
+                anim = animTurn;
+                animState = facingRight ? 1 : 0;
+                anim->Select(animState);
+                anim->Restart();
+                animStart = false;
+                walkStartTimer = 0.0f;
+            }
+            // turn terminou: inicia arrancada na nova direção
+            else if (anim == animTurn && animTurn->Inactive())
+            {
+                anim = animWalk;
+                animStart = true;
+                skipStartAnim = true;
+                animState = facingRight ? 3 : 2;
+                anim->Select(animState);
+            }
+            else if (anim != animTurn) // só atualiza walk se não estiver no turn
+            {
+                anim = animWalk;
+
+                if (prevAnim != animWalk)
+                {
+                    animStart = false;
+                    walkStartTimer = 0.0f;
+                    animState = facingRight ? 1 : 0;
+                    anim->Select(animState);
+                    anim->Restart();
+                }
+                else if (!animStart)
+                {
+                    walkStartTimer += gameTime;
+                    if (walkStartTimer >= 13 * 0.06f)
+                    {
+                        animStart = true;
+                        animState = facingRight ? 3 : 2;
+                        anim->Select(animState);
+                    }
+                }
+            }
+        }
+        else
+        {
+            state = PS_IDLE;
+            anim = animIdle;
+            animStart = false;
+            animState = facingRight ? 1 : 0;
+            anim->Select(animState);
+        }
     }
+    prevFacingRight = facingRight;
 }
 
 // -------------------------------------------------------------------------------
@@ -593,6 +783,8 @@ void Player::Draw()
 
     float flipX = facingRight ? 1.0f : -1.0f;
     //sprite->Draw(x, y, Layer::FRONT, 1.0f, 0.0f, flipX);
+    anim->NextFrame();
+    anim->Draw(x, y, z);
 
     if (healTimer > 0)
         hitParticles->Draw(Layer::MIDDLE, 1.0f);

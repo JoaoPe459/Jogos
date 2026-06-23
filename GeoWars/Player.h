@@ -16,6 +16,7 @@
 
 #include "Object.h"                        // objetos do jogo
 #include "Sprite.h"                        // desenho de sprites
+#include "Animation.h"
 #include "Vector.h"                        // representação de vetores
 #include "Particles.h"                    // sistema de partículas
 #include "IDamageable.h"                    // interface de objetos que podem receber dano
@@ -37,7 +38,31 @@ enum PlayerState
 class Player : public Object, public IDamageable
 {
 private:
-    Sprite * sprite;                    // sprite do objeto
+    TileSet * attack;
+    TileSet * damage;
+    TileSet * death;
+    TileSet * idle;
+    TileSet * jump;
+    TileSet * turn;
+    TileSet * walk;
+
+    Animation* animAttack;
+    Animation* animDamage;
+    Animation* animDeath;
+    Animation* animIdle;
+    Animation* animJump;
+    Animation* animTurn;
+    Animation* animWalk;
+    Animation* prevAnim;
+    Animation* anim;
+    int animState = 0;
+    bool animStart;
+    float walkStartTimer;
+    bool prevFacingRight;
+    bool skipStartAnim;
+    bool jumpLoopStarted;
+    float jumpStartTimer;
+
     Particles * tail;                   // calda do jogador
 
     Particles* dustParticles;   // p� ao correr / pousar
